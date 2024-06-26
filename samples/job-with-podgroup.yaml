@@ -1,0 +1,36 @@
+apiVersion: workload.codeflare.dev/v1beta2
+kind: AppWrapper
+metadata:
+  name: sample-job
+spec:
+  components:
+  - template:
+      # pod group specification
+      apiVersion: scheduling.x-k8s.io/v1alpha1
+      kind: PodGroup
+      metadata:
+        name: sample-job
+      spec:
+        minMember: 2 # replica count
+  - template:
+      # job specification
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: sample-job
+      spec:
+        parallelism: 2 # replica count
+        completions: 2 # replica count
+        template:
+          metadata:
+            labels:
+              scheduling.x-k8s.io/pod-group: sample-job # pod group label
+          spec:
+            restartPolicy: Never
+            containers:
+            - name: busybox
+              image: quay.io/project-codeflare/busybox:1.36
+              command: ["sh", "-c", "sleep 5"]
+              resources:
+                requests:
+                  cpu: 1
