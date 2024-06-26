@@ -1,0 +1,266 @@
+####################
+# Job Metadata
+####################
+
+# -- (string) The Kubernetes namespace in which the Job will run.
+# @default -- must be provided by user
+# @section -- Job Metadata
+namespace:
+
+# -- (string) Name of the Job.  Will be the name of the AppWrapper and the PyTorchJob.
+# @default -- must be provided by user
+# @section -- Job Metadata
+jobName:
+
+# -- (string) Name of the local queue to which the Job will be submitted.
+# @section -- Job Metadata
+queueName: "default-queue"
+
+# -- (string)  Type of priority for the job (choose from: "default-priority", "low-priority" or "high-priority"). WARNING: "high-priority" jobs need to be approved (We're watching you...)!
+# @section -- Job Metadata
+priority: "default-priority"
+
+# -- (array) Optional array of custom labels to add to all the resources created by the Job (the PyTorchJob, the PodGroup, and the AppWrapper).
+# @section -- Job Metadata
+customLabels:
+#    - key: project-name
+#      value: my-project
+#    - key: oranization-name
+#      value: my-organization
+
+# -- (string) Image used for creating the Job's containers (needs to have all the applications your job may need)
+# @default -- must be provided by the user
+# @section -- Job Metadata
+containerImage:
+
+# -- (array) List of image-pull-secrets to be used for pulling containerImages 
+# @section -- Job Metadata
+imagePullSecrets: # <optional, default=[]> 
+#    - name: secret-one
+#    - name: secret-two
+
+
+##################################
+# Resource Requirements
+##################################
+
+# -- (integer) Total number of pods (i.e. master + worker pods) to be created
+# @section -- Resource Requirements
+numPods: 1
+
+# -- (integer or string) Number of CPUs for each pod. May be a positive integer or a ResourceQuantity (eg 500m)
+# @section -- Resource Requirements
+numCpusPerPod: 1
+
+# --  (integer) Number of GPUs for each pod (all GPUs per node is currently recommended for distributed training).
+# @section -- Resource Requirements
+numGpusPerPod: 0
+
+# -- (string) Total memory for each pod expressed as a ResourceQuantity (eg 1Gi, 200M, etc.).
+# @section -- Resource Requirements
+totalMemoryPerPod: 1Gi
+
+# -- (integer or string) Limit on the number of CPUs per pod for elastic jobs. May be a positive integer or a ResourceQuantity (eg 500m).
+# @default -- numCpusPerPod
+# @section -- Resource Requirements
+limitCpusPerPod:
+
+# --  (integer) Limit of number of GPUs per pod for elastic jobs.
+# @default -- numGpusPerPod
+# @section -- Resource Requirements
+limitGpusPerPod: # <optional, default=numGpusPerPod> Limit of number of GPUs per pod for elastic jobs.
+
+# -- (string) Limit of total memory per pod for elastic jobs (eg 1Gi, 200M, etc.).
+# @default -- totalMemoryPerPod
+# @section -- Resource Requirements
+limitMemoryPerPod: # <optional, default=totalMemoryPerPod> Limit of total memory per pod for elastic jobs
+
+
+########################
+# Workload Specification
+########################
+
+
+# -- (array) List of variables/values to be defined for all the ranks. Values can be literals or
+# references to Kuberetes secrets.  See [values.yaml](values.yaml) for examples of supported syntaxes.
+# 
+# NOTE: The following standard [PyTorch Distributed environment variables](https://pytorch.org/docs/stable/distributed.html#environment-variable-initialization)
+# are set automatically and can be referenced in the commands without being set manually: WORLD_SIZE, RANK, MASTER_ADDR, MASTER_PORT.
+# @section -- Workload Specification
+environmentVariables:
+#    - name: EXAMPLE_VAR1
+#      value: 6
+#    - name: EXAMPLE_VAR2
+#      value: "example2string"
+#    - name: EXAMPLE_VAR3
+#      secret:
+#         name: secret-name
+#         key: secret-key
+
+# Private GitHub clone support. 
+# 
+#    0) Create a secret and configMap to enable Private GitHub cloning as documented for your organization.
+#    1) Then fill the name of the secret and configMap below in sshGitCloneConfig
+#    2) Finally, add your (ssh) git clone command to setupCommands in the next section
+#
+
+# -- (object) Private GitHub clone support. See [values.yaml](values.yaml) for additional instructions.
+# @section -- Workload Specification
+sshGitCloneConfig: # <optional, default=""> Field with "(secretName, configMapName)", optionally "(secretName, configMapName, secretMountPath, configMapMountPath, sshCmd)"
+#    secretName: # <required> see steps 1-3 of detailed instructions
+#    configMapName: # <required> see step 4 of detailed instructions.
+#    secretMountPath: # <optional, default="/tmp/.ssh/keys">
+#    configMapMountPath: # <optional, default="/tmp/.ssh/hosts">
+#    sshCmd: # <optional, (CAUTION changing the default may require changing secretMountPath and configMapMountPath, respectively, to match the new paths used in this command), default="ssh -i /tmp/.ssh/keys/id_rsa -o UserKnownHostsFile=/tmp/.ssh/hosts/known_hosts -vv">
+
+# Commands
+#
+#    Any command can be listed here
+#
+# -- (array) List of custom commands to be ran at the beginning of the execution. Use `setupCommand` to clone code, download data, and change directories.
+# @default -- no custom commands are executed
+# @section -- Workload Specification
+setupCommands: # <optional, default=[]> 
+#    - git clone https://github.com/dbarnett/python-helloworld
+#    - cd python-helloworld
+
+# Main PyTorch Program
+#
+#    Single command to be fed to `torchrun`. Use setupCommands instead
+#    if main program should be executed with any entry-point other than `torchrun`
+#    e.g. `fairseq`, `colossialai`, `torch.distributed.launch` ...
+#
+# -- (string) Name of the PyTorch program to be executed by `torchrun`. Please provide your program name here and NOT in "setupCommands" as this helm template provides the necessary "torchrun" arguments for the parallel execution. WARNING: this program is relative to the current path set by change-of-directory commands in "setupCommands".
+# If no value is provided; then only `setupCommands` are executed and torchrun is elided.
+# @section -- Workload Specification
+mainProgram: # <optional, default=""> 
+
+# -- (array) List of "(name, claimName, mountPath)" of volumes, with persistentVolumeClaim, to be mounted to the infrastructure
+# @default -- No volumes are mounted
+# @section -- Workload Specification
+volumes:
+#    - name: arbitrary-name-0
+#      claimName: name-matching-the-actual-PersistentVolumeClaim
+#      mountPath: /path/to/where/you/want/to/find/your/data
+#    - name: arbitrary-name-1
+#      claimName: name-matching-another-actual-PersistentVolumeClaim
+#      mountPath: /path/to/where/you/want/to/find/your/data
+
+# ------------------------------------------------------------------------------------------------
+# Advanced options begin here
+#
+
+# GDR support
+#
+# -- (string) RoCE GDR resource name (can vary by cluster configuration)
+# @default -- nvidia.com/roce_gdr
+# @section -- Advanced Options
+roceGdrResName: # <optional, default=""> 
+
+# -- (integer) number of nvidia.com/roce_grd resources (0 means disabled; >0 means enable GDR over RoCE).
+# @section -- Advanced Options
+numRoceGdr: 0
+
+# -- (string) Name of configmap containining /var/run/nvidia-topologyd/virtualTopology.xml for the system e.g. nvidia-topo-gdr
+# @section -- Advanced Options
+topologyFileConfigMap: # TODO make this required if numRoceGdr > 0 ?
+
+# -- (string) Name of configmap containing NCCL networking environment variables for the system e.g. nccl-netwk-env-vars
+# @section -- Advanced Options
+ncclGdrEnvConfigMap: # TODO make this required if numRoceGdr > 0 ?
+
+# -- (string) Name of multi-NIC network, if one is available.
+# Note: when GDR over RoCE is used/available, the RoCE multi-nic network instance
+# should be specified here instead of the TCP multi-nic network instance.
+# Existing instance names can be listed with `oc get multinicnetwork`.
+#
+# @section -- Advanced Options
+multiNicNetworkName:
+
+# -- (boolean) Control whether or not a shared memory volume is added to the PyTorchJob.
+# @section -- Advanced Options
+disableSharedMemory: false
+
+# -- (object) Mount NVMe as a volume.
+# The environment variable MOUNT_PATH_NVME provides the runtime mount path
+# @section -- Advanced Options
+mountNVMe:
+    # storage: 800Gi
+    # mountPath: "/workspace/scratch-nvme"
+
+# -- (array) List of "(name, image, command[])" specifying an init containers to be run before the main job. The 'command' field is a list of commands to run in the container, see the Kubernetes entry on initContainers for reference.
+# 
+# @section -- Advanced Options
+initContainers:
+#    - name: init-container-1
+#      image: busybox
+#      command: ["sh", "-c", "whoami && ls -l"]
+#    - name: init-container-2
+#      image: ubuntu
+#      command: ["sh", "-c", "echo hello world!"]
+
+# -- (array) Autopilot health checks.
+# List of labels enabling one or more system health pre-flight checks.
+# @default -- No pre-flight checks are enabled.
+# @section -- Advanced Options
+autopilotHealthChecks:
+# - gpu-pcie-bw
+
+# -- (array) List of host names on which the Job must not be scheduled (to avoid faulty nodes).
+# @section -- Advanced Options
+hostIgnoreList:
+#    - a100-large-drlfv-worker-3-with-secondary-nw5qh
+#    - a100-large-drlfv-worker-3-with-secondary-lb7ch
+
+# -- (boolean) If true, use the default Kubernetes scheduler instead of the co-scheduler.
+# ***Setting this to true will result in GPU fragmentation on the cluster. It should only be set
+# to true when explicitly directed to do so by a cluster admin!***
+# @section -- Advanced Options
+bypassCoscheduler: false
+
+# -- (string) Service account to be used for running the Job
+# @section -- Advanced Options
+# @default -- the default service account for the namespace will be used.
+serviceAccountName: # service account name
+
+############################
+# Fault Tolerance
+############################
+
+# -- (string) Customize the admissionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+admissionGracePeriodDuration: "60s"
+
+# -- (string) Customize the warmupGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+warmupGracePeriodDuration: "300s"
+
+# -- (string) Customize the failureGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+failureGracePeriodDuration: "60s"
+
+# -- (string) Customize the retryPausePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+retryPausePeriodDuration: "90s"
+
+# -- (integer) Customize the retryLimit; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+retryLimit: 3
+
+# -- (string) Customize the forcefulDelectionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+forcefulDeletionGracePeriodDuration: "600s"
+
+# -- (string) Customize the deletionOnFailureGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+deletionOnFailureGracePeriodDuration: "0s"
+
+# -- (string) Set Kubernertes policy for restarting failed containers "in place" (without restarting the Pod).
+# @section -- Fault Tolerance
+restartPolicy: "Never"
+
+# -- (integer) Set a non-default pod termination grace period (in seconds).
+# @default -- Kubernetes's default value is used
+# @section -- Fault Tolerance
+terminationGracePeriodSeconds:
+

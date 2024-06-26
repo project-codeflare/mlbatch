@@ -1,0 +1,128 @@
+{{- if .Values.jobName -}}
+{{- if eq ( regexMatch "^[a-z]([-a-z0-9]*[a-z0-9])?$" .Values.jobName ) false -}}
+{{ required "The 'jobName' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-'), has one or more capital letters somewhere in the name, has one or more special characters other than '-', it ends with a special character (including '-')" "" }}
+{{- else -}}
+{{- if gt ( len .Values.jobName ) 50 -}}
+{{ required "Your 'jobName' cannot be longer than 50 characters" "" -}}
+{{- end -}}
+{{- end -}}
+{{- else -}}
+{{ required "Please specify an 'jobName' in the user file" "" -}}
+{{- end -}}
+
+{{- if .Values.mountNVMe -}}
+{{- if (not .Values.mountNVMe.storage) -}}
+{{ required "A 'storage' value is required for mountNVMe" "" }}
+{{- end -}}
+{{- end -}}
+
+{{- if .Values.customLabels -}}
+{{- range $customLabel := .Values.customLabels -}}
+{{- if not $customLabel.key -}}
+{{ required "Missing 'key' in 'customLabels' list element" $customLabel.key }}
+{{- end -}}
+{{- $customLabelKey := split "/" $customLabel.key -}}
+{{- if gt ( len $customLabelKey._0 ) 63 -}}
+{{ required "The name of the 'customLables.key' must be less than 64 characters" "" }}
+{{- end -}}
+{{- if eq ( regexMatch "^[a-z]([-a-z0-9._]*[a-z0-9])?$" $customLabelKey._0 ) false -}}
+{{ required "The name of the 'customLables.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the key, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
+{{- end -}}
+{{- if $customLabelKey._1 }}
+{{- if gt ( len $customLabelKey._1 ) 254 -}}
+{{ required "The prefix of the 'customLables.key' must be less than 254 characters" "" }}
+{{- end -}}
+{{- if eq ( regexMatch "^[a-z]([-a-z0-9.]*[a-z0-9])?$" $customLabelKey._1 ) false -}}
+{{ required "The prefix of the 'customLables.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-.'), has one or more capital letters somewhere in the key, has one or more special characters other than '-.', it ends with a special character (including '-.')" "" }}
+{{- end -}}
+{{- end -}}
+{{- if not $customLabel.value -}}
+{{ required "Missing 'value' in 'customLabels' list element" $customLabel.value }}
+{{- end -}}
+{{- if gt ( len $customLabel.value ) 63 -}}
+{{ required "The length of the 'customLables.value' must be less than 64 characters" "" }}
+{{- end -}}
+{{- if eq ( regexMatch "^[a-z]([-a-z0-9._]*[a-z0-9])?$" $customLabel.value ) false -}}
+{{ required "The 'customLables.value' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the name, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+apiVersion: workload.codeflare.dev/v1beta2
+kind: AppWrapper
+metadata:
+    name: {{ .Values.jobName }}
+    namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
+    annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: "{{ .Values.admissionGracePeriodDuration }}"
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: "{{ .Values.warmupGracePeriodDuration }}"
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: "{{ .Values.failureGracePeriodDuration }}"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: "{{ .Values.retryPausePeriodDuration }}"
+        workload.codeflare.dev.appwrapper/retryLimit: "{{ .Values.retryLimit }}"
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "{{ .Values.forcefulDeletionGracePeriodDuration }}"
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "{{ .Values.deletionOnFailureGracePeriodDuration }}"
+    labels:
+        kueue.x-k8s.io/queue-name: {{ .Values.queueName }}
+        {{- include "mlbatch.customLabels" . | indent 8 }}
+spec:
+    components:
+        - template:
+                  apiVersion: "kubeflow.org/v1"
+                  kind: "PyTorchJob"
+                  metadata:
+                      name: {{ .Values.jobName }}
+                      namespace: {{ .Values.namespace }}
+                      {{- if .Values.customLabels }}
+                      labels:
+                          {{- include "mlbatch.customLabels" . | indent 26 }}
+                     {{- end }}
+                  spec:
+                      pytorchReplicaSpecs:
+                          Master:
+                              replicas: 1
+                              restartPolicy: {{ .Values.restartPolicy | default "Never" }}
+                              template:
+                                  metadata:
+                                      {{- include "mlbatch.container.metadata" . | indent 38 }}
+                                  spec:
+                                      {{- if .Values.serviceAccountName }}
+                                      serviceAccountName: {{ .Values.serviceAccountName }}
+                                      {{- end }}
+                                      {{- include "mlbatch.imagePullSecrets" . | indent 38 }}
+                                      {{- include "mlbatch.initContainers" . | indent 38 }}
+                                      {{- include "mlbatch.schedulingSpec" . | indent 38 }}
+                                      {{- include "mlbatch.volumes" . | indent 38 }}
+                                      containers:
+                                          - name: pytorch
+                                            image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
+                                            imagePullPolicy: IfNotPresent
+                                            {{- include "mlbatch.securityContext" . | indent 44 }}
+                                            {{- include "mlbatch.env" . | indent 44 }}
+                                            {{- include "mlbatch.volumeMounts" . | indent 44 }}
+                                            {{- include "mlbatch.resources" . | indent 44 }}
+                                            {{- include "mlbatch.command" . | indent 44 }}
+                          {{- if gt ( .Values.numPods | int ) 1 }} {{- /*Including a worker spec when only 1 pod (Master) is specified leads to strange behavior */}}
+                          Worker:
+                              replicas: {{ sub .Values.numPods 1 }}
+                              restartPolicy: {{ .Values.restartPolicy | default "Never" }}
+                              template:
+                                  metadata:
+                                      {{- include "mlbatch.container.metadata" . | indent 38 }}
+                                  spec:
+                                      {{- if .Values.serviceAccountName }}
+                                      serviceAccountName: {{ .Values.serviceAccountName }}
+                                      {{- end }}
+                                      {{- include "mlbatch.imagePullSecrets" . | indent 38 }}
+                                      {{- include "mlbatch.initContainers" . | indent 38 }}
+                                      {{- include "mlbatch.schedulingSpec" . | indent 38 }}
+                                      {{- include "mlbatch.volumes" . | indent 38 }}
+                                      containers:
+                                          - name: pytorch
+                                            image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
+                                            imagePullPolicy: IfNotPresent
+                                            {{- include "mlbatch.securityContext" . | indent 44 }}
+                                            {{- include "mlbatch.env" . | indent 44 }}
+                                            {{- include "mlbatch.volumeMounts" . | indent 44 }}
+                                            {{- include "mlbatch.resources" . | indent 44 }}
+                                            {{- include "mlbatch.command" . | indent 44 }}
+                          {{- end }}

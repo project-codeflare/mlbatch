@@ -1,0 +1,166 @@
+suite: AppWrapper Unit Tests
+templates:
+- templates/appwrapper.yaml
+values:
+- helloworld.settings.yaml
+tests:
+- it: AppWrapper metadata should match snapshot
+  asserts:
+  - matchSnapshot:
+    path: spec
+
+- it: AppWrapper spec should match snapshot
+  asserts:
+  - matchSnapshot:
+    path: spec
+
+- it: PyTorch worker is elided for single pod Jobs
+  set:
+    numPods: 1
+  asserts:
+  - exists:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master
+  - notExists:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker
+
+- it: Custom labels are injected at all levels
+  set:
+    customLabels:
+    - key: project-name
+      value: my-project
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        project-name: my-project
+  - isSubset:
+      path: spec.components[0].template.metadata.labels
+      content:
+        project-name: my-project
+  - isSubset:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master.template.metadata.labels
+      content:
+        project-name: my-project
+  - isSubset:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.metadata.labels
+      content:
+        project-name: my-project
+
+- it: Invalid job names are rejected
+  set:
+    jobName: 123Job
+  asserts:
+  - failedTemplate: {}
+
+- it: Long job names are rejected
+  set:
+    jobName: this-job-name-is-just-way-too-long-to-be-acceptable-for-our-chart
+  asserts:
+  - failedTemplate: {}
+
+- it: Disabling shared memory removes volumes and volume mounts
+  set:
+    disableSharedMemory: true
+  asserts:
+  - isEmpty:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master.template.spec.volumes
+  - isEmpty:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master.template.spec.containers[0].volumeMounts
+  - isEmpty:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.volumes
+  - isEmpty:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.containers[0].volumeMounts
+
+- it: Enabling sshGitConfig injects the envvars, volumes, and volumeMounts
+  set:
+    sshGitCloneConfig.secretName: my-git-secret
+    sshGitCloneConfig.configMapName: my-git-config-map
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: Enabling RoCE GDR
+  set:
+    roceGdrResName: nvidia.com/roce_gdr
+    numRoceGdr: 2
+    topologyFileConfigMap: nvidia-topo-gdr
+    ncclGdrEnvConfigMap: nccl-netwk-env-vars
+    multiNicNetworkName: multi-nic-cni-operator-ipvlanl3
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: Enabling NVMe
+  set:
+    mountNVMe.storage: 800Gi
+    mountNVMe.mountPath: "/workspace/scratch-nvme"
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: imagePullSecrets
+  set:
+    imagePullSecrets:
+    - name: secret-one
+  asserts:
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master.template.spec.imagePullSecrets[0].name
+      value: secret-one
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.imagePullSecrets[0].name
+      value: secret-one
+
+- it: Adding Volume Mounts
+  set:
+    volumes:
+    - name: arbitrary-name-0
+      claimName: name-matching-the-actual-PersistentVolumeClaim
+      mountPath: /path/to/where/you/want/to/find/your/data
+    - name: arbitrary-name-1
+      claimName: name-matching-another-actual-PersistentVolumeClaim
+      mountPath: /path/to/where/you/want/to/find/your/data-redux
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: Adding initContainers
+  set:
+    initContainers:
+    - name: init-container-1
+      image: busybox
+      command: ["sh", "-c", "whoami && ls -l"]
+    - name: init-container-2
+      image: ubuntu
+      command: ["sh", "-c", "echo hello world!"]
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: Enabling all advanced features at once
+  set:
+    sshGitCloneConfig.secretName: my-git-secret
+    sshGitCloneConfig.configMapName: my-git-config-map
+    roceGdrResName: nvidia.com/roce_gdr
+    numRoceGdr: 2
+    topologyFileConfigMap: nvidia-topo-gdr
+    ncclGdrEnvConfigMap: nccl-netwk-env-vars
+    multiNicNetworkName: multi-nic-cni-operator-ipvlanl3
+    mountNVMe.storage: 800Gi
+    mountNVMe.mountPath: "/workspace/scratch-nvme"
+    volumes:
+    - name: arbitrary-name-0
+      claimName: name-matching-the-actual-PersistentVolumeClaim
+      mountPath: /path/to/where/you/want/to/find/your/data
+    - name: arbitrary-name-1
+      claimName: name-matching-another-actual-PersistentVolumeClaim
+      mountPath: /path/to/where/you/want/to/find/your/data-redux
+    initContainers:
+    - name: init-container-1
+      image: busybox
+      command: ["sh", "-c", "whoami && ls -l"]
+    - name: init-container-2
+      image: ubuntu
+      command: ["sh", "-c", "echo hello world!"]
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template

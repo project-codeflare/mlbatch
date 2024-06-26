@@ -1,0 +1,1272 @@
+Adding Volume Mounts:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /path/to/where/you/want/to/find/your/data
+                              name: arbitrary-name-0
+                            - mountPath: /path/to/where/you/want/to/find/your/data-redux
+                              name: arbitrary-name-1
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - name: arbitrary-name-0
+                          persistentVolumeClaim:
+                            claimName: name-matching-the-actual-PersistentVolumeClaim
+                        - name: arbitrary-name-1
+                          persistentVolumeClaim:
+                            claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /path/to/where/you/want/to/find/your/data
+                              name: arbitrary-name-0
+                            - mountPath: /path/to/where/you/want/to/find/your/data-redux
+                              name: arbitrary-name-1
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - name: arbitrary-name-0
+                          persistentVolumeClaim:
+                            claimName: name-matching-the-actual-PersistentVolumeClaim
+                        - name: arbitrary-name-1
+                          persistentVolumeClaim:
+                            claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+Adding initContainers:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      initContainers:
+                        - command:
+                            - sh
+                            - -c
+                            - whoami && ls -l
+                          image: busybox
+                          name: init-container-1
+                        - command:
+                            - sh
+                            - -c
+                            - echo hello world!
+                          image: ubuntu
+                          name: init-container-2
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      initContainers:
+                        - command:
+                            - sh
+                            - -c
+                            - whoami && ls -l
+                          image: busybox
+                          name: init-container-1
+                        - command:
+                            - sh
+                            - -c
+                            - echo hello world!
+                          image: ubuntu
+                          name: init-container-2
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+AppWrapper metadata should match snapshot:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+AppWrapper spec should match snapshot:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env: []
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+Enabling NVMe:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NVME_MOUNT_PATH
+                              value: /workspace/scratch-nvme
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /workspace/scratch-nvme
+                              name: ephemeral-odf-lvm-vg1
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - ephemeral:
+                            volumeClaimTemplate:
+                              spec:
+                                accessModes:
+                                  - ReadWriteOnce
+                                resources:
+                                  requests:
+                                    storage: 800Gi
+                                storageClassName: odf-lvm-vg1
+                                volumeMode: Filesystem
+                          name: ephemeral-odf-lvm-vg1
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NVME_MOUNT_PATH
+                              value: /workspace/scratch-nvme
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /workspace/scratch-nvme
+                              name: ephemeral-odf-lvm-vg1
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - ephemeral:
+                            volumeClaimTemplate:
+                              spec:
+                                accessModes:
+                                  - ReadWriteOnce
+                                resources:
+                                  requests:
+                                    storage: 800Gi
+                                storageClassName: odf-lvm-vg1
+                                volumeMode: Filesystem
+                          name: ephemeral-odf-lvm-vg1
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+Enabling RoCE GDR:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      annotations:
+                        k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NCCL_TOPO_FILE
+                              value: /var/run/nvidia-topologyd/virtualTopology.xml
+                          envFrom:
+                            - configMapRef:
+                                name: nccl-netwk-env-vars
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                          securityContext:
+                            capabilities:
+                              add:
+                                - IPC_LOCK
+                          volumeMounts:
+                            - mountPath: /var/run/nvidia-topologyd
+                              name: topology-volume
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - configMap:
+                            name: nvidia-topo-gdr
+                          name: topology-volume
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      annotations:
+                        k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NCCL_TOPO_FILE
+                              value: /var/run/nvidia-topologyd/virtualTopology.xml
+                          envFrom:
+                            - configMapRef:
+                                name: nccl-netwk-env-vars
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                          securityContext:
+                            capabilities:
+                              add:
+                                - IPC_LOCK
+                          volumeMounts:
+                            - mountPath: /var/run/nvidia-topologyd
+                              name: topology-volume
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - configMap:
+                            name: nvidia-topo-gdr
+                          name: topology-volume
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+Enabling all advanced features at once:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      annotations:
+                        k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NCCL_TOPO_FILE
+                              value: /var/run/nvidia-topologyd/virtualTopology.xml
+                            - name: NVME_MOUNT_PATH
+                              value: /workspace/scratch-nvme
+                            - name: GIT_SSH_COMMAND
+                              value: ssh -i /tmp/.ssh/keys/id_rsa -o UserKnownHostsFile=/tmp/.ssh/hosts/known_hosts -vv
+                          envFrom:
+                            - configMapRef:
+                                name: nccl-netwk-env-vars
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                          securityContext:
+                            capabilities:
+                              add:
+                                - IPC_LOCK
+                          volumeMounts:
+                            - mountPath: /var/run/nvidia-topologyd
+                              name: topology-volume
+                            - mountPath: /workspace/scratch-nvme
+                              name: ephemeral-odf-lvm-vg1
+                            - mountPath: /path/to/where/you/want/to/find/your/data
+                              name: arbitrary-name-0
+                            - mountPath: /path/to/where/you/want/to/find/your/data-redux
+                              name: arbitrary-name-1
+                            - mountPath: /tmp/.ssh/keys
+                              name: private-ssh-git-deploy-key
+                              readOnly: true
+                            - mountPath: /tmp/.ssh/hosts
+                              name: github-known-hosts
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      initContainers:
+                        - command:
+                            - sh
+                            - -c
+                            - whoami && ls -l
+                          image: busybox
+                          name: init-container-1
+                        - command:
+                            - sh
+                            - -c
+                            - echo hello world!
+                          image: ubuntu
+                          name: init-container-2
+                      priorityClassName: default-priority
+                      volumes:
+                        - configMap:
+                            name: nvidia-topo-gdr
+                          name: topology-volume
+                        - ephemeral:
+                            volumeClaimTemplate:
+                              spec:
+                                accessModes:
+                                  - ReadWriteOnce
+                                resources:
+                                  requests:
+                                    storage: 800Gi
+                                storageClassName: odf-lvm-vg1
+                                volumeMode: Filesystem
+                          name: ephemeral-odf-lvm-vg1
+                        - name: arbitrary-name-0
+                          persistentVolumeClaim:
+                            claimName: name-matching-the-actual-PersistentVolumeClaim
+                        - name: arbitrary-name-1
+                          persistentVolumeClaim:
+                            claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - name: private-ssh-git-deploy-key
+                          secret:
+                            optional: false
+                            secretName: my-git-secret
+                        - configMap:
+                            name: my-git-config-map
+                          name: github-known-hosts
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      annotations:
+                        k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: NCCL_TOPO_FILE
+                              value: /var/run/nvidia-topologyd/virtualTopology.xml
+                            - name: NVME_MOUNT_PATH
+                              value: /workspace/scratch-nvme
+                            - name: GIT_SSH_COMMAND
+                              value: ssh -i /tmp/.ssh/keys/id_rsa -o UserKnownHostsFile=/tmp/.ssh/hosts/known_hosts -vv
+                          envFrom:
+                            - configMapRef:
+                                name: nccl-netwk-env-vars
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 2
+                          securityContext:
+                            capabilities:
+                              add:
+                                - IPC_LOCK
+                          volumeMounts:
+                            - mountPath: /var/run/nvidia-topologyd
+                              name: topology-volume
+                            - mountPath: /workspace/scratch-nvme
+                              name: ephemeral-odf-lvm-vg1
+                            - mountPath: /path/to/where/you/want/to/find/your/data
+                              name: arbitrary-name-0
+                            - mountPath: /path/to/where/you/want/to/find/your/data-redux
+                              name: arbitrary-name-1
+                            - mountPath: /tmp/.ssh/keys
+                              name: private-ssh-git-deploy-key
+                              readOnly: true
+                            - mountPath: /tmp/.ssh/hosts
+                              name: github-known-hosts
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      initContainers:
+                        - command:
+                            - sh
+                            - -c
+                            - whoami && ls -l
+                          image: busybox
+                          name: init-container-1
+                        - command:
+                            - sh
+                            - -c
+                            - echo hello world!
+                          image: ubuntu
+                          name: init-container-2
+                      priorityClassName: default-priority
+                      volumes:
+                        - configMap:
+                            name: nvidia-topo-gdr
+                          name: topology-volume
+                        - ephemeral:
+                            volumeClaimTemplate:
+                              spec:
+                                accessModes:
+                                  - ReadWriteOnce
+                                resources:
+                                  requests:
+                                    storage: 800Gi
+                                storageClassName: odf-lvm-vg1
+                                volumeMode: Filesystem
+                          name: ephemeral-odf-lvm-vg1
+                        - name: arbitrary-name-0
+                          persistentVolumeClaim:
+                            claimName: name-matching-the-actual-PersistentVolumeClaim
+                        - name: arbitrary-name-1
+                          persistentVolumeClaim:
+                            claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - name: private-ssh-git-deploy-key
+                          secret:
+                            optional: false
+                            secretName: my-git-secret
+                        - configMap:
+                            name: my-git-config-map
+                          name: github-known-hosts
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: 0s
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: 60s
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: 600s
+        workload.codeflare.dev.appwrapper/retryLimit: "3"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: 90s
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: 300s
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+              namespace: my-namespace
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: GIT_SSH_COMMAND
+                              value: ssh -i /tmp/.ssh/keys/id_rsa -o UserKnownHostsFile=/tmp/.ssh/hosts/known_hosts -vv
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /tmp/.ssh/keys
+                              name: private-ssh-git-deploy-key
+                              readOnly: true
+                            - mountPath: /tmp/.ssh/hosts
+                              name: github-known-hosts
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - name: private-ssh-git-deploy-key
+                          secret:
+                            optional: false
+                            secretName: my-git-secret
+                        - configMap:
+                            name: my-git-config-map
+                          name: github-known-hosts
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    metadata:
+                      namespace: my-namespace
+                    spec:
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: GIT_SSH_COMMAND
+                              value: ssh -i /tmp/.ssh/keys/id_rsa -o UserKnownHostsFile=/tmp/.ssh/hosts/known_hosts -vv
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /tmp/.ssh/keys
+                              name: private-ssh-git-deploy-key
+                              readOnly: true
+                            - mountPath: /tmp/.ssh/hosts
+                              name: github-known-hosts
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - name: private-ssh-git-deploy-key
+                          secret:
+                            optional: false
+                            secretName: my-git-secret
+                        - configMap:
+                            name: my-git-config-map
+                          name: github-known-hosts
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm

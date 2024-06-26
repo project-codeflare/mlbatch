@@ -1,0 +1,159 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema#",
+    "type": "object",
+    "required": [
+        "namespace",
+        "jobName",
+        "containerImage",
+        "admissionGracePeriodDuration",
+        "warmupGracePeriodDuration",
+        "failureGracePeriodDuration",
+        "retryPausePeriodDuration",
+        "retryLimit",
+        "forcefulDeletionGracePeriodDuration",
+        "deletionOnFailureGracePeriodDuration"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "namespace": { "$ref": "#/$defs/rfc1123Label" },
+        "jobName": { "type": "string" },
+        "queueName": { "$ref": "#/$defs/rfc1123Label" },
+        "priority": { "type": "string", "enum": [ "default-priority", "low-priority", "high-priority" ] },
+        "customLabels": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "containerImage": { "type": "string" },
+        "numPods" : { "type": "integer", "minimum": 1 },
+        "numCpusPerPod": { "$ref": "#/$defs/resourceCPU" },
+        "numGpusPerPod": { "type": "integer", "minimum": 0 },
+        "totalMemoryPerPod": { "$ref": "#/$defs/resourceMemory" },
+        "limitCpusPerPod": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/resourceCPU" }
+        ]},
+        "limitGpusPerPod":{ "oneOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 0 }
+        ]},
+        "limitMemoryPerPod": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/resourceMemory" }
+        ]},
+        "environmentVariables": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "sshGitCloneConfig": { "oneOf": [
+            { "type": "null" },
+            {
+                "type": "object",
+                "properties": {
+                    "secretName": { "$ref": "#/$defs/rfc1123Label" },
+                    "configMapName": { "$ref": "#/$defs/rfc1123Label" },
+                    "secretMountPath": { "type": "string" },
+                    "configMapMountPath": { "type": "string" },
+                    "sshCmd": { "type": "string" }
+                },
+                "required": [ "secretName", "configMapName" ],
+                "additionalProperties": false
+            }
+        ]},
+        "setupCommands": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "mainProgram": { "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+        ]},
+        "imagePullSecrets": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "volumes": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "roceGdrResName":  { "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+        ]},
+        "numRoceGdr": { "type": "integer" },
+        "topologyFileConfigMap": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/rfc1123Label" }
+        ]},
+        "ncclGdrEnvConfigMap": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/rfc1123Label" }
+        ]},
+        "multiNicNetworkName": { "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+        ]},
+        "disableSharedMemory": { "type": "boolean" },
+        "mountNVMe": { "oneOf" : [
+            { "type": "null" },
+            { "type": "object",
+              "properties": {
+                  "mountPath": { "type": "string" },
+                  "storage": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+        ]},
+        "initContainers": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "autopilotHealthChecks": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "restartPolicy" : { "type": "string", "enum": ["Never", "Always", "OnFailure" ] },
+        "hostIgnoreList": { "oneOf" : [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
+        "bypassCoscheduler": { "type": "boolean" },
+        "serviceAccountName":  { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/rfc1123Label" }
+        ]},
+        "terminationGracePeriodSeconds": { "oneOf" : [
+            { "type": "null" },
+            { "type": "integer", "minimum": 0 }
+        ]},
+        "admissionGracePeriodDuration": { "$ref": "#/$defs/duration" },
+        "warmupGracePeriodDuration": { "$ref": "#/$defs/duration" },
+        "failureGracePeriodDuration": { "$ref": "#/$defs/duration" },
+        "retryPausePeriodDuration": { "$ref": "#/$defs/duration" },
+        "retryLimit": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "forcefulDeletionGracePeriodDuration": { "$ref": "#/$defs/duration" },
+        "deletionOnFailureGracePeriodDuration" : { "$ref": "#/$defs/duration" }
+    },
+
+    "$defs": {
+        "rfc1123Label": {
+            "type": "string",
+            "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$",
+            "minLength": 1,
+            "maxLength": 63
+        },
+        "resourceCPU": {
+            "oneOf": [
+                { "type": "integer", "mimimum": 1 },
+                { "type": "string", "pattern": "^[0-9]+?(Ki|Mi|Gi|Ti|Pi|Ei|m|k|M|G|T|P|E)$" }
+            ]
+        },
+        "resourceMemory": {
+            "type": "string",
+            "pattern": "^[0-9]+?(Ki|Mi|Gi|Ti|Pi|Ei|m|k|M|G|T|P|E)$"
+        },
+        "duration": {
+            "type": "string",
+            "pattern": "^[0-9]+?(s|m|h|d)$"
+        }
+    }
+}

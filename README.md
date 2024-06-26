@@ -32,3 +32,12 @@ To learn how to setup MLBatch on a cluster and onboard teams see
 ## Quick Start
 
 To learn how to use MLBatch to run workloads see [USAGE.md](USAGE.md).
+
+### PyTorchJobs via the MLBatch Helm Chart
+
+Properly configuring a distributed `PyTorchJob` to make effective use of the
+MLBatch system and hardware accelerators (GPUs, RoCE GDR) can be tedious. To
+automate this process, we provide a Helm chart that captures best practices and
+common configuration options. Using this Helm chart helps eliminate common
+mistakes. Please see [pytorchjob-generator](tools/pytorchjob-generator) for
+detailed usage instructions.
