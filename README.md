@@ -41,3 +41,13 @@ automate this process, we provide a Helm chart that captures best practices and
 common configuration options. Using this Helm chart helps eliminate common
 mistakes. Please see [pytorchjob-generator](tools/pytorchjob-generator) for
 detailed usage instructions.
+
+## Development Setup
+
+If you will be contributing to the development of the MLBatch project, you must
+setup precommit hooks for your local clone of the repository. Do the following
+once, immediately after cloning this repo:
+```shell
+helm plugin install https://github.com/helm-unittest/helm-unittest.git
+pre-commit install
+```

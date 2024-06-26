@@ -1,0 +1,18 @@
+repos:
+- repo: https://github.com/norwoodj/helm-docs
+  rev:  "v1.13.1"
+  hooks:
+  - id: helm-docs-built
+    args:
+      - --chart-search-root=tools/pytorchjob-generator
+      - --sort-values-order=file
+- repo: local
+  hooks:
+  - id: helm-unittests
+    name: run helm unittests
+    language: system
+    entry: helm unittest
+    pass_filenames: false
+    always_run: true
+    args:
+    - tools/pytorchjob-generator/chart
