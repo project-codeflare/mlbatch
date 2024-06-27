@@ -319,7 +319,8 @@ the `Succeeded` state.
 The parameters of the retry loop described about are configured at the system
 level, but can be customized by the user on a per-AppWrapper basis by adding
 annotations. The table below lists the parameters, gives their default, and the
-annotation that can be used to customize them.
+annotation that can be used to customize them. The MLBatch Helm chart also
+supports customization these values.
 
 | Parameter                    | Default Value | Annotation                                                             |
 |------------------------------|---------------|------------------------------------------------------------------------|
