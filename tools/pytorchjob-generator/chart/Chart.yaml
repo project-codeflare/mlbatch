@@ -3,4 +3,4 @@ name: pytorchjob-generator
 description: An AppWrapper generator for PyTorchJobs
 type: application
 version: 1.0.0
-appVersion: "workload.codeflare.dev/v1beta2"
+appVersion: "v1beta2"
