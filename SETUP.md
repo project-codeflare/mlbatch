@@ -99,6 +99,7 @@ as follows:
 - Kueue:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
+  - `waitForPodsReady` is disabled,
 - Codeflare operator:
   - the AppWrapper controller is enabled and configured as follows:
     - `userRBACAdmissionCheck` is disabled,
