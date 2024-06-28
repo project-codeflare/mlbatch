@@ -1,6 +1,6 @@
 # PyTorchJob Generator
 
-The Helm chart provided in this folder facilitates the configuration of PyTorch
+The Helm chart defined in this folder facilitates the configuration of PyTorch
 jobs for submission to an OpenShift cluster implementing MLBatch.
 
 Invocations of this chart generate a `PyTorchJob` wrapped into an `AppWrapper`
@@ -8,10 +8,19 @@ for better traceability and fault-tolerance.
 
 ## Obtaining the Chart
 
-To start with, recursively clone and enter this repository:
+To start with, add the `mlbatch` Helm chart repository.
 ```sh
-git clone --recursive https://github.com/project-codeflare/mlbatch.git
-cd mlbatch
+helm repo add mlbatch https://project-codeflare.github.io/mlbatch
+helm repo update
+```
+To verify the chart was installed correctly, search for `AppWrapper`.
+```sh
+helm search repo AppWrapper
+```
+You should see output similar to the following:
+```sh
+NAME                        	CHART VERSION	APP VERSION	DESCRIPTION
+mlbatch/pytorchjob-generator	1.0.0        	v1beta2    	An AppWrapper generator for PyTorchJobs
 ```
 
 ## Configuring the Job
@@ -48,13 +57,13 @@ To learn more about the available settings see [chart/README.md](chart/README.md
 
 To submit the Pytorch job to the cluster using the `settings.yaml` file, run:
 ```sh
-helm template -f settings.yaml tools/pytorchjob-generator/chart | oc create -f-
+helm template -f settings.yaml mlbatch/pytorchjob-generator | oc create -f-
 ```
-
++
 To optionally capture the generated `AppWrapper` specification as a
 `generated.yaml` file, run instead:
 ```sh
-helm template -f settings.yaml tools/pytorchjob-generator/chart | tee generated.yaml | oc create -f-
+helm template -f settings.yaml mlbatch/pytorchjob-generator | tee generated.yaml | oc create -f-
 ```
 
 To remove the PyTorch job from the cluster, delete the generated `AppWrapper`
