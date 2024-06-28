@@ -71,18 +71,9 @@ Create OpenShift AI 2.10 subscription:
 ```sh
 oc apply -f setup/mlbatch-subscription.yaml
 ````
-Identify install plan:
+Approve the install plan:
 ```sh
-oc get ip -n redhat-ods-operator
-```
-```
-NAMESPACE             NAME            CSV                     APPROVAL   APPROVED
-redhat-ods-operator   install-kmh8w   rhods-operator.2.10.0   Manual     false
-```
-Approve install plan replacing the generated plan name below with the actual
-value:
-```sh
-oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kmh8w
+./setup/approve-install.sh
 ```
 Create DSC Initialization:
 ```sh
