@@ -52,7 +52,7 @@ add the missing label to the metadata section of your workload object.
 
 Submitted workloads are queued and dispatched when enough quota is available,
 which eventually results in the creation of pods that are submitted to the
-OpenShift scheduler. By default, this scheduler will scheduler pods one at a
+cluster's scheduler. By default, this scheduler will scheduler pods one at a
 time and spread pods across nodes to even the load across the cluster. Both
 behaviors are undesirable for large AI workloads such as pre-training jobs.
 MLBatch includes and configures Coscheduler to enable gang scheduling and
