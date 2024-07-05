@@ -1,6 +1,7 @@
-# Project Setup
+# Team Setup
 
-The project setup creates a project, a user group, a quota, a queue, and the
+
+The team setup creates a project, a user group, a quota, a queue, and the
 required role bindings.
 
 Create project:
@@ -19,6 +20,7 @@ Bind cluster role to group in namespace:
 ```sh
 oc adm policy add-role-to-group mlbatch-edit team1-edit-group --role-namespace="" --namespace team1
 ```
+
 Specify the intended quota for the namespace by creating a `ClusterQueue`:
 ```sh
 oc apply -f- << EOF

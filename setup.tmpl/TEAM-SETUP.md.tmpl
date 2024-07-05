@@ -1,6 +1,7 @@
-# Project Setup
+# Team Setup
 
-The project setup creates a project, a user group, a quota, a queue, and the
+{{ if .OPENSHIFT }}
+The team setup creates a project, a user group, a quota, a queue, and the
 required role bindings.
 
 Create project:
@@ -19,6 +20,19 @@ Bind cluster role to group in namespace:
 ```sh
 {{ .KUBECTL }} adm policy add-role-to-group mlbatch-edit team1-edit-group --role-namespace="" --namespace team1
 ```
+{{- else -}}
+The team setup creates a namespace, a user group, a quota, a queue, and the
+required role bindings.
+
+Create namespace:
+```sh
+{{ .KUBECTL }} create namespace team1
+```
+
+*** UNDER CONSTRUCTION***
+
+{{- end }}
+
 Specify the intended quota for the namespace by creating a `ClusterQueue`:
 ```sh
 {{ .KUBECTL }} apply -f- << EOF

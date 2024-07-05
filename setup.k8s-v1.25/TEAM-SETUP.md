@@ -1,24 +1,15 @@
-# Project Setup
+# Team Setup
 
-The project setup creates a project, a user group, a quota, a queue, and the
+The team setup creates a namespace, a user group, a quota, a queue, and the
 required role bindings.
 
-Create project:
+Create namespace:
 ```sh
-kubectl new-project team1
+kubectl create namespace team1
 ```
-Create user group:
-```sh
-kubectl adm groups new team1-edit-group
-```
-Add users to group for example:
-```sh
-kubectl adm groups add-users team1-edit-group user1
-```
-Bind cluster role to group in namespace:
-```sh
-kubectl adm policy add-role-to-group mlbatch-edit team1-edit-group --role-namespace="" --namespace team1
-```
+
+*** UNDER CONSTRUCTION***
+
 Specify the intended quota for the namespace by creating a `ClusterQueue`:
 ```sh
 kubectl apply -f- << EOF
