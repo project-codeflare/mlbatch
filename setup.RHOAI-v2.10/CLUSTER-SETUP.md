@@ -22,7 +22,7 @@ oc delete crd noderesourcetopologies.topology.node.k8s.io
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 ```sh
-oc apply -f setup/mlbatch-priorities.yaml
+oc apply -f setup.RHOAI-v2.10/mlbatch-priorities.yaml
 ```
 
 ## Coscheduler
@@ -35,15 +35,15 @@ helm install scheduler-plugins --namespace scheduler-plugins --create-namespace 
 ```
 Patch Coscheduler pod priorities:
 ```sh
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup/coscheduler-priority-patch.yaml scheduler-plugins-controller
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.10/coscheduler-priority-patch.yaml scheduler-plugins-controller
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.10/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 ## OpenShift AI
 
-Create OpenShift AI 2.10 subscription:
+Create the OpenShift AI subscription:
 ```sh
-oc apply -f setup/mlbatch-subscription.yaml
+oc apply -f setup.RHOAI-v2.10/mlbatch-subscription.yaml
 ````
 Identify install plan:
 ```sh
@@ -60,11 +60,11 @@ oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":tru
 ```
 Create DSC Initialization:
 ```sh
-oc apply -f setup/mlbatch-dsci.yaml
+oc apply -f setup.RHOAI-v2.10/mlbatch-dsci.yaml
 ```
 Create Data Science Cluster:
 ```sh
-oc apply -f setup/mlbatch-dsc.yaml
+oc apply -f setup.RHOAI-v2.10/mlbatch-dsc.yaml
 ```
 The provided configuration differs from the default OpenShift AI configuration
 as follows:
@@ -100,13 +100,12 @@ kueue-controller-manager's log:
 
 Create Kueue's default flavor:
 ```sh
-oc apply -f setup/default-flavor.yaml
+oc apply -f setup.RHOAI-v2.10/default-flavor.yaml
 ```
 
 ## Cluster Role
 
 Create `mlbatch-edit` role:
 ```sh
-oc apply -f setup/mlbatch-edit-role.yaml
+oc apply -f setup.RHOAI-v2.10/mlbatch-edit-role.yaml
 ```
-

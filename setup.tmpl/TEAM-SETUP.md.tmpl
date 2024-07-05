@@ -5,23 +5,23 @@ required role bindings.
 
 Create project:
 ```sh
-oc new-project team1
+{{ .KUBECTL }} new-project team1
 ```
 Create user group:
 ```sh
-oc adm groups new team1-edit-group
+{{ .KUBECTL }} adm groups new team1-edit-group
 ```
 Add users to group for example:
 ```sh
-oc adm groups add-users team1-edit-group user1
+{{ .KUBECTL }} adm groups add-users team1-edit-group user1
 ```
 Bind cluster role to group in namespace:
 ```sh
-oc adm policy add-role-to-group mlbatch-edit team1-edit-group --role-namespace="" --namespace team1
+{{ .KUBECTL }} adm policy add-role-to-group mlbatch-edit team1-edit-group --role-namespace="" --namespace team1
 ```
 Specify the intended quota for the namespace by creating a `ClusterQueue`:
 ```sh
-oc apply -f- << EOF
+{{ .KUBECTL }} apply -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
@@ -70,7 +70,7 @@ namespaces from borrowing quota from this namespace.
 
 Create a `LocalQueue` to bind the `ClusterQueue` to the namespace:
 ```sh
-oc apply -n team1 -f- << EOF
+{{ .KUBECTL }} apply -n team1 -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: LocalQueue
 metadata:
