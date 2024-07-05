@@ -1,7 +1,7 @@
 # MLBatch
 
 This repository describes the [setup](SETUP.md) and [use](USAGE.md) of the
-MLBatch queuing and quota management system on OpenShift clusters. MLBatch
+MLBatch queuing and quota management system on OpenShift and Kubernetes clusters. MLBatch
 leverages [Kueue](https://kueue.sigs.k8s.io), the [Kubeflow Training
 Operator](https://www.kubeflow.org/docs/components/training/),
 [KubeRay](https://docs.ray.io/en/latest/cluster/kubernetes/index.html), and the
@@ -14,7 +14,7 @@ and adds
 MLBatch includes a number of configuration steps to help these components work
 in harmony and support large workloads on large clusters.
 
-MLBatch handles the queuing and dispatching of batch workloads on OpenShift
+MLBatch handles the queuing and dispatching of batch workloads on OpenShift and Kubernetes
 clusters. It enforces team quotas at the namespace level. It automates the
 borrowing and reclamation of unused quotas across teams. Teams can use
 priorities within their namespaces without impact on other teams. Using

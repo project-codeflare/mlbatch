@@ -1,0 +1,5 @@
+# Values for RHOAI 2.11
+
+OPENSHIFT: false
+VERSION: k8s-v1.25
+KUBECTL: kubectl
