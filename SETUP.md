@@ -22,8 +22,10 @@ cd mlbatch
 
 Step by step setup instructions are provided for the following versions:
 + [OpenShift AI 2.10](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
+<!---
 + [OpenShift AI 2.11](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
 + [Kubernetes 1.25+](./setup.k8s-v1.25/CLUSTER-SETUP.md)
+--->
 
 ## Team Setup
 
@@ -32,8 +34,10 @@ an OpenShift project (or Kubernetes namespace) for the team.
 
 Step by step setup instructions are provided for the following versions:
 + [OpenShift AI 2.10](./setup.RHOAI-v2.10/TEAM-SETUP.md)
-+ [OpenShift AI 2.11](./setup.RHOAI-v2.11/TEAM-SETUP.md)
-+ [Kubernetes 1.25+](./setup.k8s-v1.25/TEAM-SETUP.md)
+<!---
+ + [OpenShift AI 2.11](./setup.RHOAI-v2.11/TEAM-SETUP.md)
+ + [Kubernetes 1.25+](./setup.k8s-v1.25/TEAM-SETUP.md)
+--->
 
 ## Quota Maintenance
 
@@ -85,5 +89,7 @@ First, remove all team projects/namespaces and corresponding cluster queues.
 Second, follow the version specific instructions to uninstall the MLBatch controllers
 and reclaim the corresponding namespaces.
 + [OpenShift AI 2.10](./setup.RHOAI-v2.10/UNINSTALL.md)
+<!---
 + [OpenShift AI 2.11](./setup.RHOAI-v2.11/UNINSTALL.md)
 + [Kubernetes 1.25+](./setup.k8s-v1.25/UNINSTALL.md)
+--->
