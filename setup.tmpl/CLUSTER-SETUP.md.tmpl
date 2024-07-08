@@ -124,6 +124,29 @@ kueue-controller-manager's log:
 {{- else -}}
 ## Install Operators
 
+Install the Kubeflow Training Operator
+```sh
+{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/training-operator
+```
+
+Install the KubeRay Operator
+```sh
+{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/kuberay
+```
+
+Install the AppWrapper Operator
+```sh
+{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/appwrapper
+```
+
+Install Kueue
+```sh
+{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/kueue
+```
+
+
+
+
 TODO: *** UNDER CONSTRUCTION **
 
 {{- end }}

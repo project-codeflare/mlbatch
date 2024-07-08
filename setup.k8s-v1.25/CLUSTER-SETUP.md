@@ -46,6 +46,29 @@ kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s
 
 ## Install Operators
 
+Install the Kubeflow Training Operator
+```sh
+kubectl apply -k setup.k8s-v1.25/training-operator
+```
+
+Install the KubeRay Operator
+```sh
+kubectl apply -k setup.k8s-v1.25/kuberay
+```
+
+Install the AppWrapper Operator
+```sh
+kubectl apply -k setup.k8s-v1.25/appwrapper
+```
+
+Install Kueue
+```sh
+kubectl apply -k setup.k8s-v1.25/kueue
+```
+
+
+
+
 TODO: *** UNDER CONSTRUCTION **
 
 ## Kueue Configuration
