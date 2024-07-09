@@ -139,18 +139,20 @@ Install the KubeRay Operator
 {{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kuberay
 ```
 
-Install the AppWrapper Operator
-```sh
-{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper
-```
-
 Install Kueue
 ```sh
 {{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kueue
 ```
 
+Install the AppWrapper Operator
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper
+```
 
-
+  - the AppWrapper controller is enabled and configured as follows:
+    - `userRBACAdmissionCheck` is disabled,
+    - `schedulerName` is set to `scheduler-plugins-scheduler`,
+    - `queueName` is set to `default-queue`,
 
 TODO: *** UNDER CONSTRUCTION **
 

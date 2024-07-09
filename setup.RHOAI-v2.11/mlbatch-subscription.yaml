@@ -158,7 +158,7 @@ data:
       burst: 100
     #pprofBindAddress: :8082
     waitForPodsReady:
-      enable: true
+      enable: false
       blockAdmission: false
     manageJobsWithoutQueueName: true
     #internalCertManagement:
