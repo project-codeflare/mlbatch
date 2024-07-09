@@ -1,4 +1,5 @@
+$patch: delete
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: mlbatch-system
+  name: ray-system

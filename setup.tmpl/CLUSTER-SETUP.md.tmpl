@@ -124,24 +124,29 @@ kueue-controller-manager's log:
 {{- else -}}
 ## Install Operators
 
+Create the mlbatch-system namespace
+```sh
+{{ .KUBECTL }} create namespace mlbatch-system
+```
+
 Install the Kubeflow Training Operator
 ```sh
-{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/training-operator
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator
 ```
 
 Install the KubeRay Operator
 ```sh
-{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/kuberay
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kuberay
 ```
 
 Install the AppWrapper Operator
 ```sh
-{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/appwrapper
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper
 ```
 
 Install Kueue
 ```sh
-{{ .KUBECTL }} apply -k setup.{{ .VERSION }}/kueue
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kueue
 ```
 
 
