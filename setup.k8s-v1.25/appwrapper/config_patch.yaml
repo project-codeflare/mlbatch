@@ -9,7 +9,8 @@ data:
       enableKueueIntegrations: true
       kueueJobReconciller:
         manageJobsWithoutQueueName: true
-        waitForPodsReady: false
+        waitForPodsReady:
+          enable: false
       queueName: default-queue
       schedulerName: scheduler-plugins-scheduler
       userRBACAdmissionCheck: false
