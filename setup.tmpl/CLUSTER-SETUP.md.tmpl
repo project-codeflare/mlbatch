@@ -124,7 +124,43 @@ kueue-controller-manager's log:
 {{- else -}}
 ## Install Operators
 
-TODO: *** UNDER CONSTRUCTION **
+Create the mlbatch-system namespace
+```sh
+{{ .KUBECTL }} create namespace mlbatch-system
+```
+
+Install the Kubeflow Training Operator
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator
+```
+
+Install the KubeRay Operator
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kuberay
+```
+
+Install Kueue
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/kueue
+```
+
+Install the AppWrapper Operator
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper
+```
+The provided configuration differs from the default configuration of the
+operators as follows:
+- Kubeflow Training Operator:
+  - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
+- Kueue:
+  - `manageJobsWithoutQueueName` is enabled,
+  - `batch/job` integration is disabled,
+  - `waitForPodsReady` is disabled,
+- AppWrapper operator:
+  - `userRBACAdmissionCheck` is disabled,
+  - `schedulerName` is set to `scheduler-plugins-scheduler`,
+  - `queueName` is set to `default-queue`,
+- pod priorities, resource requests and limits have been adjusted.
 
 {{- end }}
 

@@ -1,0 +1,22 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: appwrapper-operator-config
+  namespace: appwrapper-system
+data:
+  config.yaml: |
+    appwrapper:
+      enableKueueIntegrations: true
+      kueueJobReconciller:
+        manageJobsWithoutQueueName: true
+        waitForPodsReady:
+          enable: false
+      queueName: default-queue
+      schedulerName: scheduler-plugins-scheduler
+      userRBACAdmissionCheck: false
+    controllerManager:
+      health:
+        bindAddress: ":8081"
+      metrics:
+        bindAddress: "127.0.0.1:8080"
+      leaderElection: true

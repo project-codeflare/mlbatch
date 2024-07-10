@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mlbatch-system
+
+resources:
+- "https://github.com/kubeflow/training-operator/manifests/base?ref=v1.7.0"
+
+images:
+- name: kubeflow/training-operator
+  newTag: "v1-855e096"
+
+patches:
+- path: manager_resources_patch.yaml
