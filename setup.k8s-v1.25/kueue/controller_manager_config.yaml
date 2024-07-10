@@ -22,8 +22,8 @@ clientConnection:
   qps: 50
   burst: 100
 #pprofBindAddress: :8083
-#waitForPodsReady:
-#  enable: false
+waitForPodsReady:
+  enable: false
 #  timeout: 5m
 #  blockAdmission: false
 #  requeuingStrategy:

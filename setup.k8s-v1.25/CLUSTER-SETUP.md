@@ -70,13 +70,19 @@ Install the AppWrapper Operator
 ```sh
 kubectl apply --server-side -k setup.k8s-v1.25/appwrapper
 ```
-
-  - the AppWrapper controller is enabled and configured as follows:
-    - `userRBACAdmissionCheck` is disabled,
-    - `schedulerName` is set to `scheduler-plugins-scheduler`,
-    - `queueName` is set to `default-queue`,
-
-TODO: *** UNDER CONSTRUCTION **
+The provided configuration differs from the default configuration of the
+operators as follows:
+- Kubeflow Training Operator:
+  - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
+- Kueue:
+  - `manageJobsWithoutQueueName` is enabled,
+  - `batch/job` integration is disabled,
+  - `waitForPodsReady` is disabled,
+- AppWrapper operator:
+  - `userRBACAdmissionCheck` is disabled,
+  - `schedulerName` is set to `scheduler-plugins-scheduler`,
+  - `queueName` is set to `default-queue`,
+- pod priorities, resource requests and limits have been adjusted.
 
 ## Kueue Configuration
 
