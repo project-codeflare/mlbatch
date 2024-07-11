@@ -11,5 +11,6 @@ images:
   newTag: v0.21.0
 
 patches:
-- path: manager_resources_patch.yaml
 - path: config_patch.yaml
+- path: manager_resources_patch.yaml
+- path: remove_default_namespace.yaml

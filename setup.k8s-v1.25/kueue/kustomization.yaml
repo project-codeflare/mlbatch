@@ -19,6 +19,8 @@ images:
   newTag: v0.7.1
 
 patches:
+- path: manager_resources_patch.yaml
+- path: remove_default_namespace.yaml
 - target:
     kind: ClusterRole
     name: manager-role
@@ -34,4 +36,3 @@ patches:
         - get
         - list
         - watch
-- path: manager_resources_patch.yaml
