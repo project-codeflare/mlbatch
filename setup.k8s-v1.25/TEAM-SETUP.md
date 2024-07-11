@@ -16,12 +16,12 @@ kubectl apply -f- << EOF
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: basic-users
+  name: user-one
   namespace: team1
 subjects:
   - kind: User
     apiGroup: rbac.authorization.k8s.io
-    name: the-users-name
+    name: user-one
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
