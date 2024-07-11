@@ -6,6 +6,12 @@ namespace: mlbatch-system
 resources:
 - "https://github.com/project-codeflare/appwrapper/config/default?ref=v0.21.0"
 
+labels:
+- pairs:
+    app.kubernetes.io/name: appwrapper
+    app.kubernetes.io/component: controller
+  includeSelectors: true
+
 images:
 - name: quay.io/ibm/appwrapper
   newTag: v0.21.0

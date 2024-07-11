@@ -6,6 +6,12 @@ namespace: mlbatch-system
 resources:
 - "https://github.com/kubernetes-sigs/kueue/config/default?ref=v0.7.1"
 
+labels:
+- pairs:
+    app.kubernetes.io/name: kueue
+    app.kubernetes.io/component: controller
+  includeSelectors: true
+
 configMapGenerator:
 - name: manager-config
   namespace: kueue-system
@@ -22,7 +28,7 @@ patches:
 - path: manager_resources_patch.yaml
 - path: mutating_webhook_patch.yaml
 - path: remove_default_namespace.yaml
-- path: validaing_webhook_patch.yaml
+- path: validating_webhook_patch.yaml
 - target:
     kind: ClusterRole
     name: manager-role
