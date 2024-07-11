@@ -12,12 +12,11 @@ kubectl create namespace team1
 
 For each user on the team, create a RoleBinding:
 ```sh
-kubectl apply -f- << EOF
+kubectl -n team 1 apply -f- << EOF
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: user-one
-  namespace: team1
 subjects:
   - kind: User
     apiGroup: rbac.authorization.k8s.io
