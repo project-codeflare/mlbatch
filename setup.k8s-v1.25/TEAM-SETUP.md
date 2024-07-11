@@ -1,14 +1,33 @@
 # Team Setup
 
-The team setup creates a namespace, a user group, a quota, a queue, and the
-required role bindings.
+A *team* in MLBatch is a group of users that share a resource quota.
+
+Setting up a new team requires the cluster admin to create a namespace,
+a quota, a queue, and the required role bindings as described below.
 
 Create namespace:
 ```sh
 kubectl create namespace team1
 ```
 
-*** UNDER CONSTRUCTION***
+For each user on the team, create a RoleBinding:
+```sh
+kubectl apply -f- << EOF
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: basic-users
+  namespace: team1
+subjects:
+  - kind: User
+    apiGroup: rbac.authorization.k8s.io
+    name: the-users-name
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mlbatch-edit
+EOF
+```
 
 Specify the intended quota for the namespace by creating a `ClusterQueue`:
 ```sh

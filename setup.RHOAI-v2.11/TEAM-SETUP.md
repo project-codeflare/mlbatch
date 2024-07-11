@@ -1,8 +1,10 @@
 # Team Setup
 
+A *team* in MLBatch is a group of users that share a resource quota.
 
-The team setup creates a project, a user group, a quota, a queue, and the
-required role bindings.
+
+Setting up a new team requires the cluster admin to create a project,
+a user group, a quota, a queue, and the required role bindings as described below.
 
 Create project:
 ```sh
