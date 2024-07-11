@@ -5,6 +5,12 @@ namespace: mlbatch-system
 resources:
 - "https://github.com/kubeflow/training-operator/manifests/base?ref=v1.7.0"
 
+labels:
+- pairs:
+    app.kubernetes.io/name: training-operator
+    app.kubernetes.io/component: controller
+  includeSelectors: true
+
 images:
 - name: kubeflow/training-operator
   newTag: "v1-855e096"

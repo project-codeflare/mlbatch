@@ -6,6 +6,12 @@ namespace: mlbatch-system
 resources:
 - "https://github.com/ray-project/kuberay/ray-operator/config/default?ref=v1.1.0"
 
+labels:
+- pairs:
+    app.kubernetes.io/name: kuberay
+    app.kubernetes.io/component: controller
+  includeSelectors: true
+
 patches:
 - path: remove_default_namespace.yaml
 - path: manager_resources_patch.yaml
