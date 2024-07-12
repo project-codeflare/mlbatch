@@ -1,7 +1,9 @@
 # Uninstall
 
-To uninstall the MLBatch controllers and reclaim the corresponding namespaces,
-do the following:
+***First, remove all team namespaces and corresponding cluster queues.***
+
+Then to uninstall the MLBatch controllers and reclaim the corresponding
+namespaces, do the following:
 ```sh
 # Delete operators and CRDs
 kubectl delete -k setup.k8s-v1.25/appwrapper
