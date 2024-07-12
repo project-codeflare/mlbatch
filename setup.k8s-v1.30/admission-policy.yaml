@@ -21,3 +21,15 @@ spec:
   validations:
     - expression: "'kueue.x-k8s.io/queue-name' in object.metadata.labels && object.metadata.labels['kueue.x-k8s.io/queue-name'] != ''"
       message: "The label 'kueue.x-k8s.io/queue-name' is either missing or does not have a value set."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: mlbatch-require-queue-name
+spec:
+  policyName: mlbatch-require-queue-name
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        mlbatch-team-namespace: "true"

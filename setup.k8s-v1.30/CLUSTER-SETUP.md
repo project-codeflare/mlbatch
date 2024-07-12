@@ -97,9 +97,9 @@ kubectl apply -f setup.k8s-v1.30/mlbatch-edit-role.yaml
 ```
 ## Validating Admission Policy
 
-Create a validating admission policy that works with the mlbatch-edit role to
-ensure that all pod-creating resources created in team namespaces will be properly
-tracked for quota usage.
+Create an admission policy to enforce that all pod-creating resources
+permitted by the mlbatch-edit role that are created in team namespaces
+will have local queue names and thus be subject to Kueue's quota management.
 ```sh
 kubectl apply -f setup.k8s-v1.30/admission-policy.yaml
 ```
