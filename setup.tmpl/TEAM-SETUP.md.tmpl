@@ -26,14 +26,22 @@ Bind cluster role to group in namespace:
 Setting up a new team requires the cluster admin to create a namespace,
 a quota, a queue, and the required role bindings as described below.
 
+{{ if .VAP }}
+Create and label the namespace:
+```sh
+{{ .KUBECTL }} create namespace team1
+{{ .KUBECTL }} label namespace team1 'mlbatch-team-namespace=true'
+```
+{{- else -}}
 Create namespace:
 ```sh
 {{ .KUBECTL }} create namespace team1
 ```
+{{- end }}
 
 For each user on the team, create a RoleBinding:
 ```sh
-{{ .KUBECTL }} -n team 1 apply -f- << EOF
+{{ .KUBECTL }} -n team1 apply -f- << EOF
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

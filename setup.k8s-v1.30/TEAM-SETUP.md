@@ -5,9 +5,11 @@ A *team* in MLBatch is a group of users that share a resource quota.
 Setting up a new team requires the cluster admin to create a namespace,
 a quota, a queue, and the required role bindings as described below.
 
-Create namespace:
+
+Create and label the namespace:
 ```sh
 kubectl create namespace team1
+kubectl label namespace team1 'mlbatch-team-namespace=true'
 ```
 
 For each user on the team, create a RoleBinding:

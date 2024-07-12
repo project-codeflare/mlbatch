@@ -82,7 +82,7 @@ as follows:
 - pod priorities, resource requests and limits have been adjusted.
 
 To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
-in OpenShift AI 2.10 installation), do a rolling restart of the Kueue manager.
+in OpenShift AI installation), do a rolling restart of the Kueue manager.
 ```sh
 oc rollout restart deployment/kueue-controller-manager -n redhat-ods-applications
 ```
