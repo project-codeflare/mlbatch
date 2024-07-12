@@ -27,6 +27,8 @@ docs: gotmpl
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.11/TEAM-SETUP.md -values RHOAI-v2.11.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.k8s-v1.25/CLUSTER-SETUP.md -values Kubernetes-v1.25.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.k8s-v1.25/TEAM-SETUP.md -values Kubernetes-v1.25.yaml
+	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.k8s-v1.30/CLUSTER-SETUP.md -values Kubernetes-v1.30.yaml
+	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.k8s-v1.30/TEAM-SETUP.md -values Kubernetes-v1.30.yaml
 
 
 ##@ Dependencies

@@ -108,7 +108,7 @@ as follows:
 - pod priorities, resource requests and limits have been adjusted.
 
 To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
-in OpenShift AI 2.10 installation), do a rolling restart of the Kueue manager.
+in OpenShift AI installation), do a rolling restart of the Kueue manager.
 ```sh
 {{ .KUBECTL }} rollout restart deployment/kueue-controller-manager -n redhat-ods-applications
 ```
@@ -153,8 +153,10 @@ operators as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
+{{- if not .VAP }}
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
+{{- end }}
   - `waitForPodsReady` is disabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
@@ -177,3 +179,14 @@ Create `mlbatch-edit` role:
 ```sh
 {{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-edit-role.yaml
 ```
+
+{{- if .VAP }}
+## Validating Admission Policy
+
+Create a validating admission policy that works with the mlbatch-edit role to
+ensure that all pod-creating resources created in team namespaces will be properly
+tracked for quota usage.
+```sh
+{{ .KUBECTL }} apply -f setup.{{ .VERSION }}/admission-policy.yaml
+```
+{{- end }}

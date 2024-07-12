@@ -1,0 +1,23 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: mlbatch-require-queue-name
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:   ["batch"]
+      apiVersions: ["v1"]
+      resources:   ["jobs"]
+      operations:  ["CREATE", "UPDATE"]
+    - apiGroups:   ["kubeflow.org"]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources:   ["pytorchjobs"]
+    - apiGroups:   ["cluster.ray.io"]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources:   ["rayjobs","rayclusters"]
+  validations:
+    - expression: "'kueue.x-k8s.io/queue-name' in object.metadata.labels && object.metadata.labels['kueue.x-k8s.io/queue-name'] != ''"
+      message: "The label 'kueue.x-k8s.io/queue-name' is either missing or does not have a value set."

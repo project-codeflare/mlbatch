@@ -1,5 +1,6 @@
-# Values for RHOAI 2.11
+# Values for Kubernetes v1.25+
 
 OPENSHIFT: false
 VERSION: k8s-v1.25
 KUBECTL: kubectl
+VAP: false
