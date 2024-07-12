@@ -1,7 +1,9 @@
 # Uninstall
 
-To uninstall the MLBatch controllers and reclaim the corresponding namespaces,
-run:
+***First, remove all team projects and corresponding cluster queues.***
+
+Then to uninstall the MLBatch controllers and reclaim the corresponding
+namespaces, run:
 ```sh
 # OpenShift AI uninstall
 oc delete dsc mlbatch-dsc
