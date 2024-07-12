@@ -33,7 +33,7 @@ Create namespace:
 
 For each user on the team, create a RoleBinding:
 ```sh
-{{ .KUBECTL }} -n team 1 apply -f- << EOF
+{{ .KUBECTL }} -n team1 apply -f- << EOF
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
