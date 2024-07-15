@@ -19,8 +19,8 @@ spec:
       operations:  ["CREATE", "UPDATE"]
       resources:   ["rayjobs","rayclusters"]
   validations:
-    - expression: "'kueue.x-k8s.io/queue-name' in object.metadata.labels && object.metadata.labels['kueue.x-k8s.io/queue-name'] != ''"
-      message: "The label 'kueue.x-k8s.io/queue-name' is either missing or does not have a value set."
+    - expression: "has(object.metadata.labels) && 'kueue.x-k8s.io/queue-name' in object.metadata.labels && object.metadata.labels['kueue.x-k8s.io/queue-name'] != ''"
+      message: "All non-AppWrapper workloads must have a 'kueue.x-k8s.io/queue-name' label with non-empty value."
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
