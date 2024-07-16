@@ -104,7 +104,7 @@ data:
         manageJobsWithoutQueueName: true
         userRBACAdmissionCheck: false
         schedulerName: scheduler-plugins-scheduler
-        queueName: default-queue
+        defaultQueueName: default-queue
       enabled: true
 ---
 apiVersion: v1
