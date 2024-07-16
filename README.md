@@ -29,9 +29,12 @@ full node's worth of GPUs together.
 To learn how to setup MLBatch on a cluster and onboard teams see
 [SETUP.md](SETUP.md).
 
-## Quick Start
+*Quota maintenance* is a key aspect of smoothly administering an MLBatch cluster.
+Cluster admins should carefully read [QUOTA_MAINTENANCE.md](QUOTA_MAINTENANCE.md).
 
-To learn how to use MLBatch to run workloads see [USAGE.md](USAGE.md).
+## Running Workloads
+
+To learn how to run workloads on an MLBatch cluster see [USAGE.md](USAGE.md).
 
 ### PyTorchJobs via the MLBatch Helm Chart
 
