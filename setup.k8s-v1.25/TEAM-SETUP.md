@@ -2,6 +2,9 @@
 
 A *team* in MLBatch is a group of users that share a resource quota.
 
+Before setting up your teams and quotas, please read [QUOTA_MAINTENANCE.md](../QUOTA_MAINTENANCE.md)
+for a discussion of our recommended best practices.
+
 Setting up a new team requires the cluster admin to create a namespace,
 a quota, a queue, and the required role bindings as described below.
 
