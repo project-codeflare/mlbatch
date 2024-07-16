@@ -25,33 +25,33 @@ one for each base platform.
 
 Instructions are provided for the following OpenShift AI stable releases:
 + OpenShift AI 2.10
-   + [Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
-   + [Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
-   + [Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
+   + [RHOAI 2.10 Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
+   + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
+   + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
 ## OpenShift AI Fast Releases
 
 Instructions are provided for the following OpenShift AI fast releases:
 + OpenShift AI 2.11
-   + [Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
-   + [Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
-   + [Uninstall](./setup.RHOAI-v2.11/UNINSTALL.md)
+   + [RHOAI 2.11 Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
+   + [RHOAI 2.11 Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
+   + [RHOAI 2.11 Uninstall](./setup.RHOAI-v2.11/UNINSTALL.md)
 + OpenShift AI 2.10
-   + [Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
-   + [Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
-   + [Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
+   + [RHOAI 2.10 Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
+   + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
+   + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
 ## Kubernetes
 
 MLBatch can be installed on any Kubernetes cluster version 1.25 or later
 by following these instructions:
-   + [Cluster Setup](./setup.k8s-v1.25/CLUSTER-SETUP.md)
-   + [Team Setup](./setup.k8s-v1.25/TEAM-SETUP.md)
-   + [Uninstall](setup.k8s-v1.25/UNINSTALL.md)
+   + [Kubernetes Cluster Setup](./setup.k8s-v1.25/CLUSTER-SETUP.md)
+   + [Kubternets Team Setup](./setup.k8s-v1.25/TEAM-SETUP.md)
+   + [Kubernetes Uninstall](setup.k8s-v1.25/UNINSTALL.md)
 
 On Kubernetes version 1.30 and later, an enhanced user experience is
 available by using ValidatingAdmissionPolicies to streamline quota
 enforcement. Follow these instructions when installing on 1.30+ clusters:
-   + [Cluster Setup](./setup.k8s-v1.30/CLUSTER-SETUP.md)
-   + [Team Setup](./setup.k8s-v1.30/TEAM-SETUP.md)
-   + [Uninstall](setup.k8s-v1.30/UNINSTALL.md)
+   + [Kubernetes 1.30+ Cluster Setup](./setup.k8s-v1.30/CLUSTER-SETUP.md)
+   + [Kubernetes 1.30+ Team Setup](./setup.k8s-v1.30/TEAM-SETUP.md)
+   + [Kubernetes 1.30+ Uninstall](setup.k8s-v1.30/UNINSTALL.md)
