@@ -4,10 +4,11 @@ The MLBatch setup consists of a *cluster setup* to be done once
 and a *team setup* to be repeated for each team that will
 be using the cluster.
 
-Batch users should only be permitted to create AppWrappers or workloads whose
-types are natively supported by Kueue. The cluster setup set defines a
-`mlbatch-edit` role which enforces these restrictions and will be used in
-the setup process for each team of MLBatch users that is onboarded.
+Batch users should only be permitted to create AppWrappers or other
+workload Kinds that are natively supported by Kueue. The cluster setup
+defines a `mlbatch-edit` role which enforces these restrictions and
+will be used in the setup process for each team of MLBatch users that
+is onboarded.
 
 This setup has been developed on OpenShift 4.14 and Kubernetes 1.27 and
 is intended to support OpenShift 4.12 and up and/or Kubernetes 1.25 and up.
@@ -21,17 +22,15 @@ cd mlbatch
 Detailed instructions and configuration files can be found in subfolders,
 one for each base platform.
 
-## OpenShift AI Stable Releases
+## OpenShift AI
 
-Instructions are provided for the following OpenShift AI stable releases:
+Instructions are provided for the following OpenShift AI ***stable*** releases:
 + OpenShift AI 2.10
    + [RHOAI 2.10 Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
    + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
    + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
-## OpenShift AI Fast Releases
-
-Instructions are provided for the following OpenShift AI fast releases:
+Instructions are provided for the following OpenShift AI ***fast*** releases:
 + OpenShift AI 2.11
    + [RHOAI 2.11 Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
    + [RHOAI 2.11 Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
