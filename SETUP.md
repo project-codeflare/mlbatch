@@ -36,10 +36,6 @@ Instructions are provided for the following OpenShift AI fast releases:
    + [RHOAI 2.11 Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
    + [RHOAI 2.11 Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
    + [RHOAI 2.11 Uninstall](./setup.RHOAI-v2.11/UNINSTALL.md)
-+ OpenShift AI 2.10
-   + [RHOAI 2.10 Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
-   + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
-   + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
 ## Kubernetes
 
