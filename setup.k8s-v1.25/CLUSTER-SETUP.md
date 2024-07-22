@@ -78,6 +78,7 @@ operators as follows:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
+  - `LendingLimit` feature gate is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
   - `schedulerName` is set to `scheduler-plugins-scheduler`,

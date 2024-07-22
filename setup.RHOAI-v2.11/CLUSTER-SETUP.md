@@ -74,6 +74,7 @@ as follows:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
+  - `LendingLimit` feature gate is enabled,
 - Codeflare operator:
   - the AppWrapper controller is enabled and configured as follows:
     - `userRBACAdmissionCheck` is disabled,
