@@ -76,6 +76,7 @@ operators as follows:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
   - `waitForPodsReady` is disabled,
+  - `LendingLimit` feature gate is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
   - `schedulerName` is set to `scheduler-plugins-scheduler`,
