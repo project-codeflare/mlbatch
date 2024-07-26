@@ -66,8 +66,12 @@ Create Data Science Cluster:
 ```sh
 oc apply -f setup.RHOAI-v2.11/mlbatch-dsc.yaml
 ```
-The provided configuration differs from the default OpenShift AI configuration
-as follows:
+The provided DSCI and DSC are intended to install a minimal set of OpenShift
+AI managed components: `codeflare`, `kueue`, `ray`, and `trainingoperator`. The
+remaining components such as `dashboard` can be optionally enabled.
+
+The configuration of the managed components differs from the default OpenShift
+AI configuration as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
