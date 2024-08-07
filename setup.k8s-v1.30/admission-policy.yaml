@@ -18,6 +18,9 @@ spec:
       apiVersions: ["v1"]
       operations:  ["CREATE", "UPDATE"]
       resources:   ["rayjobs","rayclusters"]
+  matchConditions:
+  - name: exclude-appwrapper-owned
+    expression: "!(has(object.metadata.ownerReferences) && object.metadata.ownerReferences.exists(o, o.apiVersion=='workload.codeflare.dev/v1beta2'&&o.kind=='AppWrapper'&&o.controller))"
   validations:
     - expression: "has(object.metadata.labels) && 'kueue.x-k8s.io/queue-name' in object.metadata.labels && object.metadata.labels['kueue.x-k8s.io/queue-name'] != ''"
       message: "All non-AppWrapper workloads must have a 'kueue.x-k8s.io/queue-name' label with non-empty value."
