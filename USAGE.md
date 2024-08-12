@@ -69,7 +69,7 @@ is the recommended way of submitting workloads.
 
 ### PyTorchJobs
 
-To submit a `PyTorchJob` to MLBatch, simply include the queue name:
+To submit an unwrapped `PyTorchJob` to MLBatch, simply include the queue name:
 ```yaml
 apiVersion: kubeflow.org/v1
 kind: PyTorchJob
@@ -114,7 +114,9 @@ Try the above with:
 ```sh
 oc apply -n team1 -f samples/pytorchjob.yaml
 ```
-MLBatch implicitly enables gang scheduling and packing for `PyTorchJobs`.
+MLBatch implicitly enables gang scheduling and packing for `PyTorchJobs` by
+configuring the Kubeflow Training Operator to automatically inject the
+necessary scheduling directives into all Pods it creates for `PyTorchJobs`.
 
 ### AppWrappers
 
@@ -154,7 +156,7 @@ See [AppWrappers](https://project-codeflare.github.io/appwrapper/) for more
 information and use cases.
 
 MLBatch implicitly enables packing for `AppWrappers`. For workloads consisting
-of multiple pods, add a `PodGroup` to enable and gang scheduling, for instance:
+of multiple pods, add a `PodGroup` to enable gang scheduling, for instance:
 ```yaml
 apiVersion: workload.codeflare.dev/v1beta2
 kind: AppWrapper
@@ -282,28 +284,74 @@ on constant human monitoring of workload health. AppWrappers should be used to
 submit all workloads that are intended to run without close human supervision of
 their progress. 
 
-Throughout the execution of a workload, the AppWrapper controller monitors the
-number and health of the workload's Pods and uses this information to determine
-if a workload is unhealthy.  A workload can be deemed *unhealthy* if any of the
-following conditions are true:
-   + It has a non-zero number of `Failed` Pods.
-   + It takes longer than `AdmissionGracePeriod` for the expected number of Pods
-     to reach the `Pending` state.
-   + It takes longer than the `WarmupGracePeriod` for the expected number of
-     Pods to reach the `Running` state.
+```mermaid
+---
+title: Overview of AppWrapper Fault Tolerance Phase Transitions
+---
+stateDiagram-v2
 
-If a workload is determined to be unhealthy, the AppWrapper controller first
-waits for a `FailureGracePeriod` to allow the primary resource controller an
-opportunity to react and return the workload to a healthy state.  If the
-`FailureGracePeriod` passes and the workload is still unhealthy, the AppWrapper
-controller will *reset* the workload by deleting its resources, waiting for a
-`RetryPausePeriod`, and then creating new instances of the resources. During
-this retry pause, the AppWrapper **does not** release the workload's quota; this
-ensures that when the resources are recreated they will still have sufficient
-quota to execute.  The number of times an AppWrapper is reset is tracked as part
-of its status; if the number of resets exceeds the `RetryLimit`, then the
-AppWrapper moves into a `Failed` state and its resources are deleted (thus
-finally releasing its quota).
+    rn : Running
+    s  : Succeeded
+    f  : Failed
+    rt : Resetting
+    rs : Resuming
+
+    %% Happy Path
+    rn --> s
+
+    %% Requeuing
+    rn --> f  : Retries Exceeded
+    rn --> rt : Workload Unhealthy
+    rt --> rs : All Resources Removed
+    rs --> rn : All Resources Recreated
+
+    classDef quota fill:lightblue
+    class rs quota
+    class rn quota
+    class rt quota
+
+    classDef failed fill:pink
+    class f failed
+
+    classDef succeeded fill:lightgreen
+    class s succeeded
+```
+
+Throughout the execution of the workload, the AppWrapper controller
+monitors the number and health of the workload's Pods. It also watches
+the top-level created resources and for selected resources types
+understands how to interpret their status information. This information
+is combined to determine if a workload is unhealthy. A workload can be
+deemed *unhealthy* if any of the following conditions are true:
+   + There are a non-zero number of `Failed` Pods.
+   + It takes longer than `AdmissionGracePeriod` for the expected
+     number of Pods to reach the `Pending` state.
+   + It takes longer than the `WarmupGracePeriod` for the expected
+     number of Pods to reach the `Running` state.
+   + If a non-zero number of `Running` Pods are using resources
+     that Autopilot has tagged as `NoExecute`.
+   + The status information of a batch/v1 Job or PyTorchJob indicates
+     that it has failed.
+   + A top-level wrapped resource is externally deleted.
+
+If a workload is determined to be unhealthy by one of the first three
+Pod-level conditions above, the AppWrapper controller first waits for
+a `FailureGracePeriod` to allow the primary resource controller an
+opportunity to react and return the workload to a healthy state. The
+`FailureGracePeriod` is elided for the remaining conditions because the
+primary resource controller is not expected to take any further
+action. If the `FailureGracePeriod` passes and the workload is still
+unhealthy, the AppWrapper controller will *reset* the workload by
+deleting its resources, waiting for a `RetryPausePeriod`, and then
+creating new instances of the resources. During this retry pause, the
+AppWrapper **does not** release the workload's quota; this ensures
+that when the resources are recreated they will still have sufficient
+quota to execute.  The number of times an AppWrapper is reset is
+tracked as part of its status; if the number of resets exceeds the
+`RetryLimit`, then the AppWrapper moves into a `Failed` state and its
+resources are deleted (thus finally releasing its quota). Deletion of
+a top-level wrapped resource will cause the AppWrapper directly enter
+the `Failed` state independent of the `RetryLimit`.
 
 To support debugging `Failed` workloads, an annotation can be added to an
 AppWrapper that adds a `DeletionOnFailureGracePeriod` between the time the
