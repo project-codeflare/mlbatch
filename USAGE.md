@@ -349,8 +349,8 @@ that when the resources are recreated they will still have sufficient
 quota to execute.  The number of times an AppWrapper is reset is
 tracked as part of its status; if the number of resets exceeds the
 `RetryLimit`, then the AppWrapper moves into a `Failed` state and its
-resources are deleted (thus finally releasing its quota). Deletion of
-a top-level wrapped resource will cause the AppWrapper directly enter
+resources are deleted (thus finally releasing its quota). External deletion
+of a top-level wrapped resource will cause the AppWrapper to directly enter
 the `Failed` state independent of the `RetryLimit`.
 
 To support debugging `Failed` workloads, an annotation can be added to an
