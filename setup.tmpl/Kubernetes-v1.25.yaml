@@ -4,3 +4,4 @@ OPENSHIFT: false
 VERSION: k8s-v1.25
 KUBECTL: kubectl
 VAP: false
+SLACKCQ: true
