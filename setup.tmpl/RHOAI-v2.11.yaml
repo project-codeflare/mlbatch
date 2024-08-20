@@ -3,5 +3,4 @@
 OPENSHIFT: true
 VERSION: RHOAI-v2.11
 KUBECTL: oc
-
-
+SLACKCQ: false

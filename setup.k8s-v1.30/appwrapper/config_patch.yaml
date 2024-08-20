@@ -13,6 +13,7 @@ data:
           enable: false
       defaultQueueName: default-queue
       schedulerName: scheduler-plugins-scheduler
+      slackQueueName: slack-cluster-queue
       userRBACAdmissionCheck: false
     controllerManager:
       health:

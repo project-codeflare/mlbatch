@@ -98,3 +98,46 @@ Create `mlbatch-edit` role:
 ```sh
 kubectl apply -f setup.k8s-v1.25/mlbatch-edit-role.yaml
 ```
+
+## Slack Cluster Queue
+
+Create the designated slack `ClusterQueue` which will be used to automate
+minor adjustments to cluster capacity caused by node failures and
+scheduler maintanence.
+```sh
+kubectl apply -f- << EOF
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: slack-cluster-queue
+spec:
+  namespaceSelector: {}
+  cohort: default-cohort
+  preemption:
+    withinClusterQueue: LowerOrNewerEqualPriority
+    reclaimWithinCohort: Any
+    borrowWithinCohort:
+      policy: Never
+  resourceGroups:
+  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "nvidia.com/roce_gdr", "pods"]
+    flavors:
+    - name: default-flavor
+      resources:
+      - name: "cpu"
+        nominalQuota: 8000m
+      - name: "memory"
+        nominalQuota: 128Gi
+      - name: "nvidia.com/gpu"
+        nominalQuota: 8
+      - name: "nvidia.com/roce_gdr"
+        nominalQuota: 1
+      - name: "pods"
+        nominalQuota: 100
+EOF
+```
+Edit the above quantities to adjust the quota to the desired
+values. Pod counts are optional and can be omitted from the list of
+covered resources.  The `lendingLimit` for each resource will be
+dynamically adjusted by the MLBatch system to reflect reduced cluster
+capacity. See [QUOTA_MAINTENANCE.md](../QUOTA_MAINTENANCE.md) for a
+detailed discussion of the role of the slack `ClusterQueue`.
