@@ -27,6 +27,13 @@ common configuration options. Using this Helm chart helps eliminate common
 mistakes. Please see [pytorchjob-generator](tools/pytorchjob-generator) for
 detailed usage instructions.
 
+## Generating AppWrappers from Kubernetes YAML files
+
+If you have a Kubernetes YAML file containing one or more
+non-AppWrapper resources (eg Deployments, Pods, Services, etc),
+you can use the [appwrapper-packager](tools/appwrapper-package) tool
+to generate an AppWrapper yaml containing those resources.
+
 ## Queues
 
 All workloads must target a local queue in their namespace. The local queue name
