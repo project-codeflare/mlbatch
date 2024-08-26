@@ -30,4 +30,4 @@ value on your cluster:
 oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-st8vh
 ```
 
-Finally, create the Slack Cluster Queue as described in [CLUSTER-SETUP.md for RHOAI 2.12](./CLUSTER-SETUP.md##Slack-Cluster-Queue).
+Finally, create the Slack Cluster Queue as described in [CLUSTER-SETUP.md for RHOAI 2.12](./CLUSTER-SETUP.md#Slack-Cluster-Queue).
