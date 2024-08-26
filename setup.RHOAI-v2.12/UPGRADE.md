@@ -14,7 +14,8 @@ Typical output would be:
 ```sh
 NAME            CSV                     APPROVAL   APPROVED
 install-nqrbp   rhods-operator.2.10.0   Manual     true
-install-st8vh   rhods-operator.2.11.0   Manual     false
+install-st8vh   rhods-operator.2.11.0   Manual     true
+install-xs6gq   rhods-operator.2.12.0   Manual     false
 ```
 
 Assuming the install plan exists you can begin the upgrade process.
