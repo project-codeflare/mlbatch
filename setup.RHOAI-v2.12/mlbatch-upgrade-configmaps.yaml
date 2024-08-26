@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codeflare-operator-config
+  namespace: redhat-ods-applications
+data:
+  config.yaml: |
+    appwrapper:
+      Config:
+        manageJobsWithoutQueueName: true
+        userRBACAdmissionCheck: false
+        schedulerName: scheduler-plugins-scheduler
+        defaultQueueName: default-queue
+        slackQueueName: slack-cluster-queue
+      enabled: true
+---
