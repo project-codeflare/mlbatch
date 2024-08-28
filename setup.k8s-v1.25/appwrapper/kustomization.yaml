@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: mlbatch-system
 
 resources:
-- "https://github.com/project-codeflare/appwrapper/config/default?ref=v0.23.0"
+- "https://github.com/project-codeflare/appwrapper/config/default?ref=v0.24.0"
 
 labels:
 - pairs:
@@ -14,7 +14,7 @@ labels:
 
 images:
 - name: quay.io/ibm/appwrapper
-  newTag: v0.23.0
+  newTag: v0.24.0
 
 patches:
 - path: config_patch.yaml
