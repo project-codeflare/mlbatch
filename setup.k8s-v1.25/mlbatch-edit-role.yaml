@@ -28,6 +28,7 @@ rules:
   - services
   - secrets
   - configmaps
+  - persistentvolumeclaims
   verbs:
   - create
   - delete
