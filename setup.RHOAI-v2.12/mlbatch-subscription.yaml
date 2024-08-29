@@ -100,13 +100,25 @@ metadata:
 data:
   config.yaml: |
     appwrapper:
+      enabled: true
       Config:
         manageJobsWithoutQueueName: true
         userRBACAdmissionCheck: false
         schedulerName: scheduler-plugins-scheduler
         defaultQueueName: default-queue
         slackQueueName: slack-cluster-queue
-      enabled: true
+        autopilot:
+          resourceTaints:
+            nvidia.com/gpu:
+            - key: autopilot.ibm.com/gpuhealth
+              value: ERR
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: TESTING
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: EVICT
+              effect: NoExecute
 ---
 apiVersion: v1
 kind: ConfigMap
