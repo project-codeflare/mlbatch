@@ -31,7 +31,7 @@ detailed usage instructions.
 
 If you have a Kubernetes YAML file containing one or more
 non-AppWrapper resources (eg Deployments, Pods, Services, etc),
-you can use the [appwrapper-packager](tools/appwrapper-package) tool
+you can use the [appwrapper-packager](tools/appwrapper-packager) tool
 to generate an AppWrapper yaml containing those resources.
 
 ## Queues
