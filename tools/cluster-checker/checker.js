@@ -60,9 +60,11 @@ function reservation (pod) {
   }
   let scheduled = false
   for (const condition of pod.status?.conditions ?? []) {
-    if (condition.type === 'PodScheduled' && condition.status === 'True') {
-      scheduled = true
-      break
+    if (condition.type === 'PodScheduled') {
+      if (condition.status === 'True') {
+        scheduled = true
+      }
+      break // PodScheduled condition may only appear once
     }
   }
   if (!scheduled) {
@@ -161,9 +163,9 @@ async function main () {
     // compute GPU counts
     const nodes = await client.nodes()
     for (const node of nodes) {
-      const nodeGPUs = parseInt(node.status.capacity['nvidia.com/gpu'])
-      if (nodeGPUs > 0) {
-        clusterGPUs += nodeGPUs
+      const gpus = parseInt(node.status.capacity['nvidia.com/gpu'])
+      if (gpus > 0) {
+        clusterGPUs += gpus
         let noSchedule = false
         let noExecute = false
         if (node.metadata.labels?.['autopilot.ibm.com/gpuhealth'] === 'EVICT') {
@@ -184,9 +186,9 @@ async function main () {
           }
         }
         if (noExecute) {
-          noExecuteGPUs += nodeGPUs
+          noExecuteGPUs += gpus
         } else if (noSchedule) {
-          noScheduleGPUs += nodeGPUs
+          noScheduleGPUs += gpus
         }
       }
     }
@@ -202,11 +204,12 @@ async function main () {
             for (const resource of flavor.resources) {
               if (resource.name === 'nvidia.com/gpu') {
                 quotas[clusterQueue.metadata.name] += resource.nominalQuota
-                continue
+                break // resource may only occur once in flavor
               }
             }
           }
         }
+        break // resource may only belong to one resource group
       }
     }
 
@@ -219,7 +222,7 @@ async function main () {
 
       const localQueues = await client.localQueues(namespace.metadata.name)
 
-      if (localQueues.length == 0) {
+      if (localQueues.length === 0) {
         systemGPUs += await checkSystemNamespace(client, namespace)
       } else {
         userGPUs += await checkUserNamespace(client, namespace, quotas, localQueues)
