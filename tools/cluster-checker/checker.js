@@ -208,8 +208,8 @@ async function main () {
               }
             }
           }
+          break // resource may only belong to one resource group
         }
-        break // resource may only belong to one resource group
       }
     }
 
