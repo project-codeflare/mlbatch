@@ -73,19 +73,11 @@ function reservation (pod) {
   let gpus = 0
   // compute sum of regular containers
   for (const container of pod.spec.containers) {
-    if (container.resources?.requests?.['nvidia.com/gpu'] > 0) {
-      gpus += parseInt(container.resources?.requests?.['nvidia.com/gpu'])
-    } else if (container.resources?.limits?.['nvidia.com/gpu'] > 0) {
-      gpus += parseInt(container.resources?.limits?.['nvidia.com/gpu'])
-    }
+    gpus += parseInt(container.resources?.limits?.['nvidia.com/gpu'] ?? "0")
   }
   // compute max with init containers
   for (const container of pod.spec.initContainers ?? []) {
-    if (container.resources?.requests?.['nvidia.com/gpu'] > gpus) {
-      gpus = parseInt(container.resources?.requests?.['nvidia.com/gpu'])
-    } else if (container.resources?.limits?.['nvidia.com/gpu'] > gpus) {
-      gpus = parseInt(container.resources?.limits?.['nvidia.com/gpu'])
-    }
+    gpus = Math.max(gpus, parseInt(container.resources?.limits?.['nvidia.com/gpu'] ?? "0"))
   }
   return gpus
 }
