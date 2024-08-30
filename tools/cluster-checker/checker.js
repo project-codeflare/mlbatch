@@ -26,6 +26,11 @@ class Client {
     return res.body.items
   }
 
+  async readConfigMap (name, namespace) {
+    const res = await this.core.readNamespacedConfigMap(name, namespace)
+    return res.body
+  }
+
   async clusterQueues () {
     const res = await this.custom.listClusterCustomObject(
       'kueue.x-k8s.io',
@@ -152,6 +157,11 @@ async function main () {
     let userGPUs = 0       // GPU usage by user namespaces
     let systemGPUs = 0     // GPU usage by system namespaces
 
+    // load taint configuration
+    const configMap = await client.readConfigMap('codeflare-operator-config', 'redhat-ods-applications')
+    const config = k8s.loadYaml(configMap.data['config.yaml'])
+    const taints = config.appwrapper?.Config?.autopilot?.resourceTaints?.['nvidia.com/gpu']
+
     // compute GPU counts
     const nodes = await client.nodes()
     for (const node of nodes) {
@@ -160,20 +170,19 @@ async function main () {
         clusterGPUs += gpus
         let noSchedule = false
         let noExecute = false
-        if (node.metadata.labels?.['autopilot.ibm.com/gpuhealth'] === 'EVICT') {
-          noExecute = true
-        }
-        if (node.metadata.labels?.['autopilot.ibm.com/gpuhealth'] === 'ERR') {
-          noSchedule = true
-        }
-        if (node.metadata.labels?.['autopilot.ibm.com/gpuhealth'] === 'TESTING') {
-          noSchedule = true
+        for (const taint of taints ?? []) {
+          if (node.metadata.labels?.[taint.key] === taint.value) {
+            if (taint.effect === 'NoExecute') {
+              noExecute = true
+            } else if (taint.effect === 'NoSchedule') {
+              noSchedule = true
+            }
+          }
         }
         for (const taint of node.spec.taints ?? []) {
           if (taint.effect === 'NoExecute') {
             noExecute = true
-          }
-          if (taint.effect === 'NoSchedule') {
+          } else if (taint.effect === 'NoSchedule') {
             noSchedule = true
           }
         }
