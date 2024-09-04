@@ -101,6 +101,11 @@ kueue-controller-manager's log:
 
 ```
 
+Apply this patch:
+```sh
+oc apply -f setup.RHOAI-v2.12/mlbatch-rbac-fix.yaml
+```
+
 ## Kueue Configuration
 
 Create Kueue's default flavor:
