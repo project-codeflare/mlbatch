@@ -101,7 +101,6 @@ kueue-controller-manager's log:
 
 ```
 
-
 ## Kueue Configuration
 
 Create Kueue's default flavor:
