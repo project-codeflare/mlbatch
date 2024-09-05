@@ -100,7 +100,6 @@ kueue-controller-manager's log:
 {"level":"info","ts":"2024-06-25T20:17:25.689743757Z","logger":"setup","caller":"jobframework/setup.go:81","msg":"Set up controller and webhook for job framework","jobFrameworkName":"kubeflow.org/pytorchjob"}
 
 ```
-
 Apply this patch:
 ```sh
 oc apply -f setup.RHOAI-v2.12/mlbatch-rbac-fix.yaml
