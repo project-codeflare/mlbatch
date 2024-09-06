@@ -77,6 +77,7 @@ operators as follows:
 - Kueue:
   - `waitForPodsReady` is disabled,
   - `LendingLimit` feature gate is enabled,
+  - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
   - `schedulerName` is set to `scheduler-plugins-scheduler`,
