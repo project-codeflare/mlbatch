@@ -195,6 +195,7 @@ stateDiagram-v2
       rt : Resetting
     }
 
+    [*] --> sp
     sp --> ad
     rn --> s
     ad --> su
