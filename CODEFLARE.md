@@ -67,7 +67,7 @@ capacity from the cluster.
 
 The tool also reports the total GPU capacity distinguishing healthy (i.e.,
 schedulable, available for use) and unhealthy (i.e., unschedulable, unavailable)
-GPUs. The nominal GPU quota represents to cumulative GPU quota across all the
+GPUs. The nominal GPU quota represents the cumulative GPU quota across all the
 teams. MLBatch recommends that cluster admins keep the nominal quota below the
 cluster capacity to avoid oversubscribing the GPUs. Typically, a small number of
 GPUs is not allocated to any team but retained as a slack quota that any team
@@ -144,16 +144,16 @@ specification. In addition, MLBatch includes a new implementation of the
 [pytorch-generator](tools/pytorchjob-generator/) tool to facilitate the
 configuration of PyTorch jobs including the addition of the AppWrapper prefix.
 
-As a result of the AppWrapper simplification for MLBatch, AppWrappers now in
-version `v1beta2` are not backward compatible with MCAD's `v1beta1` AppWrappers.
-The companion pytorch-generator tool for MCAD is not compatible with MLBatch.
-However, the pytorch-generator tool included in MLBatch is backward compatible
-with the input format of the legacy tool. In other words, simply rerun `helm
-template` on the input `value.yaml` files to generate proper `v1beta2`
-AppWrappers. Please note that existing fault-tolerance-related settings from
-these input files will be ignored and default will be used instead. Please refer
-to the tool [documentation](tools/pytorchjob-generator/) for how to override
-settings such as max retry counts.
+As a result of the AppWrapper simplification for MLBatch, AppWrappers which are
+now in version `v1beta2` are not backward compatible with MCAD's `v1beta1`
+AppWrappers. The companion pytorch-generator tool for MCAD is not compatible
+with MLBatch. However, the pytorch-generator tool included in MLBatch is
+backward compatible with the input format of the legacy tool. In other words,
+simply rerun `helm template` on the input `value.yaml` files to generate proper
+`v1beta2` AppWrappers. Please note that existing fault-tolerance-related
+settings from these input files will be ignored and default will be used
+instead. Please refer to the tool [documentation](tools/pytorchjob-generator/)
+for how to override settings such as max retry counts.
 
 The list of all AppWrappers in a namespace is obtained by running:
 ```sh
