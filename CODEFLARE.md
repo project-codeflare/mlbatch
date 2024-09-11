@@ -177,7 +177,6 @@ The status of an AppWrapper is one of:
 ---
 title: AppWrapper Lifecycle
 ---
-```mermaid
 stateDiagram-v2
     sp : Suspended
     s : Succeeded
