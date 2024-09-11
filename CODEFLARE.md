@@ -1,4 +1,4 @@
-# MLBatch for CodeFlare users
+# MLBatch for CodeFlare Users
 
 MLBatch is an evolution of the [CodeFlare](https://github.com/project-codeflare)
 stack for managing AI/ML workloads on Kubernetes and its workload dispatcher
