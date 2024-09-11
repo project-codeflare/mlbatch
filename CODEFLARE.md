@@ -178,26 +178,29 @@ The status of an AppWrapper is one of:
 title: AppWrapper Lifecycle
 ---
 stateDiagram-v2
-    sp : Suspended
-    s : Succeeded
     f : Failed
+    sp : Suspended
     ad : Admitted
+    s : Succeeded
     su: Suspending
-    rs : Resuming
-    rn : Running
-    rt : Resetting
 
     state ad {
       [*] --> rs
       rs --> rn
       rn --> rt 
       rt --> rs
+ 
+      rs : Resuming
+      rn : Running
+      rt : Resetting
     }
 
     sp --> ad
+    rn --> s
     ad --> su
     su --> sp
-    
+    ad --> f
+ 
     classDef admitted fill:lightblue
     class rs admitted
     class rn admitted
