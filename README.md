@@ -34,7 +34,10 @@ Cluster admins should carefully read [QUOTA_MAINTENANCE.md](QUOTA_MAINTENANCE.md
 
 ## Running Workloads
 
-To learn how to run workloads on an MLBatch cluster see [USAGE.md](USAGE.md).
+To learn how to run workloads on an MLBatch cluster see [USAGE.md](USAGE.md) or
+[CODEFLARE.md](CODEFLARE.md) if you are already familiar with the
+[CodeFlare](https://github.com/project-codeflare) stack for managing AI/ML
+workloads on Kuberneteds.
 
 ### PyTorchJobs via the MLBatch Helm Chart
 
