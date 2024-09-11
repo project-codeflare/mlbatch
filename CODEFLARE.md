@@ -51,7 +51,8 @@ platform-cluster-queue           8           4                    4             
 
 Total GPU count in cluster:        24
 Unschedulable GPU count:         -  0
-Schedulable GPU count:           = 2
+Schedulable GPU count:           =  2
+
 Nominal GPU quota:                 16
 Slack GPU quota:                 +  8
 Total GPU quota:                 = 24
