@@ -213,6 +213,12 @@ stateDiagram-v2
     classDef succeeded fill:lightgreen
     class s succeeded
 ```
+In this diagram, the outer loop consisting of the `Suspended`, `Admitted`, and
+`Suspending` states is managed by Kueue, while the inner loop consisting of the
+`Resuming`, `Running`, and `Resetting` states is managed by the AppWrapper
+controller. In particular, the AppWrapper controller handles workload retries
+without releasing and reacquiring Kueue quotas, hence without moving retried
+workloads to the back of the cluster queue.
 
 In addition, this AppWrapper table also reports:
 - quota reserved: whether Kueue has reserved the quota requested by the
