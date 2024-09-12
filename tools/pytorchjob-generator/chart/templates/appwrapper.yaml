@@ -23,27 +23,27 @@
 {{- end -}}
 {{- $customLabelKey := split "/" $customLabel.key -}}
 {{- if gt ( len $customLabelKey._0 ) 63 -}}
-{{ required "The name of the 'customLables.key' must be less than 64 characters" "" }}
+{{ required "The name of the 'customLabels.key' must be less than 64 characters" "" }}
 {{- end -}}
 {{- if eq ( regexMatch "^[a-z]([-a-z0-9._]*[a-z0-9])?$" $customLabelKey._0 ) false -}}
-{{ required "The name of the 'customLables.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the key, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
+{{ required "The name of the 'customLabels.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the key, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
 {{- end -}}
 {{- if $customLabelKey._1 }}
 {{- if gt ( len $customLabelKey._1 ) 254 -}}
-{{ required "The prefix of the 'customLables.key' must be less than 254 characters" "" }}
+{{ required "The prefix of the 'customLabels.key' must be less than 254 characters" "" }}
 {{- end -}}
 {{- if eq ( regexMatch "^[a-z]([-a-z0-9.]*[a-z0-9])?$" $customLabelKey._1 ) false -}}
-{{ required "The prefix of the 'customLables.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-.'), has one or more capital letters somewhere in the key, has one or more special characters other than '-.', it ends with a special character (including '-.')" "" }}
+{{ required "The prefix of the 'customLabels.key' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-.'), has one or more capital letters somewhere in the key, has one or more special characters other than '-.', it ends with a special character (including '-.')" "" }}
 {{- end -}}
 {{- end -}}
 {{- if not $customLabel.value -}}
 {{ required "Missing 'value' in 'customLabels' list element" $customLabel.value }}
 {{- end -}}
 {{- if gt ( len $customLabel.value ) 63 -}}
-{{ required "The length of the 'customLables.value' must be less than 64 characters" "" }}
+{{ required "The length of the 'customLabels.value' must be less than 64 characters" "" }}
 {{- end -}}
 {{- if eq ( regexMatch "^[a-z]([-a-z0-9._]*[a-z0-9])?$" $customLabel.value ) false -}}
-{{ required "The 'customLables.value' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the name, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
+{{ required "The 'customLabels.value' provided is NOT correct. Some possible causes are: it begins with a number or a special character (including '-._'), has one or more capital letters somewhere in the name, has one or more special characters other than '-._', it ends with a special character (including '-._')" "" }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
