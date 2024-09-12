@@ -4,7 +4,7 @@ MLBatch is an evolution of the [CodeFlare](https://github.com/project-codeflare)
 stack for managing AI/ML workloads on Kubernetes and its workload dispatcher
 [MCAD](https://github.com/project-codeflare/multi-cluster-app-dispatcher).
 
-Like MCAD, MLBatch is designed to queue workloads and dispatch them over time,
+Like MCAD, MLBatch is designed to queue workloads and admit them for execution over time,
 accounting for quotas, priorities, and precedence. MLBatch relies on
 [AppWrappers](https://github.com/project-codeflare/appwrapper) to bundle
 together all the components of a workloads such as pods, PyTorch jobs, Ray jobs,
@@ -19,13 +19,23 @@ differences with the earlier setup built around MCAD.
 ## Kueue
 
 MLBatch replaces MCAD with [Kueue](https://kueue.sigs.k8s.io) to queue and
-dispatch jobs. Kueue introduces a new quota management system based on [cluster
+admit jobs. Kueue introduces a new quota management system based on [cluster
 queues](https://kueue.sigs.k8s.io/docs/concepts/cluster_queue/). This quota
 system provides more flexibility to allocate compute resources (CPU, memory, and
-GPU quotas) that [resource
+GPU quotas) than [resource
 quotas](https://kubernetes.io/docs/concepts/policy/resource-quotas/) in core
-Kubernetes. In particular, it makes it possible to run workloads over quota
-whenever there is idle capacity in a cluster.
+Kubernetes. This system allows the borrowing of unused quota between
+cluster queues (see [Priorities and Preemption below](#priorities-and-preemption)).
+Borrowing enables high overall cluster resource utilization while
+still ensuring that every team always has the ability to run jobs up to their
+allocated quotas. Kueue also enables teams to use
+priorities to order jobs within their own cluster queue without those
+priorities impacting the scheduling of jobs by other cluster queues.
+
+Unlike MCAD, Kueue only considers quotas when admitting workloads. As a result,
+MLBatch must ensure that all resource-consuming workloads in user namespaces are managed
+by Kueue.  This is accomplished by stricter controls on the Kinds of non-AppWrapper
+resources users are permitted to create.
 
 For various reasons, workloads are not directly submitted to cluster queues but
 rather to namespaced [local
@@ -33,8 +43,8 @@ queues](https://kueue.sigs.k8s.io/docs/concepts/local_queue/) that feed into the
 cluster queues. By convention in MLBatch, each team is assigned a namespace and
 a cluster queue dedicated to the team. For example, the _platform_ team is
 assigned to namespace `platform` and its associated cluster queue named
-`platform-cluster-queue`. The local queue name is always `default-queue`. Hence,
-the `default-queue` in namespace `platform` feeds into the
+`platform-cluster-queue`. The local queue name in each namespace in MLBatch is always `default-queue`.
+Hence, the `default-queue` in namespace `platform` feeds into the
 `platform-cluster-queue`. In short, all workloads must be submitted to the local
 queue named `default-queue` but to review quota allocation and usage, one has to
 query the cluster queues.
@@ -60,10 +70,10 @@ Total GPU quota:                 = 24
 GPU usage by admitted workloads:   20
 Borrowed GPU count:                 8
 ```
-The tool enumerates the cluster queues defined on the cluster showing the GPU
-quota for each team as well as the number of GPUs in use by admitted workloads.
+The tool lists the cluster queues defined on the cluster showing the GPU
+quota for each one as well as the number of GPUs in use by admitted workloads.
 The GPU usage may exceed the GPU quota for a team if this team is borrowing idle
-capacity from the cluster.
+capacity from other cluster queues.
 
 The tool also reports the total GPU capacity distinguishing healthy (i.e.,
 schedulable, available for use) and unhealthy (i.e., unschedulable, unavailable)
@@ -99,7 +109,7 @@ across all types of workloads:
 - The resources, especially the GPUs, utilized by a failed workload are returned
   to the cluster in a timely manner, i.e., within minutes by default, with a
   configurable grace period to permit post-mortem debugging. Cluster admins can
-  enforce an upper bound on this grace period to avoid resource wastage.
+  enforce an upper bound on this grace period to bound resource wastage.
 - The Kubernetes objects associated with a completed workload, in particular the
   pods and their logs, are eventually disposed of, by default after a week.
 - Failed workloads are automatically retried up to a configurable number of
@@ -242,7 +252,7 @@ AppWrapper:
 ```sh
 kubectl describe appwrapper wrapped-pod
 ```
-Kueue creates and maintains a companion `workload` object for each workload it
+Kueue creates and maintains a companion `Workload` object for each workload it
 manages. Further details about the AppWrapper condition such as Kueue's
 rationale for evicting the workload may be obtained by accessing this companion
 object:
@@ -264,9 +274,10 @@ i.e., the AppWrapper is deleted.
 MLBatch supports the `high-priority`, `default-priority`, and `low-priority`
 priority classes.
 
-To override the default `default-priority` of a workload, simply add a
-`priorityClassName` to the specification of the wrapped pod templates, for
-example:
+If you are using the pytorch-generator tool, you can override the default
+`default-priority` of a workload by setting the `priority` variable. If you
+are generating your yaml by other means, simply add a `priorityClassName`
+to the specification of the wrapped pod templates, for example:
 ```yaml
 # appwrapper prefix
 apiVersion: workload.codeflare.dev/v1beta2
@@ -292,19 +303,30 @@ spec:
             requests:
               cpu: 1
 ```
-Workloads of equal priority are considered for admission in submission order.
+
+Workloads of equal priority are considered for admission by their cluster queue in submission order.
 Higher-priority workloads are considered for admission before lower-priority
-workloads irrespective of arrival time. However, workloads that cannot be
+workloads irrespective of their submission time. However, workloads that cannot be
 admitted will not block the admission of newer and/or lower-priority workloads
-(if they fit within the quota).
+(if they fit within the nominal quota of the cluster queue).
 
-A workload will preempt lower-priority workloads in the current namespace to
-meet its quota if necessary as well as workloads from other namespaces borrowing
-quota from the current namespace. A workload may also preempt newer,
-equal-priority workloads in the same namespace. In contrast, a workload will
-never preempt workloads from another namespace as long as this namespace stays
-below or at its nominal quota, irrespective of workload priorities.
+To reduce workload churn, Kueue forbids workloads to
+simultaneously utilize both preemption and borrowing to acquire the
+necessary quota to be admitted.  Therefore a workload that by itself
+exceeds the nominal quota of its cluster queue will never trigger
+preemption. Similarly, if the combined resources of (a) a pending
+workload and (b) the sum of all already admitted workloads with equal
+or higher priority to the pending workload exceeds the nominal quota
+of their cluster queue, Kueue will not preempt already admitted lower
+priority workloads of that cluster queue to admit the pending
+workload.
 
-Kueue forbids workloads to rely on preemption and quota borrowing at the same
-time. In particular, a workload that exceeds by itself the namespace nominal
-quota cannot trigger preemption.
+When a workload is pending on a cluster queue and admitting that
+workload would still leave the cluster queue at or below its nominal
+quota, Kueue may preempt one or more currently admitted workloads of
+other cluster queues to reclaim the necessary borrowed quota.  When such
+preemption is necessary, the decision of which workload(s) to preempt
+is based solely on considering the currently admitted workloads of
+just those cluster queues that are exceeding their nominal
+quota. Workloads admitted by cluster queues that are currently at or
+below their nominal quota will not be preempted.
