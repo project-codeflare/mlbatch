@@ -61,7 +61,7 @@ platform-cluster-queue           8           4                    4             
 
 Total GPU count in cluster:        24
 Unschedulable GPU count:         -  0
-Schedulable GPU count:           =  2
+Schedulable GPU count:           = 24
 
 Nominal GPU quota:                 16
 Slack GPU quota:                 +  8
@@ -72,8 +72,8 @@ Borrowed GPU count:                 8
 ```
 The tool lists the cluster queues defined on the cluster showing the GPU
 quota for each one as well as the number of GPUs in use by admitted workloads.
-The GPU usage may exceed the GPU quota for a team if this team is borrowing idle
-capacity from other cluster queues.
+The GPU usage may exceed the GPU quota for the cluster queue if this cluster queue
+is borrowing idle capacity.
 
 The tool also reports the total GPU capacity distinguishing healthy (i.e.,
 schedulable, available for use) and unhealthy (i.e., unschedulable, unavailable)
