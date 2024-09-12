@@ -263,4 +263,3 @@ restartPolicy: "Never"
 # @default -- Kubernetes's default value is used
 # @section -- Fault Tolerance
 terminationGracePeriodSeconds:
-
