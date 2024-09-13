@@ -34,8 +34,8 @@ priorities impacting the scheduling of jobs by other cluster queues.
 
 Unlike MCAD, Kueue only considers quotas when admitting workloads. As a result,
 MLBatch must ensure that all resource-consuming workloads in user namespaces are managed
-by Kueue.  This is accomplished by stricter controls on the Kinds of non-AppWrapper
-resources users are permitted to create.
+by Kueue.  This is accomplished by strictly [limiting the Kinds](#allowed-kinds)
+of non-AppWrapper resources users are permitted to create.
 
 For various reasons, workloads are not directly submitted to cluster queues but
 rather to namespaced [local
@@ -330,3 +330,36 @@ is based solely on considering the currently admitted workloads of
 just those cluster queues that are exceeding their nominal
 quota. Workloads admitted by cluster queues that are currently at or
 below their nominal quota will not be preempted.
+
+## Allowed Kinds
+
+MLBatch allows users to directly create the following Kinds of compute
+resources:
+   + AppWrapper
+   + PyTorchJob (allowed, but recommend to put inside an AppWrapper)
+   + RayJob (allowed, but recommend to put inside an AppWrapper)
+   + RayCluster (allowed, but recommend to put inside an AppWrapper)
+
+MLBatch also allows users to directly create the following Kinds of
+non-compute resources:
+   + Service
+   + Secret
+   + ConfigMap
+   + PersistentVolumeClaim
+   + PodGroup (allowed, but recommend to put inside an AppWrapper)
+
+MLBatch allows users to wrap an arbitrary number of one or more of the
+following Kinds inside of an AppWrapper:
+   + PyTorchJob
+   + RayJob
+   + RayCluster
+   + Deployment
+   + StatefulSet
+   + Pod
+   + Job
+   + ServiceAccount
+   + Service
+   + Secret
+   + ConfigMap
+   + PersistentVolumeClaim
+   + PodGroup
