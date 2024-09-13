@@ -31,6 +31,24 @@ class Client {
     return res.body
   }
 
+  async readOperatorConfig() {
+    const options = [
+      {ns: 'redhat-ods-applications', cm: 'codeflare-operator-config', key: 'config.yaml', f: cm => cm.appwrapper?.Config },
+      {ns: 'mlbatch-system', cm: 'appwrapper-operator-config', key: 'config.yaml', f: cm => cm.appwrapper },
+      {ns: 'appwrapper-system', cm: 'appwrapper-operator-config', key: 'config.yaml', f: cm => cm.appwrapper }
+    ]
+    for (const opt of options) {
+      try {
+        const configMap = await this.readConfigMap(opt.cm, opt.ns)
+        const cm = k8s.loadYaml(configMap.data[opt.key])
+        return opt.f(cm)
+      } catch (error) {
+      }
+    }
+    console.log('WARNING: Failed to read operator config')
+    return {}
+  }
+
   async clusterQueues () {
     const res = await this.custom.listClusterCustomObject(
       'kueue.x-k8s.io',
@@ -184,11 +202,9 @@ async function main () {
     let quotaGPUs = 0      // nominal GPU quota (excluding slack queue)
     let slackGPUs = 0      // lending limit on slack queue
 
-    // load codeflare operator configuration
-    const configMap = await client.readConfigMap('codeflare-operator-config', 'redhat-ods-applications')
-    const config = k8s.loadYaml(configMap.data['config.yaml'])
-    const taints = config.appwrapper?.Config?.autopilot?.resourceTaints?.['nvidia.com/gpu']
-    const slackQueueName = config.appwrapper?.Config?.slackQueueName
+    const config = await client.readOperatorConfig()
+    const taints = config.autopilot?.resourceTaints?.['nvidia.com/gpu']
+    const slackQueueName = config.slackQueueName
 
     // compute GPU counts
     const nodes = await client.nodes()
