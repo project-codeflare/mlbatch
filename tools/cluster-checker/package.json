@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@kubernetes/client-node": "^0.21.0"
+    "@kubernetes/client-node": "^0.21.0",
+    "kubernetes-resource-parser": "0.1.0"
   }
 }
