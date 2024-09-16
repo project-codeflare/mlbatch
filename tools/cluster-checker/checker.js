@@ -148,7 +148,9 @@ function reservation (pod) {
   return gpus
 }
 
+// check container resource requests against node_resources
 function checkContainerResources(namespace, workload, container) {
+  // selectively merge limits into requests
   const resources = {}
   for (const k in container.resources?.requests ?? []) {
     resources[k] = container.resources.requests[k]
@@ -164,7 +166,7 @@ function checkContainerResources(namespace, workload, container) {
   const cpus = k8srp.cpuParser(resources['cpu'] ?? '0')
   const mem = k8srp.memoryParser(resources['memory'] ?? '0')
 
-  // Check that resources will fit on a node
+  // warn if the resource requests cannot be satisfied by a Node
   if (gpus > nodeResources['nvidia.com/gpu']) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting "${gpus} GPUs"`)
   }
@@ -178,7 +180,7 @@ function checkContainerResources(namespace, workload, container) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources['memory']} memory`)
   }
 
-  // Check that resource:GPU ratio is proportional
+  // warn if the resource:GPU ratio is not proportional to Node resources
   if (gdr > 0 && ((gpus == 0) || (gpus/gdr < nodeResources['nvidia.com/gpu']/nodeResources['nvidia.com/roce_gdr']))) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${gdr} roce_gdr but only ${gpus} GPUs`)
   }
