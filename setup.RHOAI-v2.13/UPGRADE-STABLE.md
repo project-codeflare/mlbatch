@@ -21,7 +21,7 @@ Assuming the install plan exists you can begin the upgrade process.
 
 First, update the MLBatch modifications to the default RHOAI configuration maps.
 ```sh
-oc apply -f setup.RHOAI-v2.13/mlbatch-upgrade-configmaps.yaml
+oc apply -f setup.RHOAI-v2.13/mlbatch-upgrade-stable-configmaps.yaml
 ```
 
 Second, approve the install plan replacing the example plan name below with the actual
