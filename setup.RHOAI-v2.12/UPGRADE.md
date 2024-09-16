@@ -28,10 +28,10 @@ oc apply -f setup.RHOAI-v2.12/mlbatch-upgrade-configmaps.yaml
 Second, approve the install plan replacing the example plan name below with the actual
 value on your cluster:
 ```sh
-oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-st8vh
+oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-xs6gq
 ```
 
-Apply this patch:
+Third, apply this patch:
 ```sh
 oc apply -f setup.RHOAI-v2.12/mlbatch-rbac-fix.yaml
 ```

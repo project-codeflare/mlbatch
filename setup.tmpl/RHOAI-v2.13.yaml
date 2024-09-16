@@ -1,0 +1,6 @@
+# Values for RHOAI 2.13
+
+OPENSHIFT: true
+VERSION: RHOAI-v2.13
+KUBECTL: oc
+SLACKCQ: true
