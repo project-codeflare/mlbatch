@@ -1,0 +1,115 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codeflare-operator-config
+  namespace: redhat-ods-applications
+data:
+  config.yaml: |
+    appwrapper:
+      enabled: true
+      Config:
+        manageJobsWithoutQueueName: true
+        userRBACAdmissionCheck: false
+        schedulerName: scheduler-plugins-scheduler
+        defaultQueueName: default-queue
+        slackQueueName: slack-cluster-queue
+        autopilot:
+          resourceTaints:
+            nvidia.com/gpu:
+            - key: autopilot.ibm.com/gpuhealth
+              value: ERR
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: TESTING
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: EVICT
+              effect: NoExecute
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlbatch-kueue
+  namespace: redhat-ods-operator
+data:
+  controller_manager_config.yaml: |
+    apiVersion: config.kueue.x-k8s.io/v1beta1
+    kind: Configuration
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: :8080
+      enableClusterQueueResources: true
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: c1f6bfd2.kueue.x-k8s.io
+    controller:
+      groupKindConcurrency:
+        Job.batch: 5
+        Pod: 5
+        Workload.kueue.x-k8s.io: 5
+        LocalQueue.kueue.x-k8s.io: 1
+        ClusterQueue.kueue.x-k8s.io: 1
+        ResourceFlavor.kueue.x-k8s.io: 1
+    clientConnection:
+      qps: 50
+      burst: 100
+    #pprofBindAddress: :8082
+    waitForPodsReady:
+      enable: false
+      blockAdmission: false
+    manageJobsWithoutQueueName: true
+    #internalCertManagement:
+    #  enable: false
+    #  webhookServiceName: ""
+    #  webhookSecretName: ""
+    integrations:
+      frameworks:
+    # - "batch/job"
+      - "kubeflow.org/mpijob"
+      - "ray.io/rayjob"
+      - "ray.io/raycluster"
+      - "jobset.x-k8s.io/jobset"
+      - "kubeflow.org/mxjob"
+      - "kubeflow.org/paddlejob"
+      - "kubeflow.org/pytorchjob"
+      - "kubeflow.org/tfjob"
+      - "kubeflow.org/xgboostjob"
+    # - "pod"
+      externalFrameworks:
+      - "AppWrapper.v1beta2.workload.codeflare.dev"
+    # podOptions:
+    #   namespaceSelector:
+    #     matchExpressions:
+    #       - key: kubernetes.io/metadata.name
+    #         operator: NotIn
+    #         values: [ kube-system, kueue-system ]
+  manager_config_patch.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: controller-manager
+      namespace: system
+    spec:
+      template:
+        spec:
+          priorityClassName: system-node-critical
+          containers:
+          - name: manager
+            image: $(image)
+            args:
+            - "--config=/controller_manager_config.yaml"
+            - "--zap-log-level=2"
+            - "--feature-gates=LendingLimit=true"
+            volumeMounts:
+            - name: manager-config
+              mountPath: /controller_manager_config.yaml
+              subPath: controller_manager_config.yaml
+          volumes:
+          - name: manager-config
+            configMap:
+              name: manager-config
+---
