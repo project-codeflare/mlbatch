@@ -149,7 +149,7 @@ function reservation (pod) {
 }
 
 // check container resource requests against node_resources
-function checkContainerResources(namespace, workload, container) {
+function checkContainerResources(namespace, workload, workloadReplicas, container) {
   // selectively merge limits into requests
   const resources = {}
   for (const k in container.resources?.requests ?? []) {
@@ -190,6 +190,11 @@ function checkContainerResources(namespace, workload, container) {
   if (gpus > 0 && (mem > 0) && (mem/gpus > k8srp.memoryParser(nodeResources['memory'])/nodeResources['nvidia.com/gpu'])) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources['memory']} memory but only ${gpus} GPUs`)
   }
+
+  // warn if other resource constraints are violated
+  if (gdr > 0 && workloadReplicas < 2) {
+    console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" is a single pod workload that is requesting ${gdr} roce_gdr`)
+  }
 }
 
 // check user namespace
@@ -225,12 +230,16 @@ async function checkUserNamespace (client, namespace, queues) {
     }
 
     // report misconfigured resource requests
+    let replicas = 0
+    for (const podSet of workload.spec?.podSets) {
+      replicas += podSet.count ?? 0
+    }
     for (const podSet of workload.spec?.podSets) {
       for (const ic of podSet.template?.spec?.initContainers ?? []) {
-        checkContainerResources(namespace, workload, ic)
+        checkContainerResources(namespace, workload, replicas, ic)
       }
       for (const c of podSet.template?.spec?.containers ?? []) {
-        checkContainerResources(namespace, workload, c)
+        checkContainerResources(namespace, workload, replicas, c)
       }
     }
   }
