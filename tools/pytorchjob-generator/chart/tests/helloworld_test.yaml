@@ -134,7 +134,37 @@ tests:
       command: ["sh", "-c", "echo hello world!"]
   asserts:
   - matchSnapshot:
-    path: spec.components[0].template
+    patch: spec.components[0].template
+
+- it: Setting fault tolerance annotations
+  set:
+    admissionGracePeriodDuration: "10s"
+    warmupGracePeriodDuration: "11s"
+    failureGracePeriodDuration: "22s"
+    retryPausePeriodDuration: "17s"
+    retryLimit: 42
+    forcefulDeletionGracePeriodDuration: "19s"
+    deletionOnFailureGracePeriodDuration: "2s"
+  asserts:
+  - isSubset:
+      path: metadata.annotations
+      content:
+        workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: "10s"
+        workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: "11s"
+        workload.codeflare.dev.appwrapper/failureGracePeriodDuration: "22s"
+        workload.codeflare.dev.appwrapper/retryPausePeriodDuration: "17s"
+        workload.codeflare.dev.appwrapper/retryLimit: "42"
+        workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "19s"
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "2s"
+
+- it: Setting jsut one tolerance annotation
+  set:
+    deletionOnFailureGracePeriodDuration: "6h"
+  asserts:
+  - isSubset:
+      path: metadata.annotations
+      content:
+        workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "6h"
 
 - it: Enabling all advanced features at once
   set:

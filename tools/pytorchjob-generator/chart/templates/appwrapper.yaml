@@ -54,13 +54,28 @@ metadata:
     name: {{ .Values.jobName }}
     namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
     annotations:
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: "{{ .Chart.Version }}"
+        {{- if .Values.admissionGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/admissionGracePeriodDuration: "{{ .Values.admissionGracePeriodDuration }}"
+        {{- end }}
+        {{- if .Values.warmupGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/warmupGracePeriodDuration: "{{ .Values.warmupGracePeriodDuration }}"
+        {{- end }}
+        {{- if .Values.failureGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/failureGracePeriodDuration: "{{ .Values.failureGracePeriodDuration }}"
+        {{- end }}
+        {{- if .Values.retryPausePeriodDuration }}
         workload.codeflare.dev.appwrapper/retryPausePeriodDuration: "{{ .Values.retryPausePeriodDuration }}"
+        {{- end }}
+        {{- if .Values.retryLimit }}
         workload.codeflare.dev.appwrapper/retryLimit: "{{ .Values.retryLimit }}"
+        {{- end }}
+        {{- if .Values.forcefulDeletionGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "{{ .Values.forcefulDeletionGracePeriodDuration }}"
+        {{- end }}
+        {{- if .Values.deletionOnFailureGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "{{ .Values.deletionOnFailureGracePeriodDuration }}"
+        {{- end }}
     labels:
         kueue.x-k8s.io/queue-name: {{ .Values.queueName }}
         {{- include "mlbatch.customLabels" . | indent 8 }}

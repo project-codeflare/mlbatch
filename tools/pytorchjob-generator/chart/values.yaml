@@ -229,31 +229,38 @@ serviceAccountName: # service account name
 
 # -- (string) Customize the admissionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-admissionGracePeriodDuration: "60s"
+# @default -- The AppWrapper defaults will be used
+admissionGracePeriodDuration:
 
 # -- (string) Customize the warmupGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-warmupGracePeriodDuration: "300s"
+# @default -- The AppWrapper defaults will be used
+warmupGracePeriodDuration:
 
 # -- (string) Customize the failureGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-failureGracePeriodDuration: "60s"
+# @default -- The AppWrapper defaults will be used
+failureGracePeriodDuration:
 
 # -- (string) Customize the retryPausePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-retryPausePeriodDuration: "90s"
+# @default -- The AppWrapper defaults will be used
+retryPausePeriodDuration:
 
 # -- (integer) Customize the retryLimit; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-retryLimit: 3
+# @default -- The AppWrapper defaults will be used
+retryLimit:
 
 # -- (string) Customize the forcefulDelectionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-forcefulDeletionGracePeriodDuration: "600s"
+# @default -- The AppWrapper defaults will be used
+forcefulDeletionGracePeriodDuration:
 
 # -- (string) Customize the deletionOnFailureGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
-deletionOnFailureGracePeriodDuration: "0s"
+# @default -- The AppWrapper defaults will be used
+deletionOnFailureGracePeriodDuration:
 
 # -- (string) Set Kubernertes policy for restarting failed containers "in place" (without restarting the Pod).
 # @section -- Fault Tolerance

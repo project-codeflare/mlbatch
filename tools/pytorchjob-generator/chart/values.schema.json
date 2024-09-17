@@ -4,14 +4,7 @@
     "required": [
         "namespace",
         "jobName",
-        "containerImage",
-        "admissionGracePeriodDuration",
-        "warmupGracePeriodDuration",
-        "failureGracePeriodDuration",
-        "retryPausePeriodDuration",
-        "retryLimit",
-        "forcefulDeletionGracePeriodDuration",
-        "deletionOnFailureGracePeriodDuration"
+        "containerImage"
     ],
     "additionalProperties": false,
     "properties": {
@@ -125,13 +118,34 @@
             { "type": "null" },
             { "type": "integer", "minimum": 0 }
         ]},
-        "admissionGracePeriodDuration": { "$ref": "#/$defs/duration" },
-        "warmupGracePeriodDuration": { "$ref": "#/$defs/duration" },
-        "failureGracePeriodDuration": { "$ref": "#/$defs/duration" },
-        "retryPausePeriodDuration": { "$ref": "#/$defs/duration" },
-        "retryLimit": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "forcefulDeletionGracePeriodDuration": { "$ref": "#/$defs/duration" },
-        "deletionOnFailureGracePeriodDuration" : { "$ref": "#/$defs/duration" }
+        "admissionGracePeriodDuration": { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]},
+        "warmupGracePeriodDuration": { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]},
+        "failureGracePeriodDuration": { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]},
+        "retryPausePeriodDuration": { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]},
+        "retryLimit": { "oneOf" : [
+            { "type": "null" },
+            { "type": "integer", "minimum": 0, "maximum": 100 }
+        ]},
+        "forcefulDeletionGracePeriodDuration": { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]},
+        "deletionOnFailureGracePeriodDuration" : { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
+        ]}
     },
 
     "if": {
