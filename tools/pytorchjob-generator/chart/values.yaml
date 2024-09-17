@@ -157,7 +157,7 @@ volumes:
 # @section -- Advanced Options
 roceGdrResName: # <optional, default=""> 
 
-# -- (integer) number of nvidia.com/roce_grd resources (0 means disabled; >0 means enable GDR over RoCE).
+# -- (integer) number of nvidia.com/roce_grd resources (0 means disabled; >0 means enable GDR over RoCE). Must be 0 unless numPods > 1.
 # @section -- Advanced Options
 numRoceGdr: 0
 
