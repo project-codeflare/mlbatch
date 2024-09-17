@@ -79,7 +79,7 @@
             { "type": "null" },
             { "type": "string" }
         ]},
-        "numRoceGdr": { "type": "integer" },
+        "numRoceGdr": { "type": "integer", "minimum": 0, "maximum": 2 },
         "topologyFileConfigMap": { "oneOf": [
             { "type": "null" },
             { "$ref": "#/$defs/rfc1123Label" }
@@ -132,6 +132,17 @@
         "retryLimit": { "type": "integer", "minimum": 0, "maximum": 100 },
         "forcefulDeletionGracePeriodDuration": { "$ref": "#/$defs/duration" },
         "deletionOnFailureGracePeriodDuration" : { "$ref": "#/$defs/duration" }
+    },
+
+    "if": {
+        "properties": {
+            "numPods": { "const": 1 }
+        }
+    },
+    "then": {
+        "properties": {
+            "numRoceGdr": { "const": 0 }
+        }
     },
 
     "$defs": {
