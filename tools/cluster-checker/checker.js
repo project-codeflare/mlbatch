@@ -6,8 +6,8 @@ const k8srp = require('kubernetes-resource-parser')
 const nodeResources = {
   'nvidia.com/gpu': 8,
   'nvidia.com/roce_gdr': 2,
-  'cpu': 80,
-  'memory': '800G'
+  cpu: 80,
+  memory: '800G'
 }
 
 class Client {
@@ -163,32 +163,32 @@ function checkContainerResources (namespace, workload, workloadReplicas, contain
 
   const gpus = parseInt(resources['nvidia.com/gpu'] ?? '0')
   const gdr = parseInt(resources['nvidia.com/roce_gdr'] ?? '0')
-  const cpus = k8srp.cpuParser(resources['cpu'] ?? '0')
-  const mem = k8srp.memoryParser(resources['memory'] ?? '0')
+  const cpus = k8srp.cpuParser(resources.cpu ?? '0')
+  const mem = k8srp.memoryParser(resources.memory ?? '0')
 
   // warn if the resource requests cannot be satisfied by a Node
   if (gpus > nodeResources['nvidia.com/gpu']) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting "${gpus} GPUs"`)
   }
-  if (gdr > nodeResources['gdrPerNode']) {
+  if (gdr > nodeResources.gdrPerNode) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${gdr} roce_gdr interfaces"`)
   }
-  if (cpus > nodeResources['cpu']) {
+  if (cpus > nodeResources.cpu) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting "${cpus} CPUs"`)
   }
-  if (mem > k8srp.memoryParser(nodeResources['memory'])) {
-    console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources['memory']} memory`)
+  if (mem > k8srp.memoryParser(nodeResources.memory)) {
+    console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources.memory} memory`)
   }
 
   // warn if the resource:GPU ratio is not proportional to Node resources
-  if (gdr > 0 && ((gpus == 0) || (gpus / gdr < nodeResources['nvidia.com/gpu'] / nodeResources['nvidia.com/roce_gdr']))) {
+  if (gdr > 0 && ((gpus === 0) || (gpus / gdr < nodeResources['nvidia.com/gpu'] / nodeResources['nvidia.com/roce_gdr']))) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${gdr} roce_gdr but only ${gpus} GPUs`)
   }
-  if (gpus > 0 && (cpus > 0) && (cpus / gpus > nodeResources['cpu'] / nodeResources['nvidia.com/gpu'])) {
+  if (gpus > 0 && (cpus > 0) && (cpus / gpus > nodeResources.cpu / nodeResources['nvidia.com/gpu'])) {
     console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${cpus} cpus but only ${gpus} GPUs`)
   }
-  if (gpus > 0 && (mem > 0) && (mem / gpus > k8srp.memoryParser(nodeResources['memory']) / nodeResources['nvidia.com/gpu'])) {
-    console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources['memory']} memory but only ${gpus} GPUs`)
+  if (gpus > 0 && (mem > 0) && (mem / gpus > k8srp.memoryParser(nodeResources.memory) / nodeResources['nvidia.com/gpu'])) {
+    console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has a container requesting ${resources.memory} memory but only ${gpus} GPUs`)
   }
 
   // warn if other resource constraints are violated
@@ -203,7 +203,7 @@ async function checkUserNamespace (client, namespace, queues) {
 
   for (const workload of workloads) {
     // report invalid queue names
-    let queueName = workload.spec.queueName
+    const queueName = workload.spec.queueName
     if (queueName) {
       if (!queues.find(queue => queue.metadata.name === queueName)) {
         console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" refers to a non-existent local queue "${queueName}"`)
@@ -222,10 +222,10 @@ async function checkUserNamespace (client, namespace, queues) {
     for (const condition of workload.status?.conditions ?? []) {
       conditions[condition.type] = condition.status
     }
-    if (conditions['Admitted'] === 'True' && conditions['PodsReady'] === 'False') {
+    if (conditions.Admitted === 'True' && conditions.PodsReady === 'False') {
       console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has conditions Admitted=True and PodsReady=False`)
     }
-    if (conditions['Evicted'] === 'True') {
+    if (conditions.Evicted === 'True') {
       console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has condition Evicted=True`)
     }
 
@@ -265,13 +265,13 @@ async function main () {
     // initialize kubernetes client
     const client = new Client()
 
-    let clusterGPUs = 0    // cluster capacity
-    let noScheduleGPUs = 0 // no-schedule GPUs
-    let noExecuteGPUs = 0  // no-execute GPUs
-    let usedGPUs = 0       // GPU usage by admitted workloads
-    let borrowedGPUs = 0   // GPU borrowed from the cohort
-    let quotaGPUs = 0      // nominal GPU quota (excluding slack queue)
-    let slackGPUs = 0      // lending limit on slack queue
+    let clusterGPUs = 0 // cluster capacity
+    const noScheduleGPUs = 0 // no-schedule GPUs
+    const noExecuteGPUs = 0 // no-execute GPUs
+    let usedGPUs = 0 // GPU usage by admitted workloads
+    let borrowedGPUs = 0 // GPU borrowed from the cohort
+    let quotaGPUs = 0 // nominal GPU quota (excluding slack queue)
+    let slackGPUs = 0 // lending limit on slack queue
 
     const config = await client.readOperatorConfig()
     const taints = config.autopilot?.resourceTaints?.['nvidia.com/gpu']
@@ -314,7 +314,10 @@ async function main () {
     const queues = {}
     for (const clusterQueue of clusterQueues) {
       const queue = {
-        quota: 0, usage: 0, borrowed: 0, lendingLimit: 0,
+        quota: 0,
+        usage: 0,
+        borrowed: 0,
+        lendingLimit: 0,
         admitted: clusterQueue.status?.admittedWorkloads ?? 0,
         pending: clusterQueue.status?.pendingWorkloads ?? 0
       }
