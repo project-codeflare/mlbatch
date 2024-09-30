@@ -16,3 +16,7 @@ repos:
     always_run: true
     args:
     - tools/pytorchjob-generator/chart
+- repo: https://github.com/standard/standard
+  rev: "v17.1.2"
+  hooks:
+  - id: standard
