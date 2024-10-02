@@ -32,5 +32,6 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Publish to GH Pages
-        uses: project-codeflare/mlbatch/.github/workflows/gh-pages-static.yml@main
+  publish:
+    needs: release
+    uses: project-codeflare/mlbatch/.github/workflows/gh-pages-static.yml@main
