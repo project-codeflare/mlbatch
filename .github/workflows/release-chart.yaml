@@ -33,4 +33,4 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Publish to GH Pages
-        uses: ./.github/workflows/gh-pages-static.yml
+        uses: project-codeflare/mlbatch/.github/workflows/gh-pages-static.yml@main
