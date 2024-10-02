@@ -1,10 +1,8 @@
 name: Release Charts
 
 on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  # This workflow is meant to be triggered manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   release:
@@ -33,3 +31,6 @@ jobs:
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Publish to GH Pages
+        uses: ./.github/workflows/gh-pages-static.yml
