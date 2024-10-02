@@ -72,7 +72,7 @@
             { "type": "null" },
             { "type": "string" }
         ]},
-        "numRoceGdr": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "numRoceGdr": { "type": "integer", "minimum": 0 },
         "topologyFileConfigMap": { "oneOf": [
             { "type": "null" },
             { "$ref": "#/$defs/rfc1123Label" }
