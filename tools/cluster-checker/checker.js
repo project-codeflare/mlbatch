@@ -266,16 +266,19 @@ async function main () {
     const client = new Client()
 
     let clusterGPUs = 0 // cluster capacity
-    const noScheduleGPUs = 0 // no-schedule GPUs
-    const noExecuteGPUs = 0 // no-execute GPUs
+    let noScheduleGPUs = 0 // no-schedule GPUs
+    let noExecuteGPUs = 0 // no-execute GPUs
     let usedGPUs = 0 // GPU usage by admitted workloads
     let borrowedGPUs = 0 // GPU borrowed from the cohort
     let quotaGPUs = 0 // nominal GPU quota (excluding slack queue)
-    let slackGPUs = 0 // lending limit on slack queue
+    let limitGPUs = 0 // lending limit on slack queue
+    let slackGPUs = 0 // nominal GPU quota on slack queue
 
     const config = await client.readOperatorConfig()
     const taints = config.autopilot?.resourceTaints?.['nvidia.com/gpu']
     const slackQueueName = config.slackQueueName
+
+    let newline = false
 
     // compute GPU counts
     const nodes = await client.nodes()
@@ -288,25 +291,37 @@ async function main () {
         for (const taint of taints ?? []) {
           if (node.metadata.labels?.[taint.key] === taint.value) {
             if (taint.effect === 'NoExecute') {
+              console.log(`WARNING: node "${node.metadata.name}" has label "${taint.key}"="${taint.value}" with effect "${taint.effect}"`)
+              newline = true
               node.noExecute = true
             } else if (taint.effect === 'NoSchedule') {
+              console.log(`WARNING: node "${node.metadata.name}" has label "${taint.key}"="${taint.value}" with effect "${taint.effect}"`)
+              newline = true
               node.noSchedule = true
             }
           }
         }
         for (const taint of node.spec.taints ?? []) {
           if (taint.effect === 'NoExecute') {
+            console.log(`WARNING: node "${node.metadata.name}" has taint "${taint.key}" with effect "${taint.effect}"`)
+            newline = true
             node.noExecute = true
           } else if (taint.effect === 'NoSchedule') {
+            console.log(`WARNING: node "${node.metadata.name}" has taint "${taint.key}" with effect "${taint.effect}"`)
+            newline = true
             node.noSchedule = true
           }
         }
         if (node.noExecute) {
-          node.noExecuteGPUs += gpus
+          noExecuteGPUs += gpus
         } else if (node.noSchedule) { // no double counting
-          node.noScheduleGPUs += gpus
+          noScheduleGPUs += gpus
         }
       }
+    }
+
+    if (newline) {
+      console.log()
     }
 
     // collect cluster queue metrics
@@ -348,7 +363,8 @@ async function main () {
       usedGPUs += queue.usage
       borrowedGPUs += queue.borrowed
       if (clusterQueue.metadata.name === slackQueueName) {
-        slackGPUs = queue.lendingLimit
+        slackGPUs = queue.quota
+        limitGPUs = queue.lendingLimit
         // do not include slack queue in table
       } else {
         quotaGPUs += queue.quota
@@ -368,8 +384,9 @@ async function main () {
     console.log(`Schedulable GPU count:           = ${pad(clusterGPUs - noExecuteGPUs - noScheduleGPUs, width)}`)
     console.log()
     console.log(`Nominal GPU quota:                 ${pad(quotaGPUs, width)}`)
-    console.log(`Slack GPU quota:                 + ${pad(slackGPUs, width)}`)
-    console.log(`Total GPU quota:                 = ${pad(quotaGPUs + slackGPUs, width)}`)
+    console.log(`Maximum slack GPU quota:         + ${pad(slackGPUs, width)}`)
+    console.log(`Slack GPU quota adjustment:      - ${pad(slackGPUs - limitGPUs, width)}`)
+    console.log(`Current GPU quota:               = ${pad(quotaGPUs + limitGPUs, width)}`)
     console.log()
     console.log(`GPU usage by admitted workloads:   ${pad(usedGPUs, width)}`)
     console.log(`Borrowed GPU count:                ${pad(borrowedGPUs, width)}`)
@@ -379,8 +396,12 @@ async function main () {
       console.log('WARNING: nominal GPU quota is greater than schedulable GPU count')
     }
 
+    if (quotaGPUs + slackGPUs < clusterGPUs) {
+      console.log('WARNING: maximum GPU quota is lower than total GPU count')
+    }
+
     if (quotaGPUs + slackGPUs > clusterGPUs) {
-      console.log('WARNING: total GPU quota is greater than total GPU count')
+      console.log('WARNING: maximum GPU quota is greater than total GPU count')
     }
 
     // check all accessible namespaces
