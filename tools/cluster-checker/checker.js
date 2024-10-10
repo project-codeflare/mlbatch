@@ -7,7 +7,7 @@ const nodeResources = {
   'nvidia.com/gpu': 8,
   'nvidia.com/roce_gdr': 2,
   cpu: 80,
-  memory: '800G'
+  memory: '1100Gi'
 }
 
 class Client {
