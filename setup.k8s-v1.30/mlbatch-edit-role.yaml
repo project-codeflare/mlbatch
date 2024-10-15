@@ -123,5 +123,6 @@ rules:
   - ""
   resources:
   - namespaces
+  - pods/logs
   verbs:
   - get
