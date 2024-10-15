@@ -126,3 +126,9 @@ rules:
   - pods/logs
   verbs:
   - get
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - create

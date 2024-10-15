@@ -133,3 +133,9 @@ rules:
   - projects
   verbs:
   - get
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - create
