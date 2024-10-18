@@ -1,10 +1,10 @@
 # Cluster Setup
 
-The cluster setup installs OpenShift AI and Coscheduler, configures Kueue,
+The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
 cluster roles, and priority classes.
 
 If MLBatch is deployed on a cluster that used to run earlier versions of ODH,
-[MCAD](https://github.com/project-codeflare/mcad), OpenShift AI, or Coscheduler,
+[MCAD](https://github.com/project-codeflare/mcad), Red Hat OpenShift AI, or Coscheduler,
 make sure to scrub traces of these installations. In particular, make sure to
 delete the following custom resource definitions (CRD) if present on the
 cluster. Make sure to delete all instances prior to deleting the CRDs:
@@ -39,9 +39,9 @@ oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2
 oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.12/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
-## OpenShift AI
+## Red Hat OpenShift AI
 
-Create the OpenShift AI subscription:
+Create the Red Hat OpenShift AI subscription:
 ```sh
 oc apply -f setup.RHOAI-v2.12/mlbatch-subscription.yaml
 ````
@@ -66,11 +66,11 @@ Create Data Science Cluster:
 ```sh
 oc apply -f setup.RHOAI-v2.12/mlbatch-dsc.yaml
 ```
-The provided DSCI and DSC are intended to install a minimal set of OpenShift
+The provided DSCI and DSC are intended to install a minimal set of Red Hat OpenShift
 AI managed components: `codeflare`, `kueue`, `ray`, and `trainingoperator`. The
 remaining components such as `dashboard` can be optionally enabled.
 
-The configuration of the managed components differs from the default OpenShift
+The configuration of the managed components differs from the default Red Hat OpenShift
 AI configuration as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
@@ -88,7 +88,7 @@ AI configuration as follows:
 - pod priorities, resource requests and limits have been adjusted.
 
 To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
-in OpenShift AI installation), do a rolling restart of the Kueue manager.
+in Red Hat OpenShift AI installation), do a rolling restart of the Kueue manager.
 ```sh
 oc rollout restart deployment/kueue-controller-manager -n redhat-ods-applications
 ```
