@@ -27,7 +27,7 @@ kubectl delete crd noderesourcetopologies.topology.node.k8s.io
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 ```sh
-kubectl apply -f setup.k8s-v1.25/mlbatch-priorities.yaml
+kubectl apply -f setup.k8s-v1.27/mlbatch-priorities.yaml
 ```
 
 ## Coscheduler
@@ -40,8 +40,8 @@ helm install scheduler-plugins --namespace scheduler-plugins --create-namespace 
 ```
 Patch Coscheduler pod priorities:
 ```sh
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.25/coscheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.25/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-controller
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 ## Install Operators
@@ -53,22 +53,22 @@ kubectl create namespace mlbatch-system
 
 Install the Kubeflow Training Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.25/training-operator
+kubectl apply --server-side -k setup.k8s-v1.27/training-operator
 ```
 
 Install the KubeRay Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.25/kuberay
+kubectl apply --server-side -k setup.k8s-v1.27/kuberay
 ```
 
 Install Kueue
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.25/kueue
+kubectl apply --server-side -k setup.k8s-v1.27/kueue
 ```
 
 Install the AppWrapper Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.25/appwrapper
+kubectl apply --server-side -k setup.k8s-v1.27/appwrapper
 ```
 The provided configuration differs from the default configuration of the
 operators as follows:
@@ -90,14 +90,14 @@ operators as follows:
 
 Create Kueue's default flavor:
 ```sh
-kubectl apply -f setup.k8s-v1.25/default-flavor.yaml
+kubectl apply -f setup.k8s-v1.27/default-flavor.yaml
 ```
 
 ## Cluster Role
 
 Create `mlbatch-edit` role:
 ```sh
-kubectl apply -f setup.k8s-v1.25/mlbatch-edit-role.yaml
+kubectl apply -f setup.k8s-v1.27/mlbatch-edit-role.yaml
 ```
 
 ## Slack Cluster Queue
