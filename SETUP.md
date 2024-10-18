@@ -22,14 +22,14 @@ cd mlbatch
 Detailed instructions and configuration files can be found in subfolders,
 one for each base platform.
 
-## OpenShift AI
+## Red Hat OpenShift AI
 
 We recommend using the most recent ***stable*** release of
 Red Hat OpenShift AI as the base platform for MLBatch. Please see
 [Red Hat OpenShift AI Self-Managed Life Cycle](https://access.redhat.com/support/policy/updates/rhoai-sm/lifecycle)
 for the life cycle dates of currently supported ***stable*** and ***fast*** releases.
 
-Instructions are provided for the following OpenShift AI ***stable*** releases:
+Instructions are provided for the following Red Hat OpenShift AI ***stable*** releases:
 + Red Hat OpenShift AI 2.13
    + [RHOAI 2.13 Cluster Setup](./setup.RHOAI-v2.13/CLUSTER-SETUP.md)
    + [RHOAI 2.13 Team Setup](./setup.RHOAI-v2.13/TEAM-SETUP.md)
@@ -41,12 +41,7 @@ Instructions are provided for the following OpenShift AI ***stable*** releases:
    + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
    + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
-Instructions are provided for the following OpenShift AI ***fast*** releases:
-+ Red Hat OpenShift AI 2.12
-   + [RHOAI 2.12 Cluster Setup](./setup.RHOAI-v2.12/CLUSTER-SETUP.md)
-   + [RHOAI 2.12 Team Setup](./setup.RHOAI-v2.12/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.11](./setup.RHOAI-v2.12/UPGRADE.md)
-   + [RHOAI 2.12 Uninstall](./setup.RHOAI-v2.12/UNINSTALL.md)
+Instructions are provided for the following Red Hat OpenShift AI ***fast*** releases:
 + Red Hat OpenShift AI 2.11
    + [RHOAI 2.11 Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
    + [RHOAI 2.11 Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
