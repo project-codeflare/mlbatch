@@ -113,6 +113,7 @@ AI configuration as follows:
     - `queueName` is set to `default-queue`,
 - pod priorities, resource requests and limits have been adjusted.
 
+{{ if or (eq .VERSION "RHOAI-v2.10") (eq .VERSION "RHOAI-v2.11") (eq .VERSION "RHOAI-v2.13") -}}
 To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
 in Red Hat OpenShift AI installation), do a rolling restart of the Kueue manager.
 ```sh
@@ -127,6 +128,7 @@ kueue-controller-manager's log:
 {"level":"info","ts":"2024-06-25T20:17:25.689743757Z","logger":"setup","caller":"jobframework/setup.go:81","msg":"Set up controller and webhook for job framework","jobFrameworkName":"kubeflow.org/pytorchjob"}
 
 ```
+{{- end }}
 {{- else -}}
 ## Install Operators
 
