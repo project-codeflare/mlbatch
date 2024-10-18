@@ -111,6 +111,9 @@ AI configuration as follows:
     - `userRBACAdmissionCheck` is disabled,
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
+{{- if .SLACKCQ }}
+    - `slackQueueName` is set to `slack-cluster-queue`
+{{- end }}
 - pod priorities, resource requests and limits have been adjusted.
 
 {{ if or (eq .VERSION "RHOAI-v2.10") (eq .VERSION "RHOAI-v2.11") (eq .VERSION "RHOAI-v2.13") -}}
