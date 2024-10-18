@@ -85,6 +85,7 @@ AI configuration as follows:
     - `userRBACAdmissionCheck` is disabled,
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
+    - `slackQueueName` is set to `slack-cluster-queue`
 - pod priorities, resource requests and limits have been adjusted.
 
 
