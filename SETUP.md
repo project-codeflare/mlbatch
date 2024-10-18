@@ -11,7 +11,7 @@ will be used in the setup process for each team of MLBatch users that
 is onboarded.
 
 This setup has been developed on OpenShift 4.14 and Kubernetes 1.27 and
-is intended to support OpenShift 4.12 and up and/or Kubernetes 1.25 and up.
+is intended to support OpenShift 4.14 and up and/or Kubernetes 1.27 and up.
 
 To start with, recursively clone and enter this repository:
 ```sh
@@ -50,11 +50,11 @@ Instructions are provided for the following OpenShift AI ***fast*** releases:
 
 ## Kubernetes
 
-MLBatch can be installed on any Kubernetes cluster version 1.25 or later
+MLBatch can be installed on any Kubernetes cluster version 1.27 or later
 by following these instructions:
-   + [Kubernetes Cluster Setup](./setup.k8s-v1.25/CLUSTER-SETUP.md)
-   + [Kubternets Team Setup](./setup.k8s-v1.25/TEAM-SETUP.md)
-   + [Kubernetes Uninstall](setup.k8s-v1.25/UNINSTALL.md)
+   + [Kubernetes Cluster Setup](./setup.k8s-v1.27/CLUSTER-SETUP.md)
+   + [Kubternets Team Setup](./setup.k8s-v1.27/TEAM-SETUP.md)
+   + [Kubernetes Uninstall](setup.k8s-v1.27/UNINSTALL.md)
 
 On Kubernetes version 1.30 and later, an enhanced user experience is
 available by using ValidatingAdmissionPolicies to streamline quota
