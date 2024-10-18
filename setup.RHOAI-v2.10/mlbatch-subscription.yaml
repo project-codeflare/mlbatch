@@ -245,7 +245,7 @@ metadata:
   name: rhods-operator
   namespace: redhat-ods-operator
 spec:
-  channel: stable-2.10
+  channel: stable
   installPlanApproval: Manual
   name: rhods-operator
   source: redhat-operators
