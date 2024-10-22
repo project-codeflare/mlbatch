@@ -10,7 +10,10 @@
     "properties": {
         "namespace": { "$ref": "#/$defs/rfc1123Label" },
         "jobName": { "type": "string" },
-        "queueName": { "$ref": "#/$defs/rfc1123Label" },
+        "queueName": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/rfc1123Label" }
+        ]},
         "priority": { "type": "string", "enum": [ "default-priority", "low-priority", "high-priority" ] },
         "customLabels": { "oneOf": [
             { "type": "null" },

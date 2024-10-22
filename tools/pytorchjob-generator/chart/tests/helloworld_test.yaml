@@ -71,6 +71,13 @@ tests:
   - isEmpty:
       path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.containers[0].volumeMounts
 
+- it: queueName can be disabled
+  set:
+    queueName:
+  asserts:
+  - notExists:
+      path: metadata.labels
+
 - it: Enabling sshGitConfig injects the envvars, volumes, and volumeMounts
   set:
     sshGitCloneConfig.secretName: my-git-secret
@@ -157,7 +164,7 @@ tests:
         workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "19s"
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "2s"
 
-- it: Setting jsut one tolerance annotation
+- it: Setting just one tolerance annotation
   set:
     deletionOnFailureGracePeriodDuration: "6h"
   asserts:
