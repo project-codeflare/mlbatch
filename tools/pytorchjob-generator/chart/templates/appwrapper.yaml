@@ -76,9 +76,13 @@ metadata:
         {{- if .Values.deletionOnFailureGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "{{ .Values.deletionOnFailureGracePeriodDuration }}"
         {{- end }}
+    {{- if or .Values.queueName .Values.customLabels }}
     labels:
+        {{- if .Values.queueName }}
         kueue.x-k8s.io/queue-name: {{ .Values.queueName }}
+        {{- end }}
         {{- include "mlbatch.customLabels" . | indent 8 }}
+    {{- end }}
 spec:
     components:
         - template:
