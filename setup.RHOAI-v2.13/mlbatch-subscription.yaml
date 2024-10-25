@@ -108,6 +108,7 @@ data:
         defaultQueueName: default-queue
         slackQueueName: slack-cluster-queue
         autopilot:
+          injectAntiAffinities: false
           resourceTaints:
             nvidia.com/gpu:
             - key: autopilot.ibm.com/gpuhealth
