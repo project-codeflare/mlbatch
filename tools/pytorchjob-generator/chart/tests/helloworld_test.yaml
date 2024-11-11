@@ -164,6 +164,22 @@ tests:
         workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "19s"
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "2s"
 
+- it: Setting integer fault tolerance annotation to 0
+  set:
+    retryLimit: 0
+    terminationGracePeriodSeconds: 0
+  asserts:
+  - isSubset:
+      path: metadata.annotations
+      content:
+        workload.codeflare.dev.appwrapper/retryLimit: "0"
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Master.template.spec.terminationGracePeriodSeconds
+      value: 0
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.terminationGracePeriodSeconds
+      value: 0
+
 - it: Setting just one tolerance annotation
   set:
     deletionOnFailureGracePeriodDuration: "6h"
