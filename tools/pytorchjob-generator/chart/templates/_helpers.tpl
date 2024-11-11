@@ -29,7 +29,7 @@ annotations:
 
 
 {{- define "mlbatch.schedulingSpec" }}
-{{- if .Values.terminationGracePeriodSeconds }}
+{{- if ne .Values.terminationGracePeriodSeconds nil }}
 terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- if .Values.bypassCoscheduler }}

@@ -67,7 +67,7 @@ metadata:
         {{- if .Values.retryPausePeriodDuration }}
         workload.codeflare.dev.appwrapper/retryPausePeriodDuration: "{{ .Values.retryPausePeriodDuration }}"
         {{- end }}
-        {{- if .Values.retryLimit }}
+        {{- if ne .Values.retryLimit nil }}
         workload.codeflare.dev.appwrapper/retryLimit: "{{ .Values.retryLimit }}"
         {{- end }}
         {{- if .Values.forcefulDeletionGracePeriodDuration }}
