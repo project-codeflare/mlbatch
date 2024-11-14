@@ -222,11 +222,13 @@ async function checkUserNamespace (client, namespace, queues) {
     for (const condition of workload.status?.conditions ?? []) {
       conditions[condition.type] = condition.status
     }
-    if (conditions.Admitted === 'True' && conditions.PodsReady === 'False') {
-      console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has conditions Admitted=True and PodsReady=False`)
-    }
-    if (conditions.Evicted === 'True') {
-      console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has condition Evicted=True`)
+    if (conditions.Finished !== 'True') {
+      if (conditions.Admitted === 'True' && conditions.PodsReady === 'False') {
+        console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has conditions Admitted=True and PodsReady=False`)
+      }
+      if (conditions.Evicted === 'True') {
+        console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has condition Evicted=True`)
+      }
     }
 
     // report misconfigured resource requests
