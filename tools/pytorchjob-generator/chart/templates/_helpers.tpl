@@ -277,7 +277,7 @@ imagePullSecrets: []
 
 
 {{- define "mlbatch.securityContext" }}
-{{- if gt ( int .Values.numRoceGdr ) 0 }}
+{{- if or (gt ( int .Values.numRoceGdr ) 0) (eq .Values.serviceAccountName "gdr") }}
 securityContext:
   capabilities:
     add:
