@@ -20,7 +20,7 @@ helm search repo AppWrapper
 You should see output similar to the following:
 ```sh
 NAME                        	CHART VERSION	APP VERSION	DESCRIPTION
-mlbatch/pytorchjob-generator	1.1.3        	v1beta2    	An AppWrapper generator for PyTorchJobs
+mlbatch/pytorchjob-generator	1.1.4        	v1beta2    	An AppWrapper generator for PyTorchJobs
 ```
 
 ## Configuring the Job
