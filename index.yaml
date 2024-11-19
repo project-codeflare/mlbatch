@@ -3,6 +3,16 @@ entries:
   pytorchjob-generator:
   - apiVersion: v2
     appVersion: v1beta2
+    created: "2024-11-19T21:41:47.613139069Z"
+    description: An AppWrapper generator for PyTorchJobs
+    digest: 71b89d5be657f20bf73e2e84080f48f508f77f03bbb804f1ce05c32e449eb082
+    name: pytorchjob-generator
+    type: application
+    urls:
+    - pytorchjob-generator-1.1.4.tgz
+    version: 1.1.4
+  - apiVersion: v2
+    appVersion: v1beta2
     created: "2024-11-11T21:54:33.70476505Z"
     description: An AppWrapper generator for PyTorchJobs
     digest: 842697095572d3fc52eeb730eb400f638bd8090b9f114692f0a1c94fe64dd6bf
@@ -51,4 +61,4 @@ entries:
     urls:
     - pytorchjob-generator-1.0.0.tgz
     version: 1.0.0
-generated: "2024-11-11T21:54:33.704787071Z"
+generated: "2024-11-19T21:41:47.613190335Z"
