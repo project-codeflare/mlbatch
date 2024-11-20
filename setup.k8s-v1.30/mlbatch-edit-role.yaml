@@ -58,7 +58,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cluster.ray.io
+  - ray.io
   resources:
   - rayjobs
   - rayclusters
