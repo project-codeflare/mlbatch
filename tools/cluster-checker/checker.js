@@ -214,7 +214,7 @@ async function checkUserNamespace (client, namespace, queues) {
 
     // report high-priority workloads
     if (workload.spec.priorityClassName !== 'default-priority' && workload.spec.priorityClassName !== 'low-priority') {
-      console.log(`WARNING: workload "${namespace.metadata.name}/${workload.metadata.name}" has priority "${workload.spec.priorityClassName}"`)
+      console.log(`NOTE: workload "${namespace.metadata.name}/${workload.metadata.name}" has priority "${workload.spec.priorityClassName}"`)
     }
 
     // report unusual conditions
