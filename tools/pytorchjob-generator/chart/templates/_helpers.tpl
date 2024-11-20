@@ -36,12 +36,18 @@ terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 schedulerName: default-scheduler
 {{- end }}
 priorityClassName: {{ .Values.priority }}
-{{- if .Values.hostIgnoreList }}
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
       - matchExpressions:
+        - key: autopilot.ibm.com/gpuhealth
+          operator: NotIn
+          values:
+          - ERR
+          - TESTING
+          - EVICT
+{{- if .Values.hostIgnoreList }}
         - key: kubernetes.io/hostname
           operator: NotIn
           values:
