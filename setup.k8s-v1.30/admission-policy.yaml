@@ -6,10 +6,6 @@ spec:
   failurePolicy: Fail
   matchConstraints:
     resourceRules:
-    - apiGroups:   ["batch"]
-      apiVersions: ["v1"]
-      resources:   ["jobs"]
-      operations:  ["CREATE", "UPDATE"]
     - apiGroups:   ["kubeflow.org"]
       apiVersions: ["v1"]
       operations:  ["CREATE", "UPDATE"]
