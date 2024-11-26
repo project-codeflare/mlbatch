@@ -1,0 +1,301 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redhat-ods-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redhat-ods-applications
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: rhods-operator
+  namespace: redhat-ods-operator
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlbatch-codeflare
+  namespace: redhat-ods-operator
+data:
+  manager.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: manager
+      namespace: system
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: codeflare-operator
+          app.kubernetes.io/part-of: codeflare
+      replicas: 1
+      template:
+        metadata:
+          annotations:
+            kubectl.kubernetes.io/default-container: manager
+          labels:
+            app.kubernetes.io/name: codeflare-operator
+            app.kubernetes.io/part-of: codeflare
+        spec:
+          priorityClassName: system-node-critical
+          securityContext:
+            runAsNonRoot: true
+            # TODO(user): For common cases that do not require escalating privileges
+            # it is recommended to ensure that all your Pods/Containers are restrictive.
+            # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
+            # Please uncomment the following code if your project does NOT have to work on old Kubernetes
+            # versions < 1.20 or on vendors versions which do NOT support this field by default (i.e. Openshift < 4.11 ).
+            # seccompProfile:
+            #   type: RuntimeDefault
+          containers:
+          - command:
+            - /manager
+            image: $(codeflare_operator_controller_image)
+            imagePullPolicy: Always
+            name: manager
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - "ALL"
+            env:
+              - name: NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+                name: metrics
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 8081
+              initialDelaySeconds: 15
+              periodSeconds: 20
+            readinessProbe:
+              httpGet:
+                path: /readyz
+                port: 8081
+              initialDelaySeconds: 5
+              periodSeconds: 10
+            resources:
+              limits:
+                cpu: "1"
+                memory: 1Gi
+              requests:
+                cpu: "1"
+                memory: 1Gi
+          serviceAccountName: controller-manager
+          terminationGracePeriodSeconds: 10
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codeflare-operator-config
+  namespace: redhat-ods-applications
+data:
+  config.yaml: |
+    appwrapper:
+      enabled: true
+      Config:
+        manageJobsWithoutQueueName: true
+        userRBACAdmissionCheck: false
+        schedulerName: scheduler-plugins-scheduler
+        defaultQueueName: default-queue
+        slackQueueName: slack-cluster-queue
+        autopilot:
+          injectAntiAffinities: false
+          resourceTaints:
+            nvidia.com/gpu:
+            - key: autopilot.ibm.com/gpuhealth
+              value: ERR
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: TESTING
+              effect: NoSchedule
+            - key: autopilot.ibm.com/gpuhealth
+              value: EVICT
+              effect: NoExecute
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlbatch-kuberay
+  namespace: redhat-ods-operator
+data:
+  kuberay-operator-image-patch.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: kuberay-operator
+    spec:
+      template:
+        spec:
+          priorityClassName: system-node-critical
+          containers:
+          - name: kuberay-operator
+            image: $(image)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlbatch-kueue
+  namespace: redhat-ods-operator
+data:
+  controller_manager_config.yaml: |
+    apiVersion: config.kueue.x-k8s.io/v1beta1
+    kind: Configuration
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: :8080
+      enableClusterQueueResources: true
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: c1f6bfd2.kueue.x-k8s.io
+    controller:
+      groupKindConcurrency:
+        Job.batch: 5
+        Pod: 5
+        Workload.kueue.x-k8s.io: 5
+        LocalQueue.kueue.x-k8s.io: 1
+        ClusterQueue.kueue.x-k8s.io: 1
+        ResourceFlavor.kueue.x-k8s.io: 1
+    clientConnection:
+      qps: 50
+      burst: 100
+    #pprofBindAddress: :8082
+    waitForPodsReady:
+      enable: false
+      blockAdmission: false
+    manageJobsWithoutQueueName: true
+    #internalCertManagement:
+    #  enable: false
+    #  webhookServiceName: ""
+    #  webhookSecretName: ""
+    integrations:
+      frameworks:
+    # - "batch/job"
+      - "kubeflow.org/mpijob"
+      - "ray.io/rayjob"
+      - "ray.io/raycluster"
+      - "jobset.x-k8s.io/jobset"
+      - "kubeflow.org/mxjob"
+      - "kubeflow.org/paddlejob"
+      - "kubeflow.org/pytorchjob"
+      - "kubeflow.org/tfjob"
+      - "kubeflow.org/xgboostjob"
+    # - "pod"
+      externalFrameworks:
+      - "AppWrapper.v1beta2.workload.codeflare.dev"
+    # podOptions:
+    #   namespaceSelector:
+    #     matchExpressions:
+    #       - key: kubernetes.io/metadata.name
+    #         operator: NotIn
+    #         values: [ kube-system, kueue-system ]
+  manager_config_patch.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: controller-manager
+      namespace: system
+    spec:
+      template:
+        spec:
+          priorityClassName: system-node-critical
+          containers:
+          - name: manager
+            image: $(image)
+            args:
+            - "--config=/controller_manager_config.yaml"
+            - "--zap-log-level=2"
+            - "--feature-gates=LendingLimit=true"
+            volumeMounts:
+            - name: manager-config
+              mountPath: /controller_manager_config.yaml
+              subPath: controller_manager_config.yaml
+          volumes:
+          - name: manager-config
+            configMap:
+              name: manager-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlbatch-training-operator
+  namespace: redhat-ods-operator
+data:
+  manager_config_patch.yaml: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: training-operator
+    spec:
+      template:
+        spec:
+          priorityClassName: system-node-critical
+          containers:
+          - name:  training-operator
+            image: $(image)
+            args:
+            - "--zap-log-level=2"
+            - "--gang-scheduler-name=scheduler-plugins-scheduler"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 100Mi
+              limits:
+                cpu: 500m
+                memory: 1000Mi
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhods-operator
+  namespace: redhat-ods-operator
+spec:
+  channel: fast
+  installPlanApproval: Manual
+  name: rhods-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: rhods-operator.2.15.0
+  config:
+    env:
+    - name: "DISABLE_DSC_CONFIG"
+    volumeMounts:
+    - name: mlbatch-codeflare
+      mountPath: /opt/manifests/codeflare/manager/manager.yaml
+      subPath: manager.yaml
+    - name: mlbatch-kuberay
+      mountPath: /opt/manifests/ray/openshift/kuberay-operator-image-patch.yaml
+      subPath: kuberay-operator-image-patch.yaml
+    - name: mlbatch-kueue
+      mountPath: /opt/manifests/kueue/components/manager/controller_manager_config.yaml
+      subPath: controller_manager_config.yaml
+    - name: mlbatch-kueue
+      mountPath: /opt/manifests/kueue/rhoai/manager_config_patch.yaml
+      subPath: manager_config_patch.yaml
+    - name: mlbatch-training-operator
+      mountPath: /opt/manifests/trainingoperator/rhoai/manager_config_patch.yaml
+      subPath: manager_config_patch.yaml
+    volumes:
+    - name: mlbatch-codeflare
+      configMap:
+        name: mlbatch-codeflare
+    - name: mlbatch-kuberay
+      configMap:
+        name: mlbatch-kuberay
+    - name: mlbatch-kueue
+      configMap:
+        name: mlbatch-kueue
+    - name: mlbatch-training-operator
+      configMap:
+        name: mlbatch-training-operator
