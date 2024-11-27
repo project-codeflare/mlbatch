@@ -1,0 +1,26 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low-priority
+value: 1
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "This is the priority class for all lower priority jobs."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: default-priority
+value: 5
+preemptionPolicy: PreemptLowerPriority
+globalDefault: true
+description: "This is the priority class for all jobs (default priority)."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 10
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "This is the priority class defined for highly important jobs that would evict lower and default priority jobs."
