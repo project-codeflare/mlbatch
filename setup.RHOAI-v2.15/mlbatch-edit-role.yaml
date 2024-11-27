@@ -128,15 +128,24 @@ rules:
   - get
 - apiGroups:
   - ""
-  - project.openshift.io
-  resources:
-  - projects
-  verbs:
-  - get
-- apiGroups:
-  - ""
   resources:
   - pods/exec
   - pods/portforward
   verbs:
   - create
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - ""
+  - project.openshift.io
+  resources:
+  - projects
+  verbs:
+  - get
