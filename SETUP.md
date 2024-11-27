@@ -47,16 +47,6 @@ Instructions are provided for the following Red Hat OpenShift AI ***fast*** rele
    + [RHOAI 2.15 Team Setup](./setup.RHOAI-v2.15/TEAM-SETUP.md)
    + [UPGRADING from RHOAI 2.14](./setup.RHOAI-v2.15/UPGRADE.md)
    + [RHOAI 2.15 Uninstall](./setup.RHOAI-v2.15/UNINSTALL.md)
-+ Red Hat OpenShift AI 2.14
-   + [RHOAI 2.14 Cluster Setup](./setup.RHOAI-v2.14/CLUSTER-SETUP.md)
-   + [RHOAI 2.14 Team Setup](./setup.RHOAI-v2.14/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.13](./setup.RHOAI-v2.14/UPGRADE.md)
-   + [RHOAI 2.14 Uninstall](./setup.RHOAI-v2.14/UNINSTALL.md)
-+ Red Hat OpenShift AI 2.11
-   + [RHOAI 2.11 Cluster Setup](./setup.RHOAI-v2.11/CLUSTER-SETUP.md)
-   + [RHOAI 2.11 Team Setup](./setup.RHOAI-v2.11/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.10](./setup.RHOAI-v2.11/UPGRADE.md)
-   + [RHOAI 2.11 Uninstall](./setup.RHOAI-v2.11/UNINSTALL.md)
 
 ## Kubernetes
 
