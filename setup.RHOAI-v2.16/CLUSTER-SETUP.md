@@ -1,33 +1,28 @@
 # Cluster Setup
 
-The cluster setup installs and configures the following components:
-+ Coscheduler
-+ Kubeflow Training Operator
-+ KubeRay
-+ Kueue
-+ AppWrappers
-+ Cluster roles and priority classes
+The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
+cluster roles, and priority classes.
 
 If MLBatch is deployed on a cluster that used to run earlier versions of ODH,
-[MCAD](https://github.com/project-codeflare/mcad), or Coscheduler,
+[MCAD](https://github.com/project-codeflare/mcad), Red Hat OpenShift AI, or Coscheduler,
 make sure to scrub traces of these installations. In particular, make sure to
 delete the following custom resource definitions (CRD) if present on the
 cluster. Make sure to delete all instances prior to deleting the CRDs:
 ```sh
 # Delete old appwrappers and crd
-kubectl delete appwrappers --all -A
-kubectl delete crd appwrappers.workload.codeflare.dev
+oc delete appwrappers --all -A
+oc delete crd appwrappers.workload.codeflare.dev
 
 # Delete old noderesourcetopologies and crd
-kubectl delete noderesourcetopologies --all -A
-kubectl delete crd noderesourcetopologies.topology.node.k8s.io
+oc delete noderesourcetopologies --all -A
+oc delete crd noderesourcetopologies.topology.node.k8s.io
 ```
 
 ## Priorities
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 ```sh
-kubectl apply -f setup.k8s-v1.27/mlbatch-priorities.yaml
+oc apply -f setup.RHOAI-v2.16/mlbatch-priorities.yaml
 ```
 
 ## Coscheduler
@@ -40,38 +35,43 @@ helm install scheduler-plugins --namespace scheduler-plugins --create-namespace 
 ```
 Patch Coscheduler pod priorities:
 ```sh
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.16/coscheduler-priority-patch.yaml scheduler-plugins-controller
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.16/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
-## Install Operators
+## Red Hat OpenShift AI
 
-Create the mlbatch-system namespace
+Create the Red Hat OpenShift AI subscription:
 ```sh
-kubectl create namespace mlbatch-system
-```
-
-Install the Kubeflow Training Operator
+oc apply -f setup.RHOAI-v2.16/mlbatch-subscription.yaml
+````
+Identify install plan:
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/training-operator
+oc get ip -n redhat-ods-operator
 ```
-
-Install the KubeRay Operator
+```
+NAMESPACE             NAME            CSV                     APPROVAL   APPROVED
+redhat-ods-operator   install-kmh8w   rhods-operator.2.10.0   Manual     false
+```
+Approve install plan replacing the generated plan name below with the actual
+value:
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/kuberay
+oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kmh8w
 ```
-
-Install Kueue
+Create DSC Initialization:
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/kueue
+oc apply -f setup.RHOAI-v2.16/mlbatch-dsci.yaml
 ```
-
-Install the AppWrapper Operator
+Create Data Science Cluster:
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/appwrapper
+oc apply -f setup.RHOAI-v2.16/mlbatch-dsc.yaml
 ```
-The provided configuration differs from the default configuration of the
-operators as follows:
+The provided DSCI and DSC are intended to install a minimal set of Red Hat OpenShift
+AI managed components: `codeflare`, `kueue`, `ray`, and `trainingoperator`. The
+remaining components such as `dashboard` can be optionally enabled.
+
+The configuration of the managed components differs from the default Red Hat OpenShift
+AI configuration as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
@@ -81,24 +81,28 @@ operators as follows:
   - `LendingLimit` feature gate is enabled,
   - `fairSharing` is enabled,
   - `enableClusterQueueResources` metrics is enabled,
-- AppWrapper operator:
-  - `userRBACAdmissionCheck` is disabled,
-  - `schedulerName` is set to `scheduler-plugins-scheduler`,
-  - `queueName` is set to `default-queue`,
+- Codeflare operator:
+  - the AppWrapper controller is enabled and configured as follows:
+    - `userRBACAdmissionCheck` is disabled,
+    - `schedulerName` is set to `scheduler-plugins-scheduler`,
+    - `queueName` is set to `default-queue`,
+    - `slackQueueName` is set to `slack-cluster-queue`
 - pod priorities, resource requests and limits have been adjusted.
+
+
 
 ## Kueue Configuration
 
 Create Kueue's default flavor:
 ```sh
-kubectl apply -f setup.k8s-v1.27/default-flavor.yaml
+oc apply -f setup.RHOAI-v2.16/default-flavor.yaml
 ```
 
 ## Cluster Role
 
 Create `mlbatch-edit` role:
 ```sh
-kubectl apply -f setup.k8s-v1.27/mlbatch-edit-role.yaml
+oc apply -f setup.RHOAI-v2.16/mlbatch-edit-role.yaml
 ```
 
 ## Slack Cluster Queue
@@ -107,7 +111,7 @@ Create the designated slack `ClusterQueue` which will be used to automate
 minor adjustments to cluster capacity caused by node failures and
 scheduler maintanence.
 ```sh
-kubectl apply -f- << EOF
+oc apply -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:

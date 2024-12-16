@@ -75,8 +75,10 @@ operators as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
+  - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
   - `LendingLimit` feature gate is enabled,
+  - `fairSharing` is enabled,
   - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,

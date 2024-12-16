@@ -27,6 +27,8 @@ docs: gotmpl
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.13/TEAM-SETUP.md -values RHOAI-v2.13.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.15/CLUSTER-SETUP.md -values RHOAI-v2.15.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.15/TEAM-SETUP.md -values RHOAI-v2.15.yaml
+	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.16/CLUSTER-SETUP.md -values RHOAI-v2.16.yaml
+	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.16/TEAM-SETUP.md -values RHOAI-v2.16.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.k8s-v1.27/CLUSTER-SETUP.md -values Kubernetes-v1.27.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.k8s-v1.27/TEAM-SETUP.md -values Kubernetes-v1.27.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.k8s-v1.30/CLUSTER-SETUP.md -values Kubernetes-v1.30.yaml
