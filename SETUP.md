@@ -30,6 +30,12 @@ Red Hat OpenShift AI as the base platform for MLBatch. Please see
 for the life cycle dates of currently supported ***stable*** and ***fast*** releases.
 
 Instructions are provided for the following Red Hat OpenShift AI ***stable*** releases:
++ Red Hat OpenShift AI 2.16
+   + [RHOAI 2.16 Cluster Setup](./setup.RHOAI-v2.16/CLUSTER-SETUP.md)
+   + [RHOAI 2.16 Team Setup](./setup.RHOAI-v2.16/TEAM-SETUP.md)
+   + [UPGRADING from RHOAI 2.13](./setup.RHOAI-v2.16/UPGRADE-STABLE.md)
+   + [UPGRADING from RHOAI 2.15](./setup.RHOAI-v2.16/UPGRADE-FAST.md)
+   + [RHOAI 2.16 Uninstall](./setup.RHOAI-v2.15/UNINSTALL.md)
 + Red Hat OpenShift AI 2.13
    + [RHOAI 2.13 Cluster Setup](./setup.RHOAI-v2.13/CLUSTER-SETUP.md)
    + [RHOAI 2.13 Team Setup](./setup.RHOAI-v2.13/TEAM-SETUP.md)

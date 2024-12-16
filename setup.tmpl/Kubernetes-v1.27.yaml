@@ -5,3 +5,4 @@ VERSION: k8s-v1.27
 KUBECTL: kubectl
 VAP: false
 SLACKCQ: true
+FAIRSHARE: true
