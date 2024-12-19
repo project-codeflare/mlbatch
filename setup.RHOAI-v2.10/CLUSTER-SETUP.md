@@ -3,21 +3,6 @@
 The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
 cluster roles, and priority classes.
 
-If MLBatch is deployed on a cluster that used to run earlier versions of ODH,
-[MCAD](https://github.com/project-codeflare/mcad), Red Hat OpenShift AI, or Coscheduler,
-make sure to scrub traces of these installations. In particular, make sure to
-delete the following custom resource definitions (CRD) if present on the
-cluster. Make sure to delete all instances prior to deleting the CRDs:
-```sh
-# Delete old appwrappers and crd
-oc delete appwrappers --all -A
-oc delete crd appwrappers.workload.codeflare.dev
-
-# Delete old noderesourcetopologies and crd
-oc delete noderesourcetopologies --all -A
-oc delete crd noderesourcetopologies.topology.node.k8s.io
-```
-
 ## Priorities
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
