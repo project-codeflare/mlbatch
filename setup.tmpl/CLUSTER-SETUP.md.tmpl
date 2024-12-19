@@ -56,7 +56,7 @@ Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
 ```sh
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
-  --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"}]'
+  --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 ```
 Patch Coscheduler pod priorities:
 ```sh
