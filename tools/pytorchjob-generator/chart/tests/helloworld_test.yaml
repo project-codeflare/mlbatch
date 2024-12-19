@@ -86,6 +86,13 @@ tests:
       path: metadata.namespace
       value: testing-ns
 
+- it: scheduler can be set
+  set:
+    schedulerName: sakkara
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
 - it: Enabling sshGitConfig injects the envvars, volumes, and volumeMounts
   set:
     sshGitCloneConfig.secretName: my-git-secret
