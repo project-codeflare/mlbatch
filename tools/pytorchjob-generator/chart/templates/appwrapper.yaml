@@ -52,7 +52,9 @@ apiVersion: workload.codeflare.dev/v1beta2
 kind: AppWrapper
 metadata:
     name: {{ .Values.jobName }}
-    namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
+    {{- if .Values.namespace }}
+    namespace: {{ .Values.namespace }}
+    {{- end }}
     annotations:
         workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: "{{ .Chart.Version }}"
         {{- if .Values.admissionGracePeriodDuration }}
@@ -90,7 +92,6 @@ spec:
                   kind: "PyTorchJob"
                   metadata:
                       name: {{ .Values.jobName }}
-                      namespace: {{ .Values.namespace }}
                       {{- if .Values.customLabels }}
                       labels:
                           {{- include "mlbatch.customLabels" . | indent 26 }}
@@ -101,8 +102,7 @@ spec:
                               replicas: 1
                               restartPolicy: {{ .Values.restartPolicy | default "Never" }}
                               template:
-                                  metadata:
-                                      {{- include "mlbatch.container.metadata" . | indent 38 }}
+                                  {{- include "mlbatch.container.metadata" . | indent 34 }}
                                   spec:
                                       {{- if .Values.serviceAccountName }}
                                       serviceAccountName: {{ .Values.serviceAccountName }}
@@ -125,8 +125,7 @@ spec:
                               replicas: {{ sub .Values.numPods 1 }}
                               restartPolicy: {{ .Values.restartPolicy | default "Never" }}
                               template:
-                                  metadata:
-                                      {{- include "mlbatch.container.metadata" . | indent 38 }}
+                                  {{- include "mlbatch.container.metadata" . | indent 34 }}
                                   spec:
                                       {{- if .Values.serviceAccountName }}
                                       serviceAccountName: {{ .Values.serviceAccountName }}

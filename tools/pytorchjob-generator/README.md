@@ -28,7 +28,6 @@ mlbatch/pytorchjob-generator	1.1.5        	v1beta2    	An AppWrapper generator f
 Create a `settings.yaml` file with the settings for the PyTorch job, for
 example:
 ```yaml
-namespace: my-namespace       # namespace to deploy to (required)
 jobName: my-job               # name of the generated AppWrapper and PyTorchJob objects (required)
 queueName: default-queue      # local queue to submit to (default: default-queue)
 
@@ -69,5 +68,5 @@ helm template -f settings.yaml mlbatch/pytorchjob-generator | tee generated.yaml
 To remove the PyTorch job from the cluster, delete the generated `AppWrapper`
 object:
 ```sh
-oc delete appwrapper -n my-namespace my-job
+oc delete appwrapper my-job
 ```

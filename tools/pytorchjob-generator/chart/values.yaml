@@ -2,21 +2,20 @@
 # Job Metadata
 ####################
 
-# -- (string) The Kubernetes namespace in which the Job will run.
-# @default -- must be provided by user
-# @section -- Job Metadata
-namespace:
-
 # -- (string) Name of the Job.  Will be the name of the AppWrapper and the PyTorchJob.
 # @default -- must be provided by user
 # @section -- Job Metadata
 jobName:
 
+# -- (string) Namespace in which to run the Job. If unspecified, the namespace will be inferred using normal Helm/Kubernetes mechanisms when the Job is submitted.
+# @section -- Job Metadata
+namespace:
+
 # -- (string) Name of the local queue to which the Job will be submitted.
 # @section -- Job Metadata
 queueName: "default-queue"
 
-# -- (string)  Type of priority for the job (choose from: "default-priority", "low-priority" or "high-priority"). WARNING: "high-priority" jobs need to be approved (We're watching you...)!
+# -- (string)  Type of priority for the job (choose from: "default-priority", "low-priority" or "high-priority").
 # @section -- Job Metadata
 priority: "default-priority"
 

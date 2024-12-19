@@ -78,6 +78,14 @@ tests:
   - notExists:
       path: metadata.labels
 
+- it: namespace can be set
+  set:
+    namespace: testing-ns
+  asserts:
+  - equal:
+      path: metadata.namespace
+      value: testing-ns
+
 - it: Enabling sshGitConfig injects the envvars, volumes, and volumeMounts
   set:
     sshGitCloneConfig.secretName: my-git-secret
