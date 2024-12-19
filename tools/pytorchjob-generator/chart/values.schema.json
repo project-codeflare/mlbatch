@@ -114,10 +114,9 @@
             { "type": "null" },
             { "type": "array" }
         ]},
-        "bypassCoscheduler": { "type": "boolean" },
         "schedulerName": { "oneOf": [
             { "type": "null" },
-            { "type": "string", "enum": ["sakkara", "default-scheduler" ] }
+            { "type": "string", "enum": ["sakkara", "scheduler-plugins-scheduler", "default-scheduler" ] }
         ]},
         "serviceAccountName":  { "oneOf" : [
             { "type": "null" },

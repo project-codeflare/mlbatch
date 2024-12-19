@@ -34,7 +34,7 @@ metadata:
 {{- if ne .Values.terminationGracePeriodSeconds nil }}
 terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 {{- end }}
-{{- if .Values.bypassCoscheduler }}
+{{- if .Values.schedulerName }}
 schedulerName: {{ .Values.schedulerName }}
 {{- end }}
 priorityClassName: {{ .Values.priority }}

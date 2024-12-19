@@ -1,8 +1,6 @@
-namespace: my-namespace       # namespace to deploy to (required)
 jobName: my-job               # name of the generated AppWrapper and PyTorchJob objects (required)
 queueName: default-queue      # local queue to submit to (default: default-queue)
 
-bypassCoscheduler: true
 schedulerName: sakkara
 # If additional constraints are used, specify the configmap here:
 #customLabels:

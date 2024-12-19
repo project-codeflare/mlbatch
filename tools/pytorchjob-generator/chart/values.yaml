@@ -211,11 +211,11 @@ hostIgnoreList:
 #    - a100-large-drlfv-worker-3-with-secondary-nw5qh
 #    - a100-large-drlfv-worker-3-with-secondary-lb7ch
 
-# -- (boolean) If true, use the default Kubernetes scheduler instead of the co-scheduler.
-# ***Setting this to true will result in GPU fragmentation on the cluster. It should only be set
-# to true when explicitly directed to do so by a cluster admin!***
+# -- (string) If non-nil, use the specified Kubernetes scheduler.
+# ***Setting this to the default-scheduler may result in GPU fragmentation on the cluster. Setting this
+# to any non-nil value should only be done when explicitly directed to do so by a cluster admin!***
 # @section -- Advanced Options
-bypassCoscheduler: false
+schedulerName:
 
 # -- (string) Service account to be used for running the Job
 # @section -- Advanced Options
