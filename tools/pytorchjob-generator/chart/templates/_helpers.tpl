@@ -10,20 +10,22 @@
 
 
 {{- define "mlbatch.container.metadata" }}
-namespace: {{ .Values.namespace }}
-{{- if or .Values.customLabels .Values.autopilotHealthChecks }}
-labels:
-    {{- include "mlbatch.customLabels" . | indent 4 }}
-    {{- if .Values.autopilotHealthChecks }}
-    autopilot: ""
-      {{- range $healthcheck := .Values.autopilotHealthChecks }}
-    {{ $healthcheck }}: ""
-      {{- end }}
+{{- if or .Values.customLabels .Values.autopilotHealthChecks .Values.multiNicNetworkName }}
+metadata:
+    {{- if or .Values.customLabels .Values.autopilotHealthChecks }}
+    labels:
+        {{- include "mlbatch.customLabels" . | indent 8 }}
+        {{- if .Values.autopilotHealthChecks }}
+        autopilot: ""
+          {{- range $healthcheck := .Values.autopilotHealthChecks }}
+        {{ $healthcheck }}: ""
+          {{- end }}
+        {{- end }}
     {{- end }}
-{{- end }}
-{{- if .Values.multiNicNetworkName }}
-annotations:
-    k8s.v1.cni.cncf.io/networks: {{ .Values.multiNicNetworkName }}
+    {{- if .Values.multiNicNetworkName }}
+    annotations:
+        k8s.v1.cni.cncf.io/networks: {{ .Values.multiNicNetworkName }}
+    {{- end }}
 {{- end }}
 {{- end -}}
 

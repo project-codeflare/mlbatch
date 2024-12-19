@@ -16,15 +16,12 @@ Adding Volume Mounts:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -93,8 +90,6 @@ Adding Volume Mounts:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -177,15 +172,12 @@ Adding initContainers:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -257,8 +249,6 @@ Adding initContainers:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -344,15 +334,12 @@ AppWrapper metadata should match snapshot:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -411,8 +398,6 @@ AppWrapper metadata should match snapshot:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -485,15 +470,12 @@ AppWrapper spec should match snapshot:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -552,8 +534,6 @@ AppWrapper spec should match snapshot:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -626,15 +606,12 @@ Enabling NVMe:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -708,8 +685,6 @@ Enabling NVMe:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -797,7 +772,6 @@ Enabling RoCE GDR:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
@@ -807,7 +781,6 @@ Enabling RoCE GDR:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -883,7 +856,6 @@ Enabling RoCE GDR:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -970,7 +942,6 @@ Enabling all advanced features at once:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
@@ -980,7 +951,6 @@ Enabling all advanced features at once:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1108,7 +1078,6 @@ Enabling all advanced features at once:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1247,15 +1216,12 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1328,8 +1294,6 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:

@@ -2,14 +2,16 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema#",
     "type": "object",
     "required": [
-        "namespace",
         "jobName",
         "containerImage"
     ],
     "additionalProperties": false,
     "properties": {
-        "namespace": { "$ref": "#/$defs/rfc1123Label" },
         "jobName": { "type": "string" },
+        "namespace": { "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/rfc1123Label" }
+        ]},
         "queueName": { "oneOf": [
             { "type": "null" },
             { "$ref": "#/$defs/rfc1123Label" }
