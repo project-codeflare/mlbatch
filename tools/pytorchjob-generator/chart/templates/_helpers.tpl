@@ -33,7 +33,7 @@ annotations:
 terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- if .Values.bypassCoscheduler }}
-schedulerName: default-scheduler
+schedulerName: {{ .Values.schedulerName }}
 {{- end }}
 priorityClassName: {{ .Values.priority }}
 affinity:
@@ -79,8 +79,14 @@ envFrom:
   - configMapRef:
       name: {{ .Values.ncclGdrEnvConfigMap }}
 {{- end }}
-{{- if or .Values.environmentVariables .Values.sshGitCloneConfig .Values.mountNVMe .Values.topologyFileConfigMap }}
+{{- if or .Values.environmentVariables .Values.sshGitCloneConfig .Values.mountNVMe .Values.topologyFileConfigMap ( eq .Values.schedulerName "sakkara" ) }}
 env:
+    {{- if eq .Values.schedulerName "sakkara" }}
+    - name: SAKKARA_RANK
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['sakkara.member.rank']
+    {{- end }}
     {{- if .Values.topologyFileConfigMap }}
     - name: NCCL_TOPO_FILE
       value: /var/run/nvidia-topologyd/virtualTopology.xml
@@ -144,6 +150,10 @@ command:
       #
       # User commands
       #
+      {{- if eq .Values.schedulerName "sakkara" }}
+      echo "Sakkara is enabled: using Sakkara-assigned rank instead of the default PyTorchJob rank"
+      export RANK=$SAKKARA_RANK
+      {{- end }}
       {{- range $command := .Values.setupCommands }}
       {{ $command }}
       {{- end }}
