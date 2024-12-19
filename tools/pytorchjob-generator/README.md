@@ -28,7 +28,6 @@ mlbatch/pytorchjob-generator	1.1.5        	v1beta2    	An AppWrapper generator f
 Create a `settings.yaml` file with the settings for the PyTorch job, for
 example:
 ```yaml
-namespace: my-namespace       # namespace to deploy to (required)
 jobName: my-job               # name of the generated AppWrapper and PyTorchJob objects (required)
 queueName: default-queue      # local queue to submit to (default: default-queue)
 
@@ -55,11 +54,15 @@ To learn more about the available settings see [chart/README.md](chart/README.md
 
 ## Submitting the Job
 
+All the commands below will target the currently selected OpenShift project.
+If your userid has access to multiple projects, either use `oc project <project-name>`
+to change your selected project or add `-n <project-name>` to each command.
+
 To submit the Pytorch job to the cluster using the `settings.yaml` file, run:
 ```sh
 helm template -f settings.yaml mlbatch/pytorchjob-generator | oc create -f-
 ```
-+
+
 To optionally capture the generated `AppWrapper` specification as a
 `generated.yaml` file, run instead:
 ```sh
@@ -69,5 +72,5 @@ helm template -f settings.yaml mlbatch/pytorchjob-generator | tee generated.yaml
 To remove the PyTorch job from the cluster, delete the generated `AppWrapper`
 object:
 ```sh
-oc delete appwrapper -n my-namespace my-job
+oc delete appwrapper my-job
 ```

@@ -10,7 +10,6 @@
 
 
 {{- define "mlbatch.container.metadata" }}
-namespace: {{ .Values.namespace }}
 {{- if or .Values.customLabels .Values.autopilotHealthChecks }}
 labels:
     {{- include "mlbatch.customLabels" . | indent 4 }}

@@ -52,7 +52,6 @@ apiVersion: workload.codeflare.dev/v1beta2
 kind: AppWrapper
 metadata:
     name: {{ .Values.jobName }}
-    namespace: {{ required "Please specify a 'namespace' in the user file" .Values.namespace }}
     annotations:
         workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: "{{ .Chart.Version }}"
         {{- if .Values.admissionGracePeriodDuration }}
@@ -90,7 +89,6 @@ spec:
                   kind: "PyTorchJob"
                   metadata:
                       name: {{ .Values.jobName }}
-                      namespace: {{ .Values.namespace }}
                       {{- if .Values.customLabels }}
                       labels:
                           {{- include "mlbatch.customLabels" . | indent 26 }}

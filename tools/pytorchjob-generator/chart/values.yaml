@@ -2,11 +2,6 @@
 # Job Metadata
 ####################
 
-# -- (string) The Kubernetes namespace in which the Job will run.
-# @default -- must be provided by user
-# @section -- Job Metadata
-namespace:
-
 # -- (string) Name of the Job.  Will be the name of the AppWrapper and the PyTorchJob.
 # @default -- must be provided by user
 # @section -- Job Metadata

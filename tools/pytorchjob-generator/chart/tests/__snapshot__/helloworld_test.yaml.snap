@@ -8,7 +8,6 @@ Adding Volume Mounts:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -16,15 +15,13 @@ Adding Volume Mounts:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -93,8 +90,7 @@ Adding Volume Mounts:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -169,7 +165,6 @@ Adding initContainers:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -177,15 +172,13 @@ Adding initContainers:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -257,8 +250,7 @@ Adding initContainers:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -336,7 +328,6 @@ AppWrapper metadata should match snapshot:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -344,15 +335,13 @@ AppWrapper metadata should match snapshot:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -411,8 +400,7 @@ AppWrapper metadata should match snapshot:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -477,7 +465,6 @@ AppWrapper spec should match snapshot:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -485,15 +472,13 @@ AppWrapper spec should match snapshot:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -552,8 +537,7 @@ AppWrapper spec should match snapshot:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -618,7 +602,6 @@ Enabling NVMe:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -626,15 +609,13 @@ Enabling NVMe:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -708,8 +689,7 @@ Enabling NVMe:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -789,7 +769,6 @@ Enabling RoCE GDR:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -797,7 +776,6 @@ Enabling RoCE GDR:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
@@ -807,7 +785,6 @@ Enabling RoCE GDR:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -883,7 +860,6 @@ Enabling RoCE GDR:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -962,7 +938,6 @@ Enabling all advanced features at once:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -970,7 +945,6 @@ Enabling all advanced features at once:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
@@ -980,7 +954,6 @@ Enabling all advanced features at once:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1108,7 +1081,6 @@ Enabling all advanced features at once:
                     metadata:
                       annotations:
                         k8s.v1.cni.cncf.io/networks: multi-nic-cni-operator-ipvlanl3
-                      namespace: my-namespace
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1239,7 +1211,6 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
-      namespace: my-namespace
     spec:
       components:
         - template:
@@ -1247,15 +1218,13 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
             kind: PyTorchJob
             metadata:
               name: my-job
-              namespace: my-namespace
             spec:
               pytorchReplicaSpecs:
                 Master:
                   replicas: 1
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
@@ -1328,8 +1297,7 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
                   replicas: 3
                   restartPolicy: Never
                   template:
-                    metadata:
-                      namespace: my-namespace
+                    metadata: null
                     spec:
                       affinity:
                         nodeAffinity:
