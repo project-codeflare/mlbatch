@@ -245,6 +245,14 @@ async function checkUserNamespace (client, namespace, queues) {
       }
     }
   }
+
+  // report GPU pods using default scheduler
+  const pods = await client.pods(namespace.metadata.name)
+  for (const pod of pods) {
+    if (pod.spec.schedulerName === 'default-scheduler' && reservation(pod) > 0) {
+      console.log(`WARNING: pod "${namespace.metadata.name}/${pod.metadata.name}" is using default-scheduler`)
+    }
+  }
 }
 
 // check system namespace
