@@ -154,7 +154,7 @@ command:
       #
       {{- if eq .Values.schedulerName "sakkara" }}
       echo "Sakkara is enabled: using Sakkara-assigned rank instead of the default PyTorchJob rank"
-      export RANK=$SAKKARA_RANK
+      export RANK="${SAKKARA_RANK:-0}"
       {{- end }}
       {{- range $command := .Values.setupCommands }}
       {{ $command }}
