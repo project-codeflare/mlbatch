@@ -110,6 +110,11 @@ env:
           secretKeyRef:
               name: {{ required "Missing 'name' in 'environmentVariables.secret' list element" $variable.secret.name }}
               key: {{ required "Missing 'key' in 'environmentVariables.secret' list element" $variable.secret.key | quote }}
+      {{- else if $variable.configmap }}
+      valueFrom:
+          configMapKeyRef:
+              name: {{ required "Missing 'name' in 'environmentVariables.configmap' list element" $variable.configmap.name }}
+              key: {{ required "Missing 'key' in 'environmentVariables.configmap' list element" $variable.configmap.key | quote }}
       {{- else if ( kindIs "float64" $variable.value ) }}
       value: "0"
       {{- else }}
