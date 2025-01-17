@@ -1512,3 +1512,167 @@ scheduler can be set:
                         - emptyDir:
                             medium: Memory
                           name: dshm
+user-defined environment variables:
+  1: |
+    apiVersion: workload.codeflare.dev/v1beta2
+    kind: AppWrapper
+    metadata:
+      annotations:
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.6
+      labels:
+        kueue.x-k8s.io/queue-name: default-queue
+      name: my-job
+      namespace: my-namespace
+    spec:
+      components:
+        - template:
+            apiVersion: kubeflow.org/v1
+            kind: PyTorchJob
+            metadata:
+              name: my-job
+            spec:
+              pytorchReplicaSpecs:
+                Master:
+                  replicas: 1
+                  restartPolicy: Never
+                  template:
+                    spec:
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: autopilot.ibm.com/gpuhealth
+                                    operator: NotIn
+                                    values:
+                                      - ERR
+                                      - TESTING
+                                      - EVICT
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: EXAMPLE_VAR1
+                              value: "6"
+                            - name: EXAMPLE_VAR2
+                              value: example2string
+                            - name: EXAMPLE_VAR3
+                              valueFrom:
+                                secretKeyRef:
+                                  key: my-secret-key
+                                  name: my-secret-name
+                            - name: EXAMPLE_VAR4
+                              valueFrom:
+                                configMapKeyRef:
+                                  key: my-configmap-key
+                                  name: my-configmap-name
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm
+                Worker:
+                  replicas: 3
+                  restartPolicy: Never
+                  template:
+                    spec:
+                      affinity:
+                        nodeAffinity:
+                          requiredDuringSchedulingIgnoredDuringExecution:
+                            nodeSelectorTerms:
+                              - matchExpressions:
+                                  - key: autopilot.ibm.com/gpuhealth
+                                    operator: NotIn
+                                    values:
+                                      - ERR
+                                      - TESTING
+                                      - EVICT
+                      containers:
+                        - command:
+                            - sh
+                            - -c
+                            - |
+                              echo "Environment variables set by the kubeflow training operator:"
+                              echo ${MASTER_ADDR}:${MASTER_PORT}
+                              echo "PYTHONUNBUFFERED:"${PYTHONUNBUFFERED}
+                              echo My global rank is ${RANK} / ${WORLD_SIZE}
+                              echo "Other injected environment variables:"
+                              echo "NVME_MOUNT_PATH: "${NVME_MOUNT_PATH}
+                              #
+                              # User commands
+                              #
+                              git clone https://github.com/dbarnett/python-helloworld
+                              cd python-helloworld
+                              echo executing: torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                              torchrun --nnodes=${WORLD_SIZE} --node_rank=${RANK} --nproc_per_node=8 --rdzv_id=101 --rdzv_endpoint="${MASTER_ADDR}:${MASTER_PORT}" helloworld.py
+                          env:
+                            - name: EXAMPLE_VAR1
+                              value: "6"
+                            - name: EXAMPLE_VAR2
+                              value: example2string
+                            - name: EXAMPLE_VAR3
+                              valueFrom:
+                                secretKeyRef:
+                                  key: my-secret-key
+                                  name: my-secret-name
+                            - name: EXAMPLE_VAR4
+                              valueFrom:
+                                configMapKeyRef:
+                                  key: my-configmap-key
+                                  name: my-configmap-name
+                          image: ghcr.io/foundation-model-stack/base:pytorch-latest-nightly-20230126
+                          imagePullPolicy: IfNotPresent
+                          name: pytorch
+                          resources:
+                            limits:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                            requests:
+                              cpu: 500m
+                              memory: 1Gi
+                              nvidia.com/gpu: 8
+                              nvidia.com/roce_gdr: 0
+                          volumeMounts:
+                            - mountPath: /dev/shm
+                              name: dshm
+                      imagePullSecrets: []
+                      priorityClassName: default-priority
+                      volumes:
+                        - emptyDir:
+                            medium: Memory
+                          name: dshm

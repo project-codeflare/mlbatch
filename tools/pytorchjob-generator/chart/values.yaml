@@ -81,7 +81,7 @@ limitMemoryPerPod: # <optional, default=totalMemoryPerPod> Limit of total memory
 
 
 # -- (array) List of variables/values to be defined for all the ranks. Values can be literals or
-# references to Kuberetes secrets.  See [values.yaml](values.yaml) for examples of supported syntaxes.
+# references to Kuberetes secrets or configmaps.  See [values.yaml](values.yaml) for examples of supported syntaxes.
 # 
 # NOTE: The following standard [PyTorch Distributed environment variables](https://pytorch.org/docs/stable/distributed.html#environment-variable-initialization)
 # are set automatically and can be referenced in the commands without being set manually: WORLD_SIZE, RANK, MASTER_ADDR, MASTER_PORT.
@@ -95,6 +95,10 @@ environmentVariables:
 #      secret:
 #         name: secret-name
 #         key: secret-key
+#    - name: EXAMPLE_VAR4
+#      configmap:
+#         name: configmap-name
+#         key: configmap-key
 
 # Private GitHub clone support. 
 # 

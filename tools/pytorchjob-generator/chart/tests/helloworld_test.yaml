@@ -101,6 +101,25 @@ tests:
   - matchSnapshot:
     path: spec.components[0].template
 
+- it: user-defined environment variables
+  set:
+    environmentVariables:
+    - name: EXAMPLE_VAR1
+      value: 6
+    - name: EXAMPLE_VAR2
+      value: "example2string"
+    - name: EXAMPLE_VAR3
+      secret:
+         name: my-secret-name
+         key: my-secret-key
+    - name: EXAMPLE_VAR4
+      configmap:
+         name: my-configmap-name
+         key: my-configmap-key
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
 - it: Enabling RoCE GDR
   set:
     roceGdrResName: nvidia.com/roce_gdr
