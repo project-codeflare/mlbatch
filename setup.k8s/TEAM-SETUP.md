@@ -8,7 +8,6 @@ for a discussion of our recommended best practices.
 Setting up a new team requires the cluster admin to create a namespace,
 a quota, a queue, and the required role bindings as described below.
 
-
 Create and label the namespace:
 ```sh
 kubectl create namespace team1

@@ -1,8 +1,0 @@
-# Values for Kubernetes v1.30+
-
-OPENSHIFT: false
-VERSION: k8s-v1.30
-KUBECTL: kubectl
-VAP: true
-SLACKCQ: true
-FAIRSHARE: true
