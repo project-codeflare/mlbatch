@@ -12,7 +12,7 @@ The cluster setup installs and configures the following components:
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 ```sh
-kubectl apply -f setup.k8s-v1.27/mlbatch-priorities.yaml
+kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 ```
 
 ## Coscheduler
@@ -25,8 +25,8 @@ helm install scheduler-plugins --namespace scheduler-plugins --create-namespace 
 ```
 Patch Coscheduler pod priorities:
 ```sh
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s-v1.27/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/coscheduler-priority-patch.yaml scheduler-plugins-controller
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 ## Install Operators
@@ -38,30 +38,31 @@ kubectl create namespace mlbatch-system
 
 Install the Kubeflow Training Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/training-operator
+kubectl apply --server-side -k setup.k8s/training-operator
 ```
 
 Install the KubeRay Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/kuberay
+kubectl apply --server-side -k setup.k8s/kuberay
 ```
 
 Install Kueue
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/kueue
+kubectl apply --server-side -k setup.k8s/kueue
 ```
 
 Install the AppWrapper Operator
 ```sh
-kubectl apply --server-side -k setup.k8s-v1.27/appwrapper
+kubectl apply --server-side -k setup.k8s/appwrapper
 ```
 The provided configuration differs from the default configuration of the
 operators as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
-  - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
+  - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
+     scoped to only namespaces that are labeled with `mlbatch-team-namespace=true`.
   - `waitForPodsReady` is disabled,
   - `LendingLimit` feature gate is enabled,
   - `fairSharing` is enabled,
@@ -76,14 +77,14 @@ operators as follows:
 
 Create Kueue's default flavor:
 ```sh
-kubectl apply -f setup.k8s-v1.27/default-flavor.yaml
+kubectl apply -f setup.k8s/default-flavor.yaml
 ```
 
 ## Cluster Role
 
 Create `mlbatch-edit` role:
 ```sh
-kubectl apply -f setup.k8s-v1.27/mlbatch-edit-role.yaml
+kubectl apply -f setup.k8s/mlbatch-edit-role.yaml
 ```
 
 ## Slack Cluster Queue

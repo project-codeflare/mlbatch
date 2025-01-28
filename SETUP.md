@@ -56,15 +56,8 @@ Instructions are provided for the following Red Hat OpenShift AI ***fast*** rele
 
 ## Kubernetes
 
-On Kubernetes version 1.30 and later, an enhanced user experience is
-available by using ValidatingAdmissionPolicies to streamline quota
-enforcement. Follow these instructions when installing on 1.30+ clusters:
-   + [Kubernetes 1.30+ Cluster Setup](./setup.k8s-v1.30/CLUSTER-SETUP.md)
-   + [Kubernetes 1.30+ Team Setup](./setup.k8s-v1.30/TEAM-SETUP.md)
-   + [Kubernetes 1.30+ Uninstall](setup.k8s-v1.30/UNINSTALL.md)
-
-MLBatch can be installed on any Kubernetes cluster version 1.27 or later
+MLBatch can be installed on any Kubernetes cluster version 1.29 or later
 by following these instructions:
-   + [Kubernetes Cluster Setup](./setup.k8s-v1.27/CLUSTER-SETUP.md)
-   + [Kubternets Team Setup](./setup.k8s-v1.27/TEAM-SETUP.md)
-   + [Kubernetes Uninstall](setup.k8s-v1.27/UNINSTALL.md)
+   + [Kubernetes Cluster Setup](./setup.k8s/CLUSTER-SETUP.md)
+   + [Kubternets Team Setup](./setup.k8s/TEAM-SETUP.md)
+   + [Kubernetes Uninstall](./setup.k8s/UNINSTALL.md)

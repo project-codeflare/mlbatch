@@ -139,10 +139,9 @@ operators as follows:
 - Kubeflow Training Operator:
   - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
 - Kueue:
-{{- if not .VAP }}
-  - `manageJobsWithoutQueueName` is enabled,
-{{- end }}
   - `batch/job` integration is disabled,
+  - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
+     scoped to only namespaces that are labeled with `mlbatch-team-namespace=true`.
   - `waitForPodsReady` is disabled,
   - `LendingLimit` feature gate is enabled,
 {{- if .FAIRSHARE }}
@@ -170,17 +169,6 @@ Create `mlbatch-edit` role:
 ```sh
 {{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-edit-role.yaml
 ```
-
-{{- if .VAP }}
-## Validating Admission Policy
-
-Create an admission policy to enforce that all pod-creating resources
-permitted by the mlbatch-edit role that are created in team namespaces
-will have local queue names and thus be subject to Kueue's quota management.
-```sh
-{{ .KUBECTL }} apply -f setup.{{ .VERSION }}/admission-policy.yaml
-```
-{{- end }}
 
 {{- if .SLACKCQ }}
 
