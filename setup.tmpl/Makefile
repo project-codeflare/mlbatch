@@ -21,8 +21,6 @@ help: ## Display this help.
 
 ##@ Generate Documentation
 docs: gotmpl
-	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.10/CLUSTER-SETUP.md -values RHOAI-v2.10.yaml
-	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.10/TEAM-SETUP.md -values RHOAI-v2.10.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.13/CLUSTER-SETUP.md -values RHOAI-v2.13.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.13/TEAM-SETUP.md -values RHOAI-v2.13.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.15/CLUSTER-SETUP.md -values RHOAI-v2.15.yaml

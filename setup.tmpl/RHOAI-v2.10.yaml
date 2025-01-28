@@ -1,7 +1,0 @@
-# Values for RHOAI 2.10
-
-OPENSHIFT: true
-VERSION: RHOAI-v2.10
-KUBECTL: oc
-SLACKCQ: false
-FAIRSHARE: false

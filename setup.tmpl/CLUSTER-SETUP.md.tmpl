@@ -49,7 +49,7 @@ Identify install plan:
 ```
 ```
 NAMESPACE             NAME            CSV                     APPROVAL   APPROVED
-redhat-ods-operator   install-kmh8w   rhods-operator.2.10.0   Manual     false
+redhat-ods-operator   install-kmh8w   rhods-operator.2.16.0   Manual     false
 ```
 Approve install plan replacing the generated plan name below with the actual
 value:
@@ -91,7 +91,7 @@ AI configuration as follows:
 {{- end }}
 - pod priorities, resource requests and limits have been adjusted.
 
-{{ if or (eq .VERSION "RHOAI-v2.10") (eq .VERSION "RHOAI-v2.13") -}}
+{{ if (eq .VERSION "RHOAI-v2.13") -}}
 To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
 in Red Hat OpenShift AI installation), do a rolling restart of the Kueue manager.
 ```sh

@@ -42,10 +42,6 @@ Instructions are provided for the following Red Hat OpenShift AI ***stable*** re
    + [UPGRADING from RHOAI 2.10](./setup.RHOAI-v2.13/UPGRADE-STABLE.md)
    + [UPGRADING from RHOAI 2.12](./setup.RHOAI-v2.13/UPGRADE-FAST.md)
    + [RHOAI 2.13 Uninstall](./setup.RHOAI-v2.13/UNINSTALL.md)
-+ Red Hat OpenShift AI 2.10
-   + [RHOAI 2.10 Cluster Setup](./setup.RHOAI-v2.10/CLUSTER-SETUP.md)
-   + [RHOAI 2.10 Team Setup](./setup.RHOAI-v2.10/TEAM-SETUP.md)
-   + [RHOAI 2.10 Uninstall](./setup.RHOAI-v2.10/UNINSTALL.md)
 
 Instructions are provided for the following Red Hat OpenShift AI ***fast*** releases:
 + Red Hat OpenShift AI 2.15
