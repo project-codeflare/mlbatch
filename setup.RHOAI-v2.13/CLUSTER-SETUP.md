@@ -36,7 +36,7 @@ oc get ip -n redhat-ods-operator
 ```
 ```
 NAMESPACE             NAME            CSV                     APPROVAL   APPROVED
-redhat-ods-operator   install-kmh8w   rhods-operator.2.10.0   Manual     false
+redhat-ods-operator   install-kmh8w   rhods-operator.2.16.0   Manual     false
 ```
 Approve install plan replacing the generated plan name below with the actual
 value:
