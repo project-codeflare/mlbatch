@@ -3,5 +3,4 @@
 OPENSHIFT: false
 VERSION: k8s
 KUBECTL: kubectl
-SLACKCQ: true
 FAIRSHARE: true

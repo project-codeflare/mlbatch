@@ -86,9 +86,7 @@ AI configuration as follows:
     - `userRBACAdmissionCheck` is disabled,
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
-{{- if .SLACKCQ }}
     - `slackQueueName` is set to `slack-cluster-queue`
-{{- end }}
 - pod priorities, resource requests and limits have been adjusted.
 
 {{ if (eq .VERSION "RHOAI-v2.13") -}}
@@ -170,8 +168,6 @@ Create `mlbatch-edit` role:
 {{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-edit-role.yaml
 ```
 
-{{- if .SLACKCQ }}
-
 ## Slack Cluster Queue
 
 Create the designated slack `ClusterQueue` which will be used to automate
@@ -214,4 +210,3 @@ covered resources.  The `lendingLimit` for each resource will be
 dynamically adjusted by the MLBatch system to reflect reduced cluster
 capacity. See [QUOTA_MAINTENANCE.md](../QUOTA_MAINTENANCE.md) for a
 detailed discussion of the role of the slack `ClusterQueue`.
-{{- end }}
