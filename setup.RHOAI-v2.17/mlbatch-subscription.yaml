@@ -102,13 +102,9 @@ data:
     appwrapper:
       enabled: true
       Config:
-        manageJobsWithoutQueueName: true
-        userRBACAdmissionCheck: false
-        schedulerName: scheduler-plugins-scheduler
-        defaultQueueName: default-queue
-        slackQueueName: slack-cluster-queue
         autopilot:
-          injectAntiAffinities: false
+          injectAntiAffinities: true
+          monitorNodes: true
           resourceTaints:
             nvidia.com/gpu:
             - key: autopilot.ibm.com/gpuhealth
@@ -120,6 +116,16 @@ data:
             - key: autopilot.ibm.com/gpuhealth
               value: EVICT
               effect: NoExecute
+        defaultQueueName: default-queue
+        enableKueueIntegrations: true
+        kueueJobReconciller:
+          manageJobsWithoutQueueName: true
+          waitForPodsReady:
+            blockAdmission: false
+            enable: false
+        schedulerName: scheduler-plugins-scheduler
+        slackQueueName: slack-cluster-queue
+        userRBACAdmissionCheck: false
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -200,6 +206,9 @@ data:
     #       - key: kubernetes.io/metadata.name
     #         operator: NotIn
     #         values: [ kube-system, kueue-system ]
+    fairSharing:
+      enable: true
+      preemptionStrategies: [LessThanOrEqualToFinalShare, LessThanInitialShare]
   manager_config_patch.yaml: |
     apiVersion: apps/v1
     kind: Deployment
@@ -266,7 +275,7 @@ spec:
   name: rhods-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhods-operator.2.15.0
+  startingCSV: rhods-operator.2.17.0
   config:
     env:
     - name: "DISABLE_DSC_CONFIG"

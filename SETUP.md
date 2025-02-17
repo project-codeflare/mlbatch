@@ -10,8 +10,9 @@ defines a `mlbatch-edit` role which enforces these restrictions and
 will be used in the setup process for each team of MLBatch users that
 is onboarded.
 
-This setup has been developed on Red Hat OpenShift 4.14 and Kubernetes 1.27 and
-is intended to support Red Hat OpenShift 4.14 and up and/or Kubernetes 1.27 and up.
+This setup has been developed on Red Hat OpenShift 4.14, Red Hat OpenShift 4.16,
+and Kubernetes 1.29 and is intended to support Red Hat OpenShift 4.14 and up
+and/or Kubernetes 1.29 and up.
 
 To start with, recursively clone and enter this repository:
 ```sh
@@ -35,7 +36,7 @@ Instructions are provided for the following Red Hat OpenShift AI ***stable*** re
    + [RHOAI 2.16 Team Setup](./setup.RHOAI-v2.16/TEAM-SETUP.md)
    + [UPGRADING from RHOAI 2.13](./setup.RHOAI-v2.16/UPGRADE-STABLE.md)
    + [UPGRADING from RHOAI 2.15](./setup.RHOAI-v2.16/UPGRADE-FAST.md)
-   + [RHOAI 2.16 Uninstall](./setup.RHOAI-v2.15/UNINSTALL.md)
+   + [RHOAI 2.16 Uninstall](./setup.RHOAI-v2.16/UNINSTALL.md)
 + Red Hat OpenShift AI 2.13
    + [RHOAI 2.13 Cluster Setup](./setup.RHOAI-v2.13/CLUSTER-SETUP.md)
    + [RHOAI 2.13 Team Setup](./setup.RHOAI-v2.13/TEAM-SETUP.md)
@@ -44,11 +45,11 @@ Instructions are provided for the following Red Hat OpenShift AI ***stable*** re
    + [RHOAI 2.13 Uninstall](./setup.RHOAI-v2.13/UNINSTALL.md)
 
 Instructions are provided for the following Red Hat OpenShift AI ***fast*** releases:
-+ Red Hat OpenShift AI 2.15
-   + [RHOAI 2.15 Cluster Setup](./setup.RHOAI-v2.15/CLUSTER-SETUP.md)
-   + [RHOAI 2.15 Team Setup](./setup.RHOAI-v2.15/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.14](./setup.RHOAI-v2.15/UPGRADE.md)
-   + [RHOAI 2.15 Uninstall](./setup.RHOAI-v2.15/UNINSTALL.md)
++ Red Hat OpenShift AI 2.17
+   + [RHOAI 2.17 Cluster Setup](./setup.RHOAI-v2.17/CLUSTER-SETUP.md)
+   + [RHOAI 2.17 Team Setup](./setup.RHOAI-v2.17/TEAM-SETUP.md)
+   + [UPGRADING from RHOAI 2.16](./setup.RHOAI-v2.17/UPGRADE.md)
+   + [RHOAI 2.17 Uninstall](./setup.RHOAI-v2.17/UNINSTALL.md)
 
 ## Kubernetes
 
