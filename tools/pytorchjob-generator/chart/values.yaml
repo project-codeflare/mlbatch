@@ -255,7 +255,7 @@ retryPausePeriodDuration:
 # @default -- The AppWrapper defaults will be used
 retryLimit:
 
-# -- (string) Customize the forcefulDelectionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# -- (string) Customize the forcefulDeletionGracePeriod; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
 # @section -- Fault Tolerance
 # @default -- The AppWrapper defaults will be used
 forcefulDeletionGracePeriodDuration:
@@ -265,7 +265,12 @@ forcefulDeletionGracePeriodDuration:
 # @default -- The AppWrapper defaults will be used
 deletionOnFailureGracePeriodDuration:
 
-# -- (string) Set Kubernertes policy for restarting failed containers "in place" (without restarting the Pod).
+# -- (string) Customize the successTTL; see https://project-codeflare.github.io/appwrapper/arch-fault-tolerance/
+# @section -- Fault Tolerance
+# @default -- The AppWrapper defaults will be used
+successTTLDuration:
+
+# -- (string) Set Kubernetes policy for restarting failed containers "in place" (without restarting the Pod).
 # @section -- Fault Tolerance
 restartPolicy: "Never"
 

@@ -78,6 +78,9 @@ metadata:
         {{- if .Values.deletionOnFailureGracePeriodDuration }}
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "{{ .Values.deletionOnFailureGracePeriodDuration }}"
         {{- end }}
+        {{- if .Values.successTTLDuration }}
+        workload.codeflare.dev.appwrapper/successTTLDuration: "{{ .Values.successTTLDuration }}"
+        {{- end }}
     {{- if or .Values.queueName .Values.customLabels }}
     labels:
         {{- if .Values.queueName }}
