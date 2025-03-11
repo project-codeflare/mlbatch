@@ -153,6 +153,10 @@
         "deletionOnFailureGracePeriodDuration" : { "oneOf" : [
             { "type": "null" },
             { "$ref": "#/$defs/duration" }
+        ]},
+        "successTTLDuration" : { "oneOf" : [
+            { "type": "null" },
+            { "$ref": "#/$defs/duration" }
         ]}
     },
 

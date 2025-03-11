@@ -186,6 +186,7 @@ tests:
     retryLimit: 42
     forcefulDeletionGracePeriodDuration: "19s"
     deletionOnFailureGracePeriodDuration: "2s"
+    successTTLDuration: "600s"
   asserts:
   - isSubset:
       path: metadata.annotations
@@ -197,6 +198,7 @@ tests:
         workload.codeflare.dev.appwrapper/retryLimit: "42"
         workload.codeflare.dev.appwrapper/forcefulDeletionGracePeriodDuration: "19s"
         workload.codeflare.dev.appwrapper/deletionOnFailureGracePeriodDuration: "2s"
+        workload.codeflare.dev.appwrapper/successTTLDuration: "600s"
 
 - it: Setting integer fault tolerance annotation to 0
   set:
