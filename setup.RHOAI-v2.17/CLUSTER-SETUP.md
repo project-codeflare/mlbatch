@@ -76,6 +76,33 @@ AI configuration as follows:
 
 
 
+## Autopilot
+
+Helm charts values and how-to for customization can be found [in the official documentation](https://github.com/IBM/autopilot/blob/main/helm-charts/autopilot/README.md). As-is, Autopilot will run on GPU nodes.
+
+- Add the Autopilot Helm repository
+
+```bash
+helm repo add autopilot https://ibm.github.io/autopilot/
+helm repo update
+```
+
+- Install the chart (idempotent command). The config file is for customizing the helm values and it is optional.
+
+```bash
+helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f your-config.yml
+```
+
+### Enabling Prometheus metrics
+
+After completing the installation, manually label the namespace to enable metrics to be scraped by Prometheus with the following command:
+
+```bash
+oc label ns autopilot openshift.io/cluster-monitoring=true
+```
+
+The `ServiceMonitor` labeling is not required.
+
 ## Kueue Configuration
 
 Create Kueue's default flavor:
