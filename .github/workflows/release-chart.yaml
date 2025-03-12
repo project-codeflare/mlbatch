@@ -36,7 +36,7 @@ jobs:
       - name: Publish Sakkara Scheduler Helm Chart
         uses: helm/chart-releaser-action@v1.6.0
         with:
-          charts_dir: sakkara-deploy/install/sakkara-scheduler
+          charts_dir: sakkara-deploy/install
           packages_with_index: true
           skip_existing: true
         env:
