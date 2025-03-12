@@ -1,0 +1,92 @@
+nameOverride: "sakkara"
+fullnameOverride: ""
+
+image:
+  # -- repository to fetch images from
+  repository: quay.io
+  # -- default is the chart appVersion
+  tag: "v0.0.1"
+
+# -- allow User system:kube-scheduler to work with metrics and CRDs.
+# primary usage is to replace default-scheduler with custom one
+useForKubeSchedulerUser: false
+
+scheduler:
+  # -- deploy second scheduler as deployment
+  enabled: true
+  # -- path to scheduler image from repository
+  image: ibm/sakkara-scheduler
+  imagePullPolicy: IfNotPresent
+  # -- increase for HA mode
+  replicaCount: 1
+  # -- enable for HA mode
+  leaderElect: false
+  # -- Log level from 1 to 9
+  verbosity: 6
+  strategy:
+    # -- Deployment update strategy type
+    type: RollingUpdate
+  # -- requests/limits for scheduler deployment
+  # resources: {}
+  resources: 
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  # -- affinity for deployment's pods
+  affinity: {}
+
+priorityClassName: system-node-critical
+
+tolerations: []
+
+nodeSelector: {}
+
+podAnnotations: {}
+
+securityContext:
+  privileged: false
+
+# scheduler framework plugins
+plugins:
+  preEnqueue:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+  queueSort:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+    disabled:
+    - name: "*"
+  postFilter:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+  preScore:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+  score:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+      weight: 10
+    disabled:
+    - name: "*"
+  reserve:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+  permit:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+  postBind:
+    enabled:
+    - name: ClusterTopologyPlacementGroup
+
+# plugin specific args
+pluginConfig:
+- name: ClusterTopologyPlacementGroup
+  args:
+    topologyConfigMapNameSpace: sakkara-scheduler
+
+schedulerConfig:
+  # -- scheduler config apiversion (ref: https://kubernetes.io/docs/reference/scheduling/config/)
+  apiVersion: kubescheduler.config.k8s.io/v1
