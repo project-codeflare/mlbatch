@@ -1,0 +1,66 @@
+{{- if .Values.scheduler.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "scheduler-plugins.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "scheduler-plugins.labels" . | nindent 4 }}
+    component: scheduler
+spec:
+  replicas: {{ .Values.scheduler.replicaCount }}
+  {{- with .Values.scheduler.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "scheduler-plugins.selectorLabels" . | nindent 6 }}
+      component: scheduler
+  template:
+    metadata:
+      annotations:
+        checksum/configmap: '{{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}'
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "scheduler-plugins.selectorLabels" . | nindent 8 }}
+        component: scheduler
+    spec:
+      priorityClassName: {{ .Values.priorityClassName }}
+      serviceAccountName: {{ include "scheduler-plugins.fullname" . }}
+      containers:
+        - command:
+          - /bin/kube-scheduler
+          - --config=/etc/kubernetes/scheduler-config.yaml
+          - --v={{ .Values.scheduler.verbosity }}
+          name: scheduler
+          image: "{{ .Values.image.repository }}/{{ .Values.scheduler.image }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.scheduler.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.scheduler.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+          - name: scheduler-config
+            mountPath: /etc/kubernetes
+            readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.scheduler.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: scheduler-config
+        configMap:
+          name: {{ include "scheduler-plugins.fullname" . }}
+{{- end }}

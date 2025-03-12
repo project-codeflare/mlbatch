@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: v0.29.7
+description: Deploy sakkara group and topology aware scheduler plugin in a cluster
+name: sakkara-scheduler
+type: application
+version: 0.0.1
