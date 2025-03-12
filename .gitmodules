@@ -2,6 +2,3 @@
 	path = scheduler-plugins
 	url = https://github.com/kubernetes-sigs/scheduler-plugins.git
 	branch = release-1.28
-[submodule "sakkara-deploy"]
-	path = sakkara-deploy
-	url = git@github.com:atantawi/sakkara-deploy.git

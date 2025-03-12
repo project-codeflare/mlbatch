@@ -14,7 +14,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: true
 
       - name: Configure Git
         run: |
@@ -24,19 +23,10 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Publish PyTorchJob Generator Helm Chart
+      - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         with:
           charts_dir: tools/pytorchjob-generator
-          packages_with_index: true
-          skip_existing: true
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Publish Sakkara Scheduler Helm Chart
-        uses: helm/chart-releaser-action@v1.6.0
-        with:
-          charts_dir: sakkara-deploy/install/sakkara-scheduler
           packages_with_index: true
           skip_existing: true
         env:
