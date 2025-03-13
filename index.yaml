@@ -101,4 +101,15 @@ entries:
     urls:
     - pytorchjob-generator-1.0.0.tgz
     version: 1.0.0
-generated: "2025-03-11T15:02:32.514318604Z"
+  sakkara-scheduler:
+  - apiVersion: v2
+    appVersion: v0.29.7
+    created: "2025-03-13T00:36:06.475815135Z"
+    description: Deploy sakkara group and topology aware scheduler plugin in a cluster
+    digest: 8cc9e150054292d005e923cbc684be42496defb73e9819152113e07590e7a57c
+    name: sakkara-scheduler
+    type: application
+    urls:
+    - sakkara-scheduler-0.0.1.tgz
+    version: 0.0.1
+generated: "2025-03-13T00:36:06.475838839Z"
