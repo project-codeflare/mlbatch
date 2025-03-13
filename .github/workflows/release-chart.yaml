@@ -23,10 +23,19 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Run chart-releaser
+      - name: Run chart-releaser for pytorchjob-generate
         uses: helm/chart-releaser-action@v1.6.0
         with:
           charts_dir: tools/pytorchjob-generator
+          packages_with_index: true
+          skip_existing: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Run chart-releaser for sakkara-deploy
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: tools/sakkara-deploy
           packages_with_index: true
           skip_existing: true
         env:
