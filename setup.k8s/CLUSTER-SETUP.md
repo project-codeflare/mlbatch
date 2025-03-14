@@ -7,6 +7,7 @@ The cluster setup installs and configures the following components:
 + Kueue
 + AppWrappers
 + Cluster roles and priority classes
++ Autopilot
 
 ## Priorities
 
@@ -72,6 +73,34 @@ operators as follows:
   - `schedulerName` is set to `scheduler-plugins-scheduler`,
   - `queueName` is set to `default-queue`,
 - pod priorities, resource requests and limits have been adjusted.
+
+## Autopilot
+
+Helm charts values and how-to for customization can be found [in the official documentation](https://github.com/IBM/autopilot/blob/main/helm-charts/autopilot/README.md). As-is, Autopilot will run on GPU nodes.
+
+- Add the Autopilot Helm repository
+
+```bash
+helm repo add autopilot https://ibm.github.io/autopilot/
+helm repo update
+```
+
+- Install the chart (idempotent command). The config file is for customizing the helm values and it is optional.
+
+```bash
+helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f your-config.yml
+```
+
+### Enabling Prometheus metrics
+
+The `ServiceMonitor` object is the one that enables Prometheus to scrape the metrics produced by Autopilot.
+In order for Prometheus to find the right objects, the `ServiceMonitor` needs to be annotated with the Prometheus' release name. It is usually `prometheus`, and that's the default added in the Autopilot release.
+If that is not the case in your cluster, the correct release label can be found by checking in the `ServiceMonitor` of Prometheus itself, or the name of Prometheus helm chart.
+Then, Autopilot's `ServiceMonitor` can be labeled with the following command
+
+```bash
+kubectl label servicemonitors.monitoring.coreos.com -n autopilot autopilot-metrics-monitor release=<prometheus-release-name> --overwrite
+```
 
 ## Kueue Configuration
 
