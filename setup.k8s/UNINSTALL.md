@@ -20,4 +20,8 @@ kubectl delete clusterrole mlbatch-edit
 # Coscheduler uninstall
 helm uninstall -n scheduler-plugins scheduler-plugins
 kubectl delete namespace scheduler-plugins
+
+# Sakkara uninstall
+helm uninstall -n sakkara-scheduler sakkara-scheduler
+kubectl delete namespace sakkara-scheduler
 ```
