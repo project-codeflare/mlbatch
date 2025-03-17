@@ -57,7 +57,9 @@ Ethernet)](https://medium.com/@sunyanan.choochotkaew1/unlocking-gpudirect-rdma-o
 we will not cover advanced networking topics in this tutorial and disable this
 feature.
 
-## Storage Setup
+## MLBatch Setup
+
+### Storage Setup
 
 We assume storage is available by means of preconfigured
 [NFS](https://en.wikipedia.org/wiki/Network_File_System) servers. We configure
@@ -66,8 +68,7 @@ Provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
 ```sh
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 helm repo update
-```
-```
+
 helm install -n nfs-provisioner simplenfs nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --create-namespace \
   --set nfs.server=192.168.95.253 --set nfs.path=/var/repo/root/nfs \
@@ -78,10 +79,10 @@ helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subd
   --set nfs.server=192.168.98.96 --set nfs.path=/gpfs/fs_ec/pokprod002 \
   --set storageClass.name=nfs-client-pokprod --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
 ```
-Make sure to replace the server ips and paths above with the right one for your
-environment. While we make use of both storage classes in the remainder of the
-tutorial for the sake of demonstration, everything could be done with a single
-class.
+Make sure to replace the server ips and paths above with the right values for
+your environment. While we make use of both storage classes in the remainder of
+the tutorial for the sake of demonstration, everything could be done with a
+single class.
 ```sh
 kubectl get storageclasses
 ```
@@ -91,11 +92,11 @@ nfs-client-pokprod     k8s-sigs.io/pokprod-nfs-subdir-external-provisioner     D
 nfs-client-simplenfs   k8s-sigs.io/simplenfs-nfs-subdir-external-provisioner   Delete          Immediate           true                   15s
 ```
 
-## Prometheus Setup
+### Prometheus Setup
 
 TODO
 
-## MLBatch Cluster Setup
+### MLBatch Cluster Setup
 
 We follow instructions from [CLUSTER-SETUP.md](../setup.k8s/CLUSTER-SETUP.md). 
 
@@ -181,11 +182,11 @@ EOF
 ```
 We reserve 8 GPUs out of 24 for MLBatch's slack queue.
 
-# Autopilot Extended Setup
+### Autopilot Extended Setup
 
 TODO
 
-## MLBatch Teams Setup
+### MLBatch Teams Setup
 
 We configure team `blue` with user `alice` and `red` with user `bob` following
 the [team setup](../setup.k8s/TEAM-SETUP.md). Each team has a nominal quota of
@@ -308,9 +309,125 @@ portable. In this tutorial, we will rely on [user
 impersonation](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#user-impersonation)
 with `kubectl` to run as a specific user.
 
-## Batch Inference with vLLM
+## Example workloads
 
-TODO
+Each example workload below is submitted as an
+[AppWrapper](https://project-codeflare.github.io/appwrapper/). See
+[USAGE.md](../USAGE.md) for a detailed discussion of queues and workloads in an
+MLBatch cluster.
+
+### Batch Inference with vLLM
+
+In this example, `alice` runs a batch inference workload using
+[vLLM](https://docs.vllm.ai/en/latest/) to serve IBM's
+[granite-3.2-8b-instruct](https://huggingface.co/ibm-granite/granite-3.2-8b-instruct)
+model.
+
+First, `alice` creates a persistent volume claim to cache the model weights on
+first invocation so that subsequent instantiation of the model will reuse the
+cached data.
+```yaml
+kubectl apply --as alice -n blue -f- << EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: granite-3.2-8b-instruct
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: nfs-client-pokprod
+EOF
+```
+The workload wraps a Kubernetes Job in an AppWrapper. The Job consists of one
+Pod with two containers using an upstream `vllm-openai` image. The `vllm`
+container runs the inference runtime. The `load-generator` container submits a
+random series of requests to the inference runtime and reports a number of
+metrics such as _Time to First Token_ (TTFT) and _Time per Output Token_ (TPOT).
+```yaml
+kubectl apply --as alice -n blue -f- << EOF
+apiVersion: workload.codeflare.dev/v1beta2
+kind: AppWrapper
+metadata:
+  name: batch-inference
+spec:
+  components:
+  - template:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: batch-inference
+      spec:
+        template:
+          metadata:
+            annotations:
+              kubectl.kubernetes.io/default-container: load-generator
+            labels:
+              app: batch-inference
+          spec:
+            terminationGracePeriodSeconds: 0
+            restartPolicy: Never
+            containers:
+              - name: vllm
+                image: quay.io/tardieu/vllm-openai:v0.7.3 # mirror of vllm/vllm-openai:v0.7.3
+                command:
+                  # serve model and wait for halt signal
+                  - sh
+                  - -c
+                  - |
+                    vllm serve ibm-granite/granite-3.2-8b-instruct &
+                    until [ -f /.config/halt ]; do sleep 1; done
+                ports:
+                  - containerPort: 8000
+                resources:
+                  requests:
+                    cpu: 4
+                    memory: 64Gi
+                    nvidia.com/gpu: 1
+                  limits:
+                    cpu: 4
+                    memory: 64Gi
+                    nvidia.com/gpu: 1
+                volumeMounts:
+                  - name: cache
+                    mountPath: /.cache
+                  - name: config
+                    mountPath: /.config
+              - name: load-generator
+                image: quay.io/tardieu/vllm-benchmarks:v0.7.3
+                command:
+                  # wait for vllm, submit batch of inference requests, send halt signal
+                  - sh
+                  - -c
+                  - |
+                    until nc -zv localhost 8000; do sleep 1; done;
+                    python3 benchmark_serving.py \
+                      --model=ibm-granite/granite-3.2-8b-instruct \
+                      --backend=vllm \
+                      --dataset-name=random \
+                      --random-input-len=128 \
+                      --random-output-len=128 \
+                      --max-concurrency=16 \
+                      --num-prompts=512;
+                    touch /.config/halt
+                volumeMounts:
+                  - name: cache
+                    mountPath: /.cache
+                  - name: config
+                    mountPath: /.config
+            volumes:
+              - name: cache
+                persistentVolumeClaim:
+                  claimName: granite-3.2-8b-instruct
+              - name: config
+                emptyDir: {}
+EOF
+```
+The two containers are synchronized as follows: `load-generator` waits for
+`vllm` to be ready to accept requests and, upon completion of the batch, signals
+`vllm` to make it quit.
 
 ## Pre-Training with PyTorch
 
