@@ -22,7 +22,6 @@ MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
 multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
 Two options are described below: Coscheduler and Sakkara. You should pick and install one of them
 as a secondary scheduler for your cluster.
-
 ### Coscheduler
 
 Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:

@@ -20,8 +20,4 @@ oc delete namespace redhat-ods-applications redhat-ods-monitoring redhat-ods-ope
 # Coscheduler uninstall
 helm uninstall -n scheduler-plugins scheduler-plugins
 oc delete namespace scheduler-plugins
-
-# Sakkara uninstall
-helm uninstall -n sakkara-scheduler sakkara-scheduler
-oc delete namespace sakkara-scheduler
 ```
