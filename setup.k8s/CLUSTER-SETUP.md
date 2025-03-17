@@ -1,7 +1,7 @@
 # Cluster Setup
 
 The cluster setup installs and configures the following components:
-+ Coscheduler
++ Scheduler Plugins
 + Kubeflow Training Operator
 + KubeRay
 + Kueue
@@ -16,7 +16,13 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 ```
 
-## Coscheduler
+## Scheduler Plugins
+
+MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
+multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
+Two options are described below: Coscheduler and Sakkara. You should pick and install one of them
+as a secondary scheduler for your cluster.
+### Coscheduler
 
 Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
 ```sh
@@ -30,6 +36,17 @@ kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s
 kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
+### Sakkara
+
+[Sakkara](https://github.com/atantawi/scheduler-plugins/tree/sakkara) is an experimental
+new scheduler plugin with advanced support for topology-aware scheduling.
+
+Install Sakkara as a secondary scheduler:
+```sh
+helm install sakkara-scheduler --namespace sakkara-scheduler --create-namespace mlbatch/sakkara-scheduler
+```
+Optionally, create a config map capturing your cluster's topology as described in the [Sakkara documentation](https://github.com/atantawi/sakkara-deploy/tree/main?tab=readme-ov-file#cluster-topology). This step is optional but recommended for production clusters. If the config map is not present Sakkara will default to a single-level hierarchy containing the Nodes of the cluster.
+
 ## Install Operators
 
 Create the mlbatch-system namespace
@@ -38,8 +55,14 @@ kubectl create namespace mlbatch-system
 ```
 
 Install the Kubeflow Training Operator
+
+If you are using Coscheduler do:
 ```sh
-kubectl apply --server-side -k setup.k8s/training-operator
+kubectl apply --server-side -k setup.k8s/training-operator/coscheduler
+```
+If you are using Sakkara do:
+```sh
+kubectl apply --server-side -k setup.k8s/training-operator/sakkara
 ```
 
 Install the KubeRay Operator
@@ -53,13 +76,19 @@ kubectl apply --server-side -k setup.k8s/kueue
 ```
 
 Install the AppWrapper Operator
+If you are using Coscheduler do:
 ```sh
-kubectl apply --server-side -k setup.k8s/appwrapper
+kubectl apply --server-side -k setup.k8s/appwrapper/coscheduler
 ```
+If you are using Sakkara do:
+```sh
+kubectl apply --server-side -k setup.k8s/appwrapper/sakkara
+```
+
 The provided configuration differs from the default configuration of the
 operators as follows:
 - Kubeflow Training Operator:
-  - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
+  - `gang-scheduler-name` is set to either `scheduler-plugins-scheduler` or `sakkara-scheduler`,
 - Kueue:
   - `batch/job` integration is disabled,
   - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
@@ -70,7 +99,7 @@ operators as follows:
   - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
-  - `schedulerName` is set to `scheduler-plugins-scheduler`,
+  - `schedulerName` is set to `scheduler-plugins-scheduler` or `sakkara-scheduler`,
   - `queueName` is set to `default-queue`,
 - pod priorities, resource requests and limits have been adjusted.
 

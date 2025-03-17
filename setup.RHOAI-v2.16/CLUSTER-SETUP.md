@@ -10,7 +10,12 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 oc apply -f setup.RHOAI-v2.16/mlbatch-priorities.yaml
 ```
 
-## Coscheduler
+## Scheduler Plugins
+
+MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
+multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
+
+### Coscheduler
 
 Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
 ```sh
@@ -23,6 +28,8 @@ Patch Coscheduler pod priorities:
 oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.16/coscheduler-priority-patch.yaml scheduler-plugins-controller
 oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.16/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
+
+
 
 ## Red Hat OpenShift AI
 

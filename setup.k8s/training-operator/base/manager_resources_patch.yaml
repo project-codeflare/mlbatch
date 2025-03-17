@@ -10,7 +10,6 @@ spec:
       - name:  training-operator
         args:
         - "--zap-log-level=2"
-        - "--gang-scheduler-name=scheduler-plugins-scheduler"
         resources:
           requests:
             cpu: 100m
