@@ -1,6 +1,6 @@
 # Cluster Setup
 
-The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
+The cluster setup installs Red Hat OpenShift AI and configures Scheduler Plugins, Kueue,
 cluster roles, and priority classes.
 
 ## Priorities
@@ -10,23 +10,26 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 oc apply -f setup.RHOAI-v2.17/mlbatch-priorities.yaml
 ```
 
-## Scheduler Plugins
+## Scheduler Configuration
 
-MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
-multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
+MLBatch configures Kubernetes scheduling to accomplish two objectives:
++ Obtaining gang (all or nothing) scheduling for multi-Pod workloads.
++ Packing Pods whose GPU request is less than the number of GPUs on a Node to
+  maximize the number of Nodes available for Pods that request all the GPUs on a Node.
 
-### Coscheduler
+This is done by installing the Coscheduling out-of-tree scheduler plugin and configuring
+the default NodeResourcesFit scheduler plugin to pack in the GPU dimension.
 
-Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
+
 ```sh
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
   --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 ```
-Patch Coscheduler pod priorities:
+Patch scheduler-plugins pod priorities:
 ```sh
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/coscheduler-priority-patch.yaml scheduler-plugins-controller
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/scheduler-priority-patch.yaml scheduler-plugins-controller
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 

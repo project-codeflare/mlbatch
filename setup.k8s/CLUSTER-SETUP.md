@@ -16,24 +16,28 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 ```
 
-## Scheduler Plugins
+## Scheduler Configuration
 
-MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
-multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
-Two options are described below: Coscheduler and Sakkara. You should pick and install one of them
-as a secondary scheduler for your cluster.
-### Coscheduler
+MLBatch configures Kubernetes scheduling to accomplish two objectives:
++ Obtaining gang (all or nothing) scheduling for multi-Pod workloads.
++ Packing Pods whose GPU request is less than the number of GPUs on a Node to
+  maximize the number of Nodes available for Pods that request all the GPUs on a Node.
 
-Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
+The currently recommend way to do this is by installing the Coscheduling out-of-tree scheduler
+plugin and configuring the default NodeResourcesFit scheduler plugin to pack in the GPU dimension.
+Alternatively, you can skip the helm install and patch commands shown below and instead install
+the experimental Sakkara scheduler plugin (described next).
+
+
 ```sh
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
   --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 ```
-Patch Coscheduler pod priorities:
+Patch scheduler-plugins pod priorities:
 ```sh
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/coscheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
+kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 ### Sakkara
@@ -56,9 +60,9 @@ kubectl create namespace mlbatch-system
 
 Install the Kubeflow Training Operator
 
-If you are using Coscheduler do:
+If you are using Coscheduling do:
 ```sh
-kubectl apply --server-side -k setup.k8s/training-operator/coscheduler
+kubectl apply --server-side -k setup.k8s/training-operator/coscheduling
 ```
 If you are using Sakkara do:
 ```sh
@@ -76,9 +80,9 @@ kubectl apply --server-side -k setup.k8s/kueue
 ```
 
 Install the AppWrapper Operator
-If you are using Coscheduler do:
+If you are using Coscheduling do:
 ```sh
-kubectl apply --server-side -k setup.k8s/appwrapper/coscheduler
+kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
 ```
 If you are using Sakkara do:
 ```sh

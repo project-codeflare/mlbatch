@@ -1,7 +1,7 @@
 # Cluster Setup
 
 {{ if .RHOAI -}}
-The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
+The cluster setup installs Red Hat OpenShift AI and configures Scheduler Plugins, Kueue,
 cluster roles, and priority classes.
 
 {{- else -}}
@@ -23,26 +23,33 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 {{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-priorities.yaml
 ```
 
-## Scheduler Plugins
+## Scheduler Configuration
 
-MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
-multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
-{{ if not .RHOAI -}}
-Two options are described below: Coscheduler and Sakkara. You should pick and install one of them
-as a secondary scheduler for your cluster.
+MLBatch configures Kubernetes scheduling to accomplish two objectives:
++ Obtaining gang (all or nothing) scheduling for multi-Pod workloads.
++ Packing Pods whose GPU request is less than the number of GPUs on a Node to
+  maximize the number of Nodes available for Pods that request all the GPUs on a Node.
+
+{{ if .RHOAI -}}
+This is done by installing the Coscheduling out-of-tree scheduler plugin and configuring
+the default NodeResourcesFit scheduler plugin to pack in the GPU dimension.
+{{- else -}}
+The currently recommend way to do this is by installing the Coscheduling out-of-tree scheduler
+plugin and configuring the default NodeResourcesFit scheduler plugin to pack in the GPU dimension.
+Alternatively, you can skip the helm install and patch commands shown below and instead install
+the experimental Sakkara scheduler plugin (described next).
 {{- end }}
-### Coscheduler
 
-Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
+
 ```sh
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
   --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 ```
-Patch Coscheduler pod priorities:
+Patch scheduler-plugins pod priorities:
 ```sh
-{{ .KUBECTL }} patch deployment -n scheduler-plugins --type=json --patch-file setup.{{ .VERSION }}/coscheduler-priority-patch.yaml scheduler-plugins-controller
-{{ .KUBECTL }} patch deployment -n scheduler-plugins --type=json --patch-file setup.{{ .VERSION }}/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
+{{ .KUBECTL }} patch deployment -n scheduler-plugins --type=json --patch-file setup.{{ .VERSION }}/scheduler-priority-patch.yaml scheduler-plugins-controller
+{{ .KUBECTL }} patch deployment -n scheduler-plugins --type=json --patch-file setup.{{ .VERSION }}/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 {{ if not .RHOAI -}}
@@ -137,9 +144,9 @@ Create the mlbatch-system namespace
 
 Install the Kubeflow Training Operator
 
-If you are using Coscheduler do:
+If you are using Coscheduling do:
 ```sh
-{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator/coscheduler
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator/coscheduling
 ```
 If you are using Sakkara do:
 ```sh
@@ -157,9 +164,9 @@ Install Kueue
 ```
 
 Install the AppWrapper Operator
-If you are using Coscheduler do:
+If you are using Coscheduling do:
 ```sh
-{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper/coscheduler
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper/coscheduling
 ```
 If you are using Sakkara do:
 ```sh
