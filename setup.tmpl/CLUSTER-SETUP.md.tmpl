@@ -136,8 +136,14 @@ Create the mlbatch-system namespace
 ```
 
 Install the Kubeflow Training Operator
+
+If you are using Coscheduler do:
 ```sh
-{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator/coscheduler
+```
+If you are using Sakkara do:
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/training-operator/sakkara
 ```
 
 Install the KubeRay Operator
@@ -151,13 +157,19 @@ Install Kueue
 ```
 
 Install the AppWrapper Operator
+If you are using Coscheduler do:
 ```sh
-{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper/coscheduler
 ```
+If you are using Sakkara do:
+```sh
+{{ .KUBECTL }} apply --server-side -k setup.{{ .VERSION }}/appwrapper/sakkara
+```
+
 The provided configuration differs from the default configuration of the
 operators as follows:
 - Kubeflow Training Operator:
-  - `gang-scheduler-name` is set to `scheduler-plugins-scheduler`,
+  - `gang-scheduler-name` is set to either `scheduler-plugins-scheduler` or `sakkara-scheduler`,
 - Kueue:
   - `batch/job` integration is disabled,
   - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
@@ -170,7 +182,7 @@ operators as follows:
   - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,
-  - `schedulerName` is set to `scheduler-plugins-scheduler`,
+  - `schedulerName` is set to `scheduler-plugins-scheduler` or `sakkara-scheduler`,
   - `queueName` is set to `default-queue`,
 - pod priorities, resource requests and limits have been adjusted.
 
