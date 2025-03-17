@@ -78,6 +78,10 @@ helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subd
   --set nfs.server=192.168.98.96 --set nfs.path=/gpfs/fs_ec/pokprod002 \
   --set storageClass.name=nfs-client-pokprod --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
 ```
+Make sure to replace the server ips and paths above with the right one for your
+environment. While we make use of both storage classes in the remainder of the
+tutorial for the sake of demonstration, everything could be done with a single
+class.
 ```sh
 kubectl get storageclasses
 ```
