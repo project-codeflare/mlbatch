@@ -1,6 +1,6 @@
 # Values for RHOAI 2.16
 
-OPENSHIFT: true
+RHOAI: true
 VERSION: RHOAI-v2.16
 KUBECTL: oc
 FAIRSHARE: true
