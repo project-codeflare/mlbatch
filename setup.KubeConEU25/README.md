@@ -177,6 +177,10 @@ EOF
 ```
 We reserve 8 GPUs out of 24 for MLBatch's slack queue.
 
+# Autopilot Extended Setup
+
+TODO
+
 ## MLBatch Teams Setup
 
 We configure team `blue` with user `alice` and `red` with user `bob` following
