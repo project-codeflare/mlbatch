@@ -1,6 +1,6 @@
 # Cluster Setup
 
-The cluster setup installs Red Hat OpenShift AI and Coscheduler, configures Kueue,
+The cluster setup installs Red Hat OpenShift AI and Scheduler Plugins, configures Kueue,
 cluster roles, and priority classes.
 
 ## Priorities
@@ -10,7 +10,14 @@ Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 oc apply -f setup.RHOAI-v2.17/mlbatch-priorities.yaml
 ```
 
-## Coscheduler
+## Scheduler Plugins
+
+MLBatch utilizes Kubernetes Scheduler Plugins to ensure gang scheduling of
+multi-Pod workloads and to pack `Pods` onto `Nodes` to reduce GPU fragmentation.
+Two options are described below: Coscheduler and Sakkara. You should pick and install one of them
+as a secondary scheduler for your cluster.
+
+### Coscheduler
 
 Install Coscheduler v0.28.9 as a secondary scheduler and configure packing:
 ```sh
@@ -23,6 +30,17 @@ Patch Coscheduler pod priorities:
 oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/coscheduler-priority-patch.yaml scheduler-plugins-controller
 oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/coscheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
+
+### Sakkara
+
+[Sakkara](https://github.com/atantawi/scheduler-plugins/tree/sakkara) is an experimental
+new scheduler plugin with advanced support for topology-aware scheduling.
+
+Install Sakkara as a secondary scheduler:
+```sh
+helm install sakkara-scheduler --namespace sakkara-scheduler --create-namespace mlbatch/sakkara-scheduler
+```
+Optionally, create a config map capturing your cluster's topology as described in the [Sakkara documentation](https://github.com/atantawi/sakkara-deploy/tree/main?tab=readme-ov-file#cluster-topology). This step is optional but recommended for production clusters. If the config map is not present Sakkara will default to a single-level hierarchy containing the Nodes of the cluster.
 
 ## Red Hat OpenShift AI
 
