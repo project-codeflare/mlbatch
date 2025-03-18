@@ -94,7 +94,109 @@ nfs-client-simplenfs   k8s-sigs.io/simplenfs-nfs-subdir-external-provisioner   D
 
 ### Prometheus Setup
 
-TODO
+We follow the setup provided by the `prometheus-community/kube-prometheus-stack` Helm chart.
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+```
+
+The charts will install: Prometheus, Grafana, Alert Manager, Prometheus Node Exporter and Kube State Metrics. We set up the chart with the following:
+
+- Persistent storage for Prometheus, Grafana and Alert Manager;
+- Override the Prometheus Node Exporter port;
+- Disable CRDs creation as they are already present.
+
+You may leave the CRDs creation on, along with the default Node Exporter pod. These changes are needed when deploying a separate Prometheus instance in OpenShift.
+
+```bash
+cat << EOF >> config.yaml
+crds:
+  enabled: false
+
+prometheus-node-exporter:
+  service:
+    port: 9110
+
+alertmanager:
+  alertmanagerSpec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client-pokprod
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+prometheus:
+  prometheusSpec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    storageSpec: 
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client-pokprod
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    emptyDir:
+      medium: Memory    
+
+grafana:
+  persistence:
+    enabled: true
+    type: sts
+    storageClassName: "nfs-client-pokprod"
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+EOF
+
+helm upgrade -i kube-prometheus-stack -n prometheus prometheus-community/kube-prometheus-stack --create-namespace -f config.yaml
+```
+
+If deploying on OpenShift based systems, you need to assign the privileged security context to the service accounts that are created by the helm chart.
+
+```bash
+oc adm policy add-scc-to-user privileged system:serviceaccount:prometheus:kube-prometheus-stack-admission system:serviceaccount:prometheus:kube-prometheus-stack-alertmanager system:serviceaccount:prometheus:kube-prometheus-stack-grafana system:serviceaccount:prometheus:kube-prometheus-stack-kube-state-metrics system:serviceaccount:prometheus:kube-prometheus-stack-operator system:serviceaccount:prometheus:kube-prometheus-stack-prometheus system:serviceaccount:prometheus:kube-prometheus-stack-prometheus-node-exporter
+```
+
+You should expect the following pods:
+
+```bash
+kubectl get pods
+```
+```bash
+NAME                                                        READY   STATUS    RESTARTS   AGE
+alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   0          16m
+kube-prometheus-stack-grafana-0                             3/3     Running   0          16m
+kube-prometheus-stack-kube-state-metrics-6f76b98d89-pxs69   1/1     Running   0          16m
+kube-prometheus-stack-operator-7fbfc985bb-mm9bk             1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-44llp        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-95gp8        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-dxf5f        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-f45dx        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-pfrzk        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-zpfzb        1/1     Running   0          16m
+prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          16m
+```
+
+To access the Grafana dashboard on `localhost:3000`:
+
+```bash
+kubectl --namespace prometheus get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+```
+```bash
+export POD_NAME=$(kubectl --namespace prometheus get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+  kubectl --namespace prometheus port-forward $POD_NAME 3000
+```
 
 ### MLBatch Cluster Setup
 
