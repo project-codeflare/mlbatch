@@ -133,7 +133,7 @@ kubectl apply --server-side -k setup.k8s/kuberay
 kubectl apply --server-side -k setup.k8s/kueue
 
 # Wait for Kueue to be running
-kubectl get pods -n kueue-system
+kubectl get pods -n mlbatch-system
 
 # Deploy AppWrapper
 kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
@@ -154,6 +154,7 @@ kubectl apply -f setup.k8s/mlbatch-edit-role.yaml
 
 # Create slack cluster queue with 8 gpus
 kubectl apply -f- << EOF
+apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
   name: slack-cluster-queue
@@ -201,6 +202,7 @@ kubectl label namespace red mlbatch-team-namespace=true
 
 # Create queues
 kubectl -n blue apply -f- << EOF
+apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
   name: blue-cluster-queue
@@ -237,6 +239,7 @@ spec:
 EOF
 
 kubectl apply -n red -f- << EOF
+apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
 metadata:
   name: red-cluster-queue
