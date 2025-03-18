@@ -6,10 +6,10 @@ Then to uninstall the MLBatch controllers and reclaim the corresponding
 namespaces, do the following:
 ```sh
 # Delete operators and CRDs
-kubectl delete -k setup.k8s-v1.27/appwrapper
-kubectl delete -k setup.k8s-v1.27/kueue
-kubectl delete -k setup.k8s-v1.27/kuberay
-kubectl delete -k setup.k8s-v1.27/training-operator
+kubectl delete -k setup.k8s/appwrapper/base
+kubectl delete -k setup.k8s/kueue
+kubectl delete -k setup.k8s/kuberay
+kubectl delete -k setup.k8s/training-operator/base
 
 # Delete namespace
 kubectl delete namespace mlbatch-system
