@@ -109,9 +109,7 @@ cd mlbatch
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 
 # Deploy scheduler plugins
-helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"s
-coringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityR
-atio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
+helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
 # Wait for scheduler-plugins pods to be running
 kubectl get pods -n scheduler-plugins
