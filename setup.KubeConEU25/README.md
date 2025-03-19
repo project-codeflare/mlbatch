@@ -295,6 +295,7 @@ env:
     value: "pciebw,remapped,dcgm,ping,gpupower,pvc"
   - name: "PVC_TEST_STORAGE_CLASS"
     value: "nfs-client-pokprod"
+EOF
 ```
 
 Then reapply the helm chart, this will start a rollout update.
