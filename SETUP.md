@@ -45,11 +45,11 @@ Instructions are provided for the following Red Hat OpenShift AI ***stable*** re
    + [RHOAI 2.13 Uninstall](./setup.RHOAI-v2.13/UNINSTALL.md)
 
 Instructions are provided for the following Red Hat OpenShift AI ***fast*** releases:
-+ Red Hat OpenShift AI 2.17
-   + [RHOAI 2.17 Cluster Setup](./setup.RHOAI-v2.17/CLUSTER-SETUP.md)
-   + [RHOAI 2.17 Team Setup](./setup.RHOAI-v2.17/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.16](./setup.RHOAI-v2.17/UPGRADE.md)
-   + [RHOAI 2.17 Uninstall](./setup.RHOAI-v2.17/UNINSTALL.md)
++ Red Hat OpenShift AI 2.18
+   + [RHOAI 2.18 Cluster Setup](./setup.RHOAI-v2.18/CLUSTER-SETUP.md)
+   + [RHOAI 2.18 Team Setup](./setup.RHOAI-v2.18/TEAM-SETUP.md)
+   + [UPGRADING from RHOAI 2.16](./setup.RHOAI-v2.18/UPGRADE.md)
+   + [RHOAI 2.18 Uninstall](./setup.RHOAI-v2.18/UNINSTALL.md)
 
 ## Kubernetes
 
