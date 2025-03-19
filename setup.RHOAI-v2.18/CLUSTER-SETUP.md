@@ -7,7 +7,7 @@ cluster roles, and priority classes.
 
 Create `default-priority`, `high-priority`, and `low-priority` priority classes:
 ```sh
-oc apply -f setup.RHOAI-v2.17/mlbatch-priorities.yaml
+oc apply -f setup.RHOAI-v2.18/mlbatch-priorities.yaml
 ```
 
 ## Scheduler Configuration
@@ -28,8 +28,8 @@ helm install scheduler-plugins --namespace scheduler-plugins --create-namespace 
 ```
 Patch scheduler-plugins pod priorities:
 ```sh
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/scheduler-priority-patch.yaml scheduler-plugins-controller
-oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.17/scheduler-priority-patch.yaml scheduler-plugins-scheduler
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.18/scheduler-priority-patch.yaml scheduler-plugins-controller
+oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2.18/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 ```
 
 
@@ -38,7 +38,7 @@ oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2
 
 Create the Red Hat OpenShift AI subscription:
 ```sh
-oc apply -f setup.RHOAI-v2.17/mlbatch-subscription.yaml
+oc apply -f setup.RHOAI-v2.18/mlbatch-subscription.yaml
 ````
 Identify install plan:
 ```sh
@@ -55,11 +55,11 @@ oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":tru
 ```
 Create DSC Initialization:
 ```sh
-oc apply -f setup.RHOAI-v2.17/mlbatch-dsci.yaml
+oc apply -f setup.RHOAI-v2.18/mlbatch-dsci.yaml
 ```
 Create Data Science Cluster:
 ```sh
-oc apply -f setup.RHOAI-v2.17/mlbatch-dsc.yaml
+oc apply -f setup.RHOAI-v2.18/mlbatch-dsc.yaml
 ```
 The provided DSCI and DSC are intended to install a minimal set of Red Hat OpenShift
 AI managed components: `codeflare`, `kueue`, `ray`, and `trainingoperator`. The
@@ -117,14 +117,14 @@ The `ServiceMonitor` labeling is not required.
 
 Create Kueue's default flavor:
 ```sh
-oc apply -f setup.RHOAI-v2.17/default-flavor.yaml
+oc apply -f setup.RHOAI-v2.18/default-flavor.yaml
 ```
 
 ## Cluster Role
 
 Create `mlbatch-edit` role:
 ```sh
-oc apply -f setup.RHOAI-v2.17/mlbatch-edit-role.yaml
+oc apply -f setup.RHOAI-v2.18/mlbatch-edit-role.yaml
 ```
 
 ## Slack Cluster Queue
