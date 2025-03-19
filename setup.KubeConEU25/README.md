@@ -63,33 +63,30 @@ feature.
 
 We assume storage is available by means of preconfigured
 [NFS](https://en.wikipedia.org/wiki/Network_File_System) servers. We configure
-two storage classes using the [NFS Subdir External
+one storage class using the [NFS Subdir External
 Provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
 ```sh
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 helm repo update
-
-helm install -n nfs-provisioner simplenfs nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-  --create-namespace \
-  --set nfs.server=192.168.95.253 --set nfs.path=/var/repo/root/nfs \
-  --set storageClass.name=nfs-client-simplenfs --set storageClass.provisionerName=k8s-sigs.io/simplenfs-nfs-subdir-external-provisioner
 
 helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --create-namespace \
   --set nfs.server=192.168.98.96 --set nfs.path=/gpfs/fs_ec/pokprod002 \
   --set storageClass.name=nfs-client-pokprod --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
 ```
-Make sure to replace the server ips and paths above with the right values for
-your environment. While we make use of both storage classes in the remainder of
-the tutorial for the sake of demonstration, everything could be done with a
-single class.
+Make sure to replace the server ip and path above with the right values for your
+environment.
 ```sh
 kubectl get storageclasses
 ```
 ```
 NAME                   PROVISIONER                                             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
 nfs-client-pokprod     k8s-sigs.io/pokprod-nfs-subdir-external-provisioner     Delete          Immediate           true                   11s
-nfs-client-simplenfs   k8s-sigs.io/simplenfs-nfs-subdir-external-provisioner   Delete          Immediate           true                   15s
+```
+OpenShift clusters require an additional configuration step to permit the
+provisioner pod to mount the storage:
+```sh
+oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:pokprod-nfs-subdir-external-provisioner
 ```
 
 ### Prometheus Setup
