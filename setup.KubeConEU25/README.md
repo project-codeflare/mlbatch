@@ -286,7 +286,22 @@ We reserve 8 GPUs out of 24 for MLBatch's slack queue.
 
 ### Autopilot Extended Setup
 
-TODO
+It is possible to configure Autopilot so that it will test PVC creation and deletion given a storage class name.
+
+```bash
+cat << EOF >> autopilot-extended.yaml
+env:
+  - name: "PERIODIC_CHECKS"
+    value: "pciebw,remapped,dcgm,ping,gpupower,pvc"
+  - name: "PVC_TEST_STORAGE_CLASS"
+    value: "nfs-client-pokprod"
+```
+
+Then reapply the helm chart, this will start a rollout update.
+
+```bash
+helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f autopilot-extended.yaml
+```
 
 ### MLBatch Teams Setup
 
