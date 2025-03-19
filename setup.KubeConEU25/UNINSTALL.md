@@ -23,15 +23,15 @@ kubectl delete clusterrole mlbatch-edit
 helm uninstall -n scheduler-plugins scheduler-plugins
 kubectl delete ns scheduler-plugins
 
-helm uninstall -n nfs-provisioner pokprod
-kubectl delete ns nfs-provisioner
-
 helm uninstall -n autopilot autopilot
 kubectl delete ns autopilot
 
 helm uninstall -n prometheus kube-prometheus-stack
 helm delete pvc -n prometheus --all
 kubectl delete ns prometheus
+
+helm uninstall -n nfs-provisioner pokprod
+kubectl delete ns nfs-provisioner
 
 # OpenShift-specific steps
 
