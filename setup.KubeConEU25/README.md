@@ -1,15 +1,30 @@
 # MLBatch Tutorial
 
 In this tutorial, we walk through all the steps necessary to setup MLBatch on a
-Kubernetes cluster and run a few example workloads. Prior to the [cluster
-setup](../setup.k8s/CLUSTER-SETUP.md), we will configure storage classes and
-Prometheus. We will configure team `blue` with user `alice` and `red` with user
-`bob` following the [team setup](../setup.k8s/TEAM-SETUP.md).
+Kubernetes cluster and run a few example workloads.
+- We configure persistent storage using
+[NFS](https://en.wikipedia.org/wiki/Network_File_System).
+- We deploy MLBatch following the
+  [CLUSTER-SETUP.md](../setup.k8s/CLUSTER-SETUP.md) instructions.
+- We configure example teams following the
+  [TEAM-SETUP.md](../setup.k8s/TEAM-SETUP.md) instructions.
+- We reconfigure Autopilot to periodically assess the storage class in addition
+  to running network and GPU tests. _This is optional._
+- We deploy [Prometheus](https://prometheus.io) and [Grafana
+dashboards](https://grafana.com/grafana/dashboards/) to monitor the health of
+the cluster and GPU utilization. _This is optional._
+- We demonstrate the queueing, quota management, and fault recovery capabilities
+  of MLBatch using synthetic workloads.
+- We run example workloads using vLLM, PyTorch, and Ray.
 
 ## Cluster Characteristics
 
 Our target cluster comprises three control planes nodes and three worker nodes
-running Kubernetes 1.29 (from  OpenShift 4.16.36).
+running Kubernetes 1.29, specifically [OpenShift
+4.16](https://docs.openshift.com/container-platform/4.16/release_notes/ocp-4-16-release-notes.html).
+
+<details>
+
 ```sh
 kubectl get nodes
 ```
@@ -22,7 +37,8 @@ pokprod002ctrl0    Ready    control-plane,master   5d15h   v1.29.11+148a389
 pokprod002ctrl1    Ready    control-plane,master   5d15h   v1.29.11+148a389
 pokprod002ctrl2    Ready    control-plane,master   5d15h   v1.29.11+148a389
 ```
-Each worker node is equipped with eight H100 NVIDIA gpus.
+Each worker node is equipped with eight [NVIDIA
+H100](https://www.nvidia.com/en-us/data-center/h100/) GPUs.
 ```sh
 kubectl describe node pokprod-b93r38s3
 ```
@@ -31,9 +47,9 @@ Name:               pokprod-b93r38s3
 Roles:              worker
 Labels:             beta.kubernetes.io/arch=amd64
 ...
-                    nvidia.com/gpu.product=NVIDIA-H100-80GB-HBM3
+                    nvidia.com/GPU.product=NVIDIA-H100-80GB-HBM3
 ...
-                    nvidia.com/gpu.count=8
+                    nvidia.com/GPU.count=8
 ...
 Capacity:
   cpu:                                       224
@@ -41,41 +57,43 @@ Capacity:
   hugepages-1Gi:                             0
   hugepages-2Mi:                             0
   memory:                                    2113411308Ki
-  nvidia.com/gpu:                            8
+  nvidia.com/GPU:                            8
   openshift.io/p0_storage_sriov_nodepolicy:  8
   pods:                                      250
   rdma/roce_gdr:                             0
 ...
 ```
 For this tutorial, we assume the [NVIDIA GPU
-operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/index.html)
+operator](https://docs.nvidia.com/datacenter/cloud-native/GPU-operator/latest/index.html)
 is already
-[installed](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html)
+[installed](https://docs.nvidia.com/datacenter/cloud-native/GPU-operator/latest/getting-started.html)
 on the cluster. While this cluster is capable of [GPU-direct RDMA (GDR) with
 ROCE (RDMA over Converged
-Ethernet)](https://medium.com/@sunyanan.choochotkaew1/unlocking-gpudirect-rdma-on-roce-in-kubernetes-based-cluster-on-cloud-through-multi-nic-cni-1e69ffb96296),
-we will not cover advanced networking topics in this tutorial and disable this
-feature.
+Ethernet)](https://medium.com/@sunyanan.choochotkaew1/unlocking-GPUdirect-rdma-on-roce-in-kubernetes-based-cluster-on-cloud-through-multi-nic-cni-1e69ffb96296),
+we will not cover or rely on advanced networking configurations in this
+tutorial.
 
-## MLBatch Setup
+</details>
 
-### Storage Setup
+## Persistent Storage Setup
 
-We assume storage is available by means of preconfigured
-[NFS](https://en.wikipedia.org/wiki/Network_File_System) servers. We configure
+We assume storage is available by means of a preexisting
+[NFS](https://en.wikipedia.org/wiki/Network_File_System) server. We configure
 one storage class using the [NFS Subdir External
 Provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner).
+
+<details>
+
 ```sh
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
-helm repo update
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner && helm repo update
 
 helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --create-namespace \
   --set nfs.server=192.168.98.96 --set nfs.path=/gpfs/fs_ec/pokprod002 \
   --set storageClass.name=nfs-client-pokprod --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
 ```
-Make sure to replace the server ip and path above with the right values for your
-environment.
+Make sure to set the `nfs.server` and `nfs.path` values to the right values for
+your environment.
 ```sh
 kubectl get storageclasses
 ```
@@ -84,134 +102,19 @@ NAME                   PROVISIONER                                             R
 nfs-client-pokprod     k8s-sigs.io/pokprod-nfs-subdir-external-provisioner     Delete          Immediate           true                   11s
 ```
 OpenShift clusters require an additional configuration step to permit the
-provisioner pod to mount the storage:
+provisioner pod to mount the storage volume.
 ```sh
 oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:pokprod-nfs-subdir-external-provisioner
 ```
 
-### Prometheus Setup
+</details>
 
-We follow the setup provided by the `prometheus-community/kube-prometheus-stack` Helm chart.
+## MLBatch Cluster Setup
 
-```bash
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
-```
+We deploy MLBatch to the cluster following
+[CLUSTER-SETUP.md](../setup.k8s/CLUSTER-SETUP.md).
 
-The charts will install: Prometheus, Grafana, Alert Manager, Prometheus Node Exporter and Kube State Metrics. We set up the chart with the following:
-
-- Persistent storage for Prometheus, Grafana and Alert Manager;
-- Override the Prometheus Node Exporter port;
-- Disable CRDs creation as they are already present.
-
-You may leave the CRDs creation on, along with the default Node Exporter pod. These changes are needed when deploying a separate Prometheus instance in OpenShift.
-
-```bash
-cat << EOF >> config.yaml
-crds:
-  enabled: false
-
-prometheus-node-exporter:
-  service:
-    port: 9110
-
-alertmanager:
-  alertmanagerSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
-    storage:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: nfs-client-pokprod
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 50Gi
-
-prometheus:
-  prometheusSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
-    storageSpec: 
-      volumeClaimTemplate:
-        spec:
-          storageClassName: nfs-client-pokprod
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 50Gi
-    emptyDir:
-      medium: Memory    
-
-grafana:
-  persistence:
-    enabled: true
-    type: sts
-    storageClassName: "nfs-client-pokprod"
-    accessModes:
-      - ReadWriteOnce
-    size: 20Gi
-    finalizers:
-      - kubernetes.io/pvc-protection
-EOF
-
-helm upgrade -i kube-prometheus-stack -n prometheus prometheus-community/kube-prometheus-stack --create-namespace -f config.yaml
-```
-
-If deploying on OpenShift based systems, you need to assign the privileged security context to the service accounts that are created by the helm chart.
-
-```bash
-oc adm policy add-scc-to-user privileged system:serviceaccount:prometheus:kube-prometheus-stack-admission system:serviceaccount:prometheus:kube-prometheus-stack-alertmanager system:serviceaccount:prometheus:kube-prometheus-stack-grafana system:serviceaccount:prometheus:kube-prometheus-stack-kube-state-metrics system:serviceaccount:prometheus:kube-prometheus-stack-operator system:serviceaccount:prometheus:kube-prometheus-stack-prometheus system:serviceaccount:prometheus:kube-prometheus-stack-prometheus-node-exporter
-```
-
-You should expect the following pods:
-
-```bash
-kubectl get pods
-```
-```bash
-NAME                                                        READY   STATUS    RESTARTS   AGE
-alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   0          16m
-kube-prometheus-stack-grafana-0                             3/3     Running   0          16m
-kube-prometheus-stack-kube-state-metrics-6f76b98d89-pxs69   1/1     Running   0          16m
-kube-prometheus-stack-operator-7fbfc985bb-mm9bk             1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-44llp        1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-95gp8        1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-dxf5f        1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-f45dx        1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-pfrzk        1/1     Running   0          16m
-kube-prometheus-stack-prometheus-node-exporter-zpfzb        1/1     Running   0          16m
-prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          16m
-```
-
-To access the Grafana dashboard on `localhost:3000`:
-
-```bash
-kubectl --namespace prometheus get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
-```
-```bash
-export POD_NAME=$(kubectl --namespace prometheus get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
-  kubectl --namespace prometheus port-forward $POD_NAME 3000
-```
-
-To import NVidia and Autopilot metrics, from the Grafana Dashboard:
-
-- Select the `+` drop down menu on the top right, and **Import dashboard**
-- In the `Grafana.com dashboard URL or ID` box, add [https://grafana.com/grafana/dashboards/23123-autopilot-metrics/](https://grafana.com/grafana/dashboards/23123-autopilot-metrics/) and click Load, then repeat with the NVidia dashboard [https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/)
-
-To visualize the metrics, we need to label the service monitor objects in both `autopilot` and `nvidia-gpu-operator` namespaces with the Prometheus release name.
-
-```bash
-kubectl label servicemonitors.monitoring.coreos.com -n autopilot autopilot-metrics-monitor release=kube-prometheus-stack --overwrite
-```
-```bash
-kubectl label servicemonitors.monitoring.coreos.com -n nvidia-gpu-operator nvidia-dcgm-exporter gpu-operator nvidia-node-status-exporter  release=kube-prometheus-stack --overwrite
-```
-
-### MLBatch Cluster Setup
-
-We follow instructions from [CLUSTER-SETUP.md](../setup.k8s/CLUSTER-SETUP.md). 
+<details>
 
 ```sh
 # Clone MLBatch repository
@@ -222,7 +125,7 @@ cd mlbatch
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 
 # Deploy scheduler plugins
-helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
+helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
 # Wait for scheduler-plugins pods to be running
 kubectl get pods -n scheduler-plugins
@@ -250,12 +153,9 @@ kubectl get pods -n mlbatch-system
 kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
 
 # Deploy Autopilot
-helm repo add autopilot https://ibm.github.io/autopilot/
-helm repo update
+helm repo add autopilot https://ibm.github.io/autopilot/ && helm repo update
 
-helm upgrade autopilot autopilot/autopilot --install -n autopilot --create-namespace
-
-kubectl label servicemonitors -n autopilot autopilot-metrics-monitor release=kube-prometheus-stack --overwrite
+helm upgrade --install autopilot -n autopilot autopilot/autopilot --create-namespace
 
 # Create Kueue's default flavor
 kubectl apply -f setup.k8s/default-flavor.yaml
@@ -263,7 +163,7 @@ kubectl apply -f setup.k8s/default-flavor.yaml
 # Setup mlbatch-edit-role
 kubectl apply -f setup.k8s/mlbatch-edit-role.yaml
 
-# Create slack cluster queue with 8 gpus
+# Create slack cluster queue with 8 GPUs
 kubectl apply -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
@@ -278,7 +178,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -286,7 +186,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/gpu"
+      - name: "nvidia.com/GPU"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -294,31 +194,16 @@ EOF
 ```
 We reserve 8 GPUs out of 24 for MLBatch's slack queue.
 
-### Autopilot Extended Setup
+</details>
 
-It is possible to configure Autopilot so that it will test PVC creation and deletion given a storage class name.
-
-```bash
-cat << EOF >> autopilot-extended.yaml
-env:
-  - name: "PERIODIC_CHECKS"
-    value: "pciebw,remapped,dcgm,ping,gpupower,pvc"
-  - name: "PVC_TEST_STORAGE_CLASS"
-    value: "nfs-client-pokprod"
-EOF
-```
-
-Then reapply the helm chart, this will start a rollout update.
-
-```bash
-helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f autopilot-extended.yaml
-```
-
-### MLBatch Teams Setup
+## MLBatch Teams Setup
 
 We configure team `blue` with user `alice` and `red` with user `bob` following
-the [team setup](../setup.k8s/TEAM-SETUP.md). Each team has a nominal quota of
-eight GPUs.
+[TEAM-SETUP.md](../setup.k8s/TEAM-SETUP.md). Each team has a nominal quota of 8
+GPUs.
+
+<details>
+
 ```sh
 # Create namespaces
 kubectl create ns blue
@@ -342,7 +227,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -350,7 +235,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/gpu"
+      - name: "nvidia.com/GPU"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -379,7 +264,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -387,7 +272,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/gpu"
+      - name: "nvidia.com/GPU"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -439,12 +324,182 @@ portable. In this tutorial, we will rely on [user
 impersonation](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#user-impersonation)
 with `kubectl` to run as a specific user.
 
+</details>
+
+## Extended Autopilot Setup
+
+Optionally, we configure Autopilot to test PVC creation and deletion with the
+`nfs-client-pokprod` storage class.
+
+<details>
+
+First create the extended Autopilot configuration.
+```sh
+cat << EOF > autopilot-extended.yaml
+env:
+  - name: "PERIODIC_CHECKS"
+    value: "pciebw,remapped,dcgm,ping,gpupower,pvc"
+  - name: "PVC_TEST_STORAGE_CLASS"
+    value: "nfs-client-pokprod"
+EOF
+```
+Then reapply the helm chart, this will start a rollout update.
+```sh
+helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f autopilot-extended.yaml
+```
+
+</details>
+
+## Monitoring Setup
+
+Optionally, we deploy [Prometheus](https://prometheus.io) and [Grafana
+dashboards](https://grafana.com/grafana/dashboards/) to the cluster.
+
+<details>
+
+We follow the setup provided by the `prometheus-community/kube-prometheus-stack`
+Helm chart.
+
+```sh
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+```
+
+The charts will install: Prometheus, Grafana, Alert Manager, Prometheus Node
+Exporter and Kube State Metrics. We set up the chart with the following:
+
+- Persistent storage for Prometheus, Grafana and Alert Manager;
+- Override the Prometheus Node Exporter port;
+- Disable CRDs creation as they are already present.
+
+You may leave the CRDs creation on, along with the default Node Exporter pod.
+These changes are needed when deploying a separate Prometheus instance in
+OpenShift.
+
+```sh
+cat << EOF > config.yaml
+crds:
+  enabled: false
+
+prometheus-node-exporter:
+  service:
+    port: 9110
+
+alertmanager:
+  alertmanagerSpec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client-pokprod
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+prometheus:
+  prometheusSpec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: nfs-client-pokprod
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    emptyDir:
+      medium: Memory
+
+grafana:
+  persistence:
+    enabled: true
+    type: sts
+    storageClassName: "nfs-client-pokprod"
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+EOF
+
+helm upgrade --install kube-prometheus-stack -n prometheus prometheus-community/kube-prometheus-stack --create-namespace -f config.yaml
+```
+
+If deploying on OpenShift based systems, you need to assign the privileged
+security context to the service accounts that are created by the helm chart.
+
+```sh
+oc adm policy add-scc-to-user privileged system:serviceaccount:prometheus:kube-prometheus-stack-admission system:serviceaccount:prometheus:kube-prometheus-stack-alertmanager system:serviceaccount:prometheus:kube-prometheus-stack-grafana system:serviceaccount:prometheus:kube-prometheus-stack-kube-state-metrics system:serviceaccount:prometheus:kube-prometheus-stack-operator system:serviceaccount:prometheus:kube-prometheus-stack-prometheus system:serviceaccount:prometheus:kube-prometheus-stack-prometheus-node-exporter
+```
+
+You should expect the following pods:
+
+```sh
+kubectl get pods
+```
+```sh
+NAME                                                        READY   STATUS    RESTARTS   AGE
+alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   0          16m
+kube-prometheus-stack-grafana-0                             3/3     Running   0          16m
+kube-prometheus-stack-kube-state-metrics-6f76b98d89-pxs69   1/1     Running   0          16m
+kube-prometheus-stack-operator-7fbfc985bb-mm9bk             1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-44llp        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-95gp8        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-dxf5f        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-f45dx        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-pfrzk        1/1     Running   0          16m
+kube-prometheus-stack-prometheus-node-exporter-zpfzb        1/1     Running   0          16m
+prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          16m
+```
+
+To access the Grafana dashboard on `localhost:3000`:
+
+```sh
+kubectl --namespace prometheus get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+```
+```sh
+export POD_NAME=$(kubectl --namespace prometheus get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+  kubectl --namespace prometheus port-forward $POD_NAME 3000
+```
+
+To import NVidia and Autopilot metrics, from the Grafana dashboard:
+
+- Select the `+` drop down menu on the top right, and **Import dashboard**
+- In the `Grafana.com dashboard URL or ID` box, add
+  [https://grafana.com/grafana/dashboards/23123-autopilot-metrics/](https://grafana.com/grafana/dashboards/23123-autopilot-metrics/)
+  and click Load, then repeat with the NVidia dashboard
+  [https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/)
+
+To visualize the metrics, we need to label the service monitor objects in both
+`autopilot` and `nvidia-GPU-operator` namespaces with the Prometheus release
+name.
+
+```sh
+kubectl label servicemonitors.monitoring.coreos.com -n autopilot autopilot-metrics-monitor release=kube-prometheus-stack --overwrite
+```
+```sh
+kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidia-dcgm-exporter GPU-operator nvidia-node-status-exporter  release=kube-prometheus-stack --overwrite
+```
+
+</details>
+
+## Workload Management
+
+TODO
+
+<details>
+
+TODO
+
+</details>
+
 ## Example Workloads
 
-Each example workload below is submitted as an
-[AppWrapper](https://project-codeflare.github.io/appwrapper/). See
-[USAGE.md](../USAGE.md) for a detailed discussion of queues and workloads in an
-MLBatch cluster.
+We now run a few example workloads.
 
 ### Batch Inference with vLLM
 
@@ -452,6 +507,8 @@ In this example, `alice` runs a batch inference workload using
 [vLLM](https://docs.vllm.ai/en/latest/) to serve IBM's
 [granite-3.2-8b-instruct](https://huggingface.co/ibm-granite/granite-3.2-8b-instruct)
 model.
+
+<details>
 
 First, `alice` creates a persistent volume claim to cache the model weights on
 first invocation so that subsequent instantiation of the model will reuse the
@@ -515,11 +572,11 @@ spec:
                   requests:
                     cpu: 4
                     memory: 64Gi
-                    nvidia.com/gpu: 1
+                    nvidia.com/GPU: 1
                   limits:
                     cpu: 4
                     memory: 64Gi
-                    nvidia.com/gpu: 1
+                    nvidia.com/GPU: 1
                 volumeMounts:
                   - name: cache
                     mountPath: /.cache
@@ -559,6 +616,24 @@ The two containers are synchronized as follows: `load-generator` waits for
 `vllm` to be ready to accept requests and, upon completion of the batch, signals
 `vllm` to make it quit.
 
-## Pre-Training with PyTorch
+</details>
+
+### Pre-Training with PyTorch
 
 TODO
+
+<details>
+
+TODO
+
+</details>
+
+### Fine-Tuning with Ray
+
+TODO
+
+<details>
+
+TODO
+
+</details>
