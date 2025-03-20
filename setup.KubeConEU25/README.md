@@ -128,7 +128,11 @@ kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
 # Wait for scheduler-plugins pods to be running
-kubectl get pods -n scheduler-plugins
+while [[ $(kubectl get pods -n scheduler-plugins -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
+do
+    echo -n "." && sleep 1;
+done
+echo ""
 
 # Patch scheduler-plugins pod priorities
 kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
@@ -146,7 +150,13 @@ kubectl apply --server-side -k setup.k8s/kuberay
 # Deploy Kueue
 kubectl apply --server-side -k setup.k8s/kueue
 
-# Wait for Kueue to be running
+# Wait for Kueue to be ready
+while [[ $(kubectl get pods -l app.kubernetes.io/name=kueue -n mlbatch-system -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
+do
+    echo -n "." && sleep 1;
+done
+echo ""
+
 kubectl get pods -n mlbatch-system
 
 # Deploy AppWrapper
