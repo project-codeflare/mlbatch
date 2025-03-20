@@ -27,7 +27,7 @@ helm uninstall -n autopilot autopilot
 kubectl delete ns autopilot
 
 helm uninstall -n prometheus kube-prometheus-stack
-helm delete pvc -n prometheus --all
+kubectl delete pvc -n prometheus --all
 kubectl delete ns prometheus
 
 helm uninstall -n nfs-provisioner pokprod
