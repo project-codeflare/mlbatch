@@ -121,10 +121,10 @@ cd mlbatch
 # Setup priority classes
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 
-# Deploy scheduler plugins
+# Deploy scheduler-plugins
 helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
-# Wait for scheduler-plugins pods to be running
+# Wait for scheduler-plugins pods to be ready
 while [[ $(kubectl get pods -n scheduler-plugins -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
 do
     echo -n "." && sleep 1;
@@ -153,8 +153,6 @@ do
     echo -n "." && sleep 1;
 done
 echo ""
-
-kubectl get pods -n mlbatch-system
 
 # Deploy AppWrapper
 kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
@@ -496,7 +494,8 @@ kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidi
 
 ## Workload Management
 
-TODO
+- We will now demonstrate the queueing, quota management, and fault recovery capabilities
+  of MLBatch using synthetic workloads.
 
 <details>
 
@@ -627,7 +626,8 @@ The two containers are synchronized as follows: `load-generator` waits for
 
 ### Pre-Training with PyTorch
 
-TODO
+In this example, `alice` uses [PyTorch]() to pre-training a model using the
+[Kubeflow Training Operator](https://github.com/kubeflow/training-operator).
 
 <details>
 
@@ -637,7 +637,8 @@ TODO
 
 ### Fine-Tuning with Ray
 
-TODO
+In this example, `alice` uses [Ray](https://github.com/ray-project/ray) to fine tune a model using
+[KubeRay](https://github.com/ray-project/kuberay).
 
 <details>
 
