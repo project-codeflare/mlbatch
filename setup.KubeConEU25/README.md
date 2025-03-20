@@ -505,7 +505,8 @@ TODO
 
 ## Example Workloads
 
-We now run a few example workloads.
+We now will now run some sample workloads that are representative of what is run on
+a typical AI GPU Cluster.
 
 ### Batch Inference with vLLM
 
