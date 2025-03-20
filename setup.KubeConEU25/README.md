@@ -494,8 +494,8 @@ kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidi
 
 ## Workload Management
 
-- We will now demonstrate the queueing, quota management, and fault recovery capabilities
-  of MLBatch using synthetic workloads.
+We will now demonstrate the queueing, quota management, and fault recovery capabilities
+of MLBatch using synthetic workloads.
 
 <details>
 
