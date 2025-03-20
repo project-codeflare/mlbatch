@@ -40,28 +40,25 @@ pokprod002ctrl2    Ready    control-plane,master   5d15h   v1.29.11+148a389
 Each worker node is equipped with eight [NVIDIA
 H100](https://www.nvidia.com/en-us/data-center/h100/) GPUs.
 ```sh
-kubectl describe node pokprod-b93r38s3
+oc debug node/pokprod-b93r38s3 -- chroot /host lspci -d 10de:
 ```
 ```
-Name:               pokprod-b93r38s3
-Roles:              worker
-Labels:             beta.kubernetes.io/arch=amd64
-...
-                    nvidia.com/GPU.product=NVIDIA-H100-80GB-HBM3
-...
-                    nvidia.com/GPU.count=8
-...
-Capacity:
-  cpu:                                       224
-  ephemeral-storage:                         1873933640Ki
-  hugepages-1Gi:                             0
-  hugepages-2Mi:                             0
-  memory:                                    2113411308Ki
-  nvidia.com/GPU:                            8
-  openshift.io/p0_storage_sriov_nodepolicy:  8
-  pods:                                      250
-  rdma/roce_gdr:                             0
-...
+Starting pod/pokprod-b93r38s3-debug-4bv4j ...
+To use host binaries, run `chroot /host`
+05:00.0 Bridge: NVIDIA Corporation GH100 [H100 NVSwitch] (rev a1)
+06:00.0 Bridge: NVIDIA Corporation GH100 [H100 NVSwitch] (rev a1)
+07:00.0 Bridge: NVIDIA Corporation GH100 [H100 NVSwitch] (rev a1)
+08:00.0 Bridge: NVIDIA Corporation GH100 [H100 NVSwitch] (rev a1)
+18:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+2a:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+3a:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+5d:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+9a:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+ab:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+ba:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+db:00.0 3D controller: NVIDIA Corporation GH100 [H100 SXM5 80GB] (rev a1)
+
+Removing debug pod ...
 ```
 For this tutorial, we assume the [NVIDIA GPU
 operator](https://docs.nvidia.com/datacenter/cloud-native/GPU-operator/latest/index.html)
