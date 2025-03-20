@@ -506,7 +506,7 @@ TODO
 ## Example Workloads
 
 We now will now run some sample workloads that are representative of what is run on
-a typical AI GPU Cluster.
+an AI GPU Cluster.
 
 ### Batch Inference with vLLM
 
@@ -627,8 +627,8 @@ The two containers are synchronized as follows: `load-generator` waits for
 
 ### Pre-Training with PyTorch
 
-In this example, `alice` uses [PyTorch]() to pre-training a model using the
-[Kubeflow Training Operator](https://github.com/kubeflow/training-operator).
+In this example, `alice` uses the [Kubeflow Training Operator](https://github.com/kubeflow/training-operator)
+to run a job that uses [PyTorch](https://pytorch.org) to train a machine learning model.
 
 <details>
 
@@ -638,8 +638,8 @@ TODO
 
 ### Fine-Tuning with Ray
 
-In this example, `alice` uses [Ray](https://github.com/ray-project/ray) to fine tune a model using
-[KubeRay](https://github.com/ray-project/kuberay).
+In this example, `alice` uses [KubeRay](https://github.com/ray-project/kuberay) to run a job that
+uses [Ray](https://github.com/ray-project/ray) to fine tune a machine learning model.
 
 <details>
 
