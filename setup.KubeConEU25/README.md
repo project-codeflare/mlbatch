@@ -86,8 +86,10 @@ helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/
 
 helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --create-namespace \
-  --set nfs.server=192.168.98.96 --set nfs.path=/gpfs/fs_ec/pokprod002 \
-  --set storageClass.name=nfs-client-pokprod --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
+  --set nfs.server=192.168.98.96 \
+  --set nfs.path=/gpfs/fs_ec/pokprod002 \
+  --set storageClass.name=nfs-client-pokprod \
+  --set storageClass.provisionerName=k8s-sigs.io/pokprod-nfs-subdir-external-provisioner
 ```
 Make sure to set the `nfs.server` and `nfs.path` values to the right values for
 your environment.
@@ -101,7 +103,8 @@ nfs-client-pokprod     k8s-sigs.io/pokprod-nfs-subdir-external-provisioner     D
 OpenShift clusters require an additional configuration step to permit the
 provisioner pod to mount the storage volume.
 ```sh
-oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:nfs-provisioner:pokprod-nfs-subdir-external-provisioner
+oc adm policy add-scc-to-user hostmount-anyuid \
+  system:serviceaccount:nfs-provisioner:pokprod-nfs-subdir-external-provisioner
 ```
 
 </details>
@@ -122,7 +125,9 @@ cd mlbatch
 kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 
 # Deploy scheduler-plugins
-helm install scheduler-plugins --namespace scheduler-plugins --create-namespace scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
+helm install scheduler-plugins -n scheduler-plugins --create-namespace \
+  scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
+  --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
 # Wait for scheduler-plugins pods to be ready
 while [[ $(kubectl get pods -n scheduler-plugins -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
@@ -132,8 +137,10 @@ done
 echo ""
 
 # Patch scheduler-plugins pod priorities
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
+kubectl patch deployment -n scheduler-plugins --type=json \
+  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
+kubectl patch deployment -n scheduler-plugins --type=json \
+  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 
 # Create mlbatch-system namespace
 kubectl create namespace mlbatch-system
@@ -160,7 +167,7 @@ kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
 # Deploy Autopilot
 helm repo add autopilot https://ibm.github.io/autopilot/ && helm repo update
 
-helm upgrade --install autopilot -n autopilot autopilot/autopilot --create-namespace
+helm upgrade -i autopilot -n autopilot autopilot/autopilot --create-namespace
 
 # Create Kueue's default flavor
 kubectl apply -f setup.k8s/default-flavor.yaml
@@ -350,7 +357,7 @@ EOF
 ```
 Then reapply the helm chart, this will start a rollout update.
 ```sh
-helm upgrade autopilot autopilot/autopilot --install --namespace=autopilot --create-namespace -f autopilot-extended.yaml
+helm upgrade -i autopilot autopilot/autopilot -n autopilot --create-namespace -f autopilot-extended.yaml
 ```
 
 </details>
@@ -431,7 +438,7 @@ grafana:
       - kubernetes.io/pvc-protection
 EOF
 
-helm upgrade --install kube-prometheus-stack -n prometheus prometheus-community/kube-prometheus-stack --create-namespace -f config.yaml
+helm upgrade -i kube-prometheus-stack -n prometheus prometheus-community/kube-prometheus-stack --create-namespace -f config.yaml
 ```
 
 If deploying on OpenShift based systems, you need to assign the privileged
@@ -464,11 +471,11 @@ prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0 
 To access the Grafana dashboard on `localhost:3000`:
 
 ```sh
-kubectl --namespace prometheus get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+kubectl -n prometheus get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 ```
 ```sh
-export POD_NAME=$(kubectl --namespace prometheus get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
-  kubectl --namespace prometheus port-forward $POD_NAME 3000
+export POD_NAME=$(kubectl -n prometheus get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+  kubectl -n prometheus port-forward $POD_NAME 3000
 ```
 
 To import NVidia and Autopilot metrics, from the Grafana dashboard:
