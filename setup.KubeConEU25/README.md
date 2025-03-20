@@ -82,7 +82,8 @@ Provisioner](https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner)
 <details>
 
 ```sh
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner && helm repo update
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+helm repo update
 
 helm install -n nfs-provisioner pokprod nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --create-namespace \
@@ -165,7 +166,8 @@ echo ""
 kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
 
 # Deploy Autopilot
-helm repo add autopilot https://ibm.github.io/autopilot/ && helm repo update
+helm repo add autopilot https://ibm.github.io/autopilot/
+helm repo update
 
 helm upgrade -i autopilot -n autopilot autopilot/autopilot --create-namespace
 
