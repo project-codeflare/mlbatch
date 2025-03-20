@@ -195,6 +195,20 @@ export POD_NAME=$(kubectl --namespace prometheus get pod -l "app.kubernetes.io/n
   kubectl --namespace prometheus port-forward $POD_NAME 3000
 ```
 
+To import NVidia and Autopilot metrics, from the Grafana Dashboard:
+
+- Select the `+` drop down menu on the top right, and **Import dashboard**
+- In the `Grafana.com dashboard URL or ID` box, add [https://grafana.com/grafana/dashboards/23123-autopilot-metrics/](https://grafana.com/grafana/dashboards/23123-autopilot-metrics/) and click Load, then repeat with the NVidia dashboard [https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/](https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/)
+
+To visualize the metrics, we need to label the service monitor objects in both `autopilot` and `nvidia-gpu-operator` namespaces with the Prometheus release name.
+
+```bash
+kubectl label servicemonitors.monitoring.coreos.com -n autopilot autopilot-metrics-monitor release=kube-prometheus-stack --overwrite
+```
+```bash
+kubectl label servicemonitors.monitoring.coreos.com -n nvidia-gpu-operator nvidia-dcgm-exporter gpu-operator nvidia-node-status-exporter  release=kube-prometheus-stack --overwrite
+```
+
 ### MLBatch Cluster Setup
 
 We follow instructions from [CLUSTER-SETUP.md](../setup.k8s/CLUSTER-SETUP.md). 
