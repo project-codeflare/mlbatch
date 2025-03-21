@@ -163,7 +163,7 @@ kubectl apply -f setup.k8s/mlbatch-priorities.yaml
 # Deploy scheduler-plugins
 helm install scheduler-plugins -n scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
-  --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
+  --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/gpu","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
 # Patch scheduler-plugins pod priorities
 kubectl patch deployment -n scheduler-plugins --type=json \
@@ -220,7 +220,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -228,7 +228,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/GPU"
+      - name: "nvidia.com/gpu"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -268,7 +268,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -276,7 +276,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/GPU"
+      - name: "nvidia.com/gpu"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -328,7 +328,7 @@ spec:
     borrowWithinCohort:
       policy: Never
   resourceGroups:
-  - coveredResources: ["cpu", "memory", "nvidia.com/GPU", "pods"]
+  - coveredResources: ["cpu", "memory", "nvidia.com/gpu", "pods"]
     flavors:
     - name: default-flavor
       resources:
@@ -336,7 +336,7 @@ spec:
         nominalQuota: 224
       - name: "memory"
         nominalQuota: 2000G
-      - name: "nvidia.com/GPU"
+      - name: "nvidia.com/gpu"
         nominalQuota: 8
       - name: "pods"
         nominalQuota: 100
@@ -622,11 +622,11 @@ spec:
                   requests:
                     cpu: 4
                     memory: 64Gi
-                    nvidia.com/GPU: 1
+                    nvidia.com/gpu: 1
                   limits:
                     cpu: 4
                     memory: 64Gi
-                    nvidia.com/GPU: 1
+                    nvidia.com/gpu: 1
                 volumeMounts:
                   - name: cache
                     mountPath: /.cache
