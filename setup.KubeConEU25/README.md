@@ -9,7 +9,7 @@ Trainer](https://www.kubeflow.org/docs/components/training/),
 [vLLM](https://docs.vllm.ai/en/latest/). It complements them with several
 open-source components born in IBM Research including
 [AutoPilot](https://github.com/IBM/autopilot),
-[AppWrappers](https://project-codeflare.github.io/appwrapper/), and
+[AppWrapper](https://project-codeflare.github.io/appwrapper/), and
 [Sakkara](https://github.com/atantawi/4986-kep-sakkara). MLBatch manages teams,
 queues, quotas, and resource allocation. It monitors key cluster components,
 detecting faults and to a degree automating fault recovery.
@@ -27,7 +27,7 @@ Kubernetes cluster and run a few example workloads.
 - We deploy [Prometheus](https://prometheus.io) and [Grafana
 dashboards](https://grafana.com/grafana/dashboards/) to monitor the health of
 the cluster and GPU utilization. _This is optional._
-- We demonstrate the queueing, quota management, and fault recovery capabilities
+- We demonstrate the queuing, quota management, and fault recovery capabilities
   of MLBatch using synthetic workloads.
 - We run example workloads using vLLM, PyTorch, and Ray.
 
