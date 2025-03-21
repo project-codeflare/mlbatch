@@ -1,5 +1,19 @@
 # MLBatch Tutorial
 
+MLBatch is the software stack we developed in IBM Research to facilitate the
+setup, administration, and use of Kubernetes clusters dedicated to batch AI/ML
+workloads. It leverages a number of community projects such as
+[Kueue](https://kueue.sigs.k8s.io), [Kubeflow
+Trainer](https://www.kubeflow.org/docs/components/training/),
+[KubeRay](https://docs.ray.io/en/latest/cluster/kubernetes/index.html), and
+[vLLM](https://docs.vllm.ai/en/latest/). It complements them with several
+open-source components born in IBM Research including
+[AutoPilot](https://github.com/IBM/autopilot),
+[AppWrappers](https://project-codeflare.github.io/appwrapper/), and
+[Sakkara](https://github.com/atantawi/4986-kep-sakkara). MLBatch manages teams,
+queues, quotas, and resource allocation. It monitors key cluster components,
+detecting faults and to a degree automating fault recovery.
+
 In this tutorial, we walk through all the steps necessary to setup MLBatch on a
 Kubernetes cluster and run a few example workloads.
 - We configure persistent storage using
@@ -130,6 +144,12 @@ helm install scheduler-plugins -n scheduler-plugins --create-namespace \
   scheduler-plugins/manifests/install/charts/as-a-second-scheduler/ \
   --set-json pluginConfig='[{"args":{"scoringStrategy":{"resources":[{"name":"nvidia.com/GPU","weight":1}],"requestedToCapacityRatio":{"shape":[{"utilization":0,"score":0},{"utilization":100,"score":10}]},"type":"RequestedToCapacityRatio"}},"name":"NodeResourcesFit"},{"args":{"permitWaitingTimeSeconds":300},"name":"Coscheduling"}]'
 
+# Patch scheduler-plugins pod priorities
+kubectl patch deployment -n scheduler-plugins --type=json \
+  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
+kubectl patch deployment -n scheduler-plugins --type=json \
+  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
+
 # Wait for scheduler-plugins pods to be ready
 while [[ $(kubectl get pods -n scheduler-plugins -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
 do
@@ -137,19 +157,13 @@ do
 done
 echo ""
 
-# Patch scheduler-plugins pod priorities
-kubectl patch deployment -n scheduler-plugins --type=json \
-  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-controller
-kubectl patch deployment -n scheduler-plugins --type=json \
-  --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
-
 # Create mlbatch-system namespace
 kubectl create namespace mlbatch-system
 
 # Deploy Kubeflow training operator
 kubectl apply --server-side -k setup.k8s/training-operator/coscheduling
 
-# Deploy Kuberay
+# Deploy KubeRay
 kubectl apply --server-side -k setup.k8s/kuberay
 
 # Deploy Kueue
@@ -176,8 +190,9 @@ kubectl apply -f setup.k8s/default-flavor.yaml
 
 # Setup mlbatch-edit-role
 kubectl apply -f setup.k8s/mlbatch-edit-role.yaml
-
-# Create slack cluster queue with 8 GPUs
+```
+We reserve 8 GPUs out of 24 for MLBatch's slack queue.
+```yaml
 kubectl apply -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
@@ -206,7 +221,6 @@ spec:
         nominalQuota: 100
 EOF
 ```
-We reserve 8 GPUs out of 24 for MLBatch's slack queue.
 
 </details>
 
@@ -218,7 +232,7 @@ GPUs.
 
 <details>
 
-```sh
+```yaml
 # Create namespaces
 kubectl create ns blue
 kubectl create ns red
@@ -503,8 +517,8 @@ kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidi
 
 ## Workload Management
 
-We will now demonstrate the queueing, quota management, and fault recovery capabilities
-of MLBatch using synthetic workloads.
+We will now demonstrate the queueing, quota management, and fault recovery
+capabilities of MLBatch using synthetic workloads.
 
 <details>
 
@@ -514,8 +528,8 @@ TODO
 
 ## Example Workloads
 
-We now will now run some sample workloads that are representative of what is run on
-an AI GPU Cluster.
+We now will now run some sample workloads that are representative of what is run
+on an AI GPU Cluster.
 
 ### Batch Inference with vLLM
 
@@ -636,8 +650,9 @@ The two containers are synchronized as follows: `load-generator` waits for
 
 ### Pre-Training with PyTorch
 
-In this example, `alice` uses the [Kubeflow Training Operator](https://github.com/kubeflow/training-operator)
-to run a job that uses [PyTorch](https://pytorch.org) to train a machine learning model.
+In this example, `alice` uses the [Kubeflow Training
+Operator](https://github.com/kubeflow/training-operator) to run a job that uses
+[PyTorch](https://pytorch.org) to train a machine learning model.
 
 <details>
 
@@ -647,8 +662,9 @@ TODO
 
 ### Fine-Tuning with Ray
 
-In this example, `alice` uses [KubeRay](https://github.com/ray-project/kuberay) to run a job that
-uses [Ray](https://github.com/ray-project/ray) to fine tune a machine learning model.
+In this example, `alice` uses [KubeRay](https://github.com/ray-project/kuberay)
+to run a job that uses [Ray](https://github.com/ray-project/ray) to fine tune a
+machine learning model.
 
 <details>
 
