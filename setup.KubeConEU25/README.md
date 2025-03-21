@@ -253,15 +253,15 @@ GPUs.
 
 <details>
 
+For `alice` in team `blue`:
 ```yaml
 # Create namespaces
 kubectl create ns blue
-kubectl create ns red
 
+# Label namespace
 kubectl label namespace blue mlbatch-team-namespace=true
-kubectl label namespace red mlbatch-team-namespace=true
 
-# Create queues
+# Create cluster queue
 kubectl -n blue apply -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: ClusterQueue
@@ -290,6 +290,7 @@ spec:
         nominalQuota: 100
 EOF
 
+# Create default queue for namespace
 kubectl apply -n blue -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
 kind: LocalQueue
@@ -298,6 +299,28 @@ metadata:
 spec:
   clusterQueue: blue-cluster-queue
 EOF
+
+# Authorize alice
+kubectl -n blue apply -f- << EOF
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: alice
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: alice
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mlbatch-edit
+EOF
+```
+For `bob` in team `red`:
+```yaml
+kubectl create ns red
+
+kubectl label namespace red mlbatch-team-namespace=true
 
 kubectl apply -n red -f- << EOF
 apiVersion: kueue.x-k8s.io/v1beta1
@@ -334,22 +357,6 @@ metadata:
   name: default-queue
 spec:
   clusterQueue: red-cluster-queue
-EOF
-
-# Authorize alice and bob in their respective namespaces
-kubectl -n blue apply -f- << EOF
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: alice
-subjects:
-  - apiGroup: rbac.authorization.k8s.io
-    kind: User
-    name: alice
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: mlbatch-edit
 EOF
 
 kubectl -n red apply -f- << EOF
