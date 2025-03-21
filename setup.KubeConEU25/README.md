@@ -561,8 +561,8 @@ model.
 <details>
 
 First, `alice` creates a persistent volume claim to cache the model weights on
-first invocation so that subsequent instantiation of the model will reuse the
-cached data.
+first invocation so that subsequent instantiations of the model will reuse the
+cached model weights.
 ```yaml
 kubectl apply --as alice -n blue -f- << EOF
 apiVersion: v1
@@ -579,10 +579,10 @@ spec:
 EOF
 ```
 The workload wraps a Kubernetes Job in an AppWrapper. The Job consists of one
-Pod with two containers using an upstream `vllm-openai` image. The `vllm`
-container runs the inference runtime. The `load-generator` container submits a
-random series of requests to the inference runtime and reports a number of
-metrics such as _Time to First Token_ (TTFT) and _Time per Output Token_ (TPOT).
+Pod with two containers. The `vllm` container runs the inference runtime using
+an upstream `vllm-openai` image. The `load-generator` container submits a random
+series of requests to the inference runtime and reports a number of metrics such
+as _Time to First Token_ (TTFT) and _Time per Output Token_ (TPOT).
 ```yaml
 kubectl apply --as alice -n blue -f- << EOF
 apiVersion: workload.codeflare.dev/v1beta2
@@ -599,16 +599,13 @@ spec:
       spec:
         template:
           metadata:
-            annotations:
-              kubectl.kubernetes.io/default-container: load-generator
             labels:
               app: batch-inference
           spec:
-            terminationGracePeriodSeconds: 0
             restartPolicy: Never
             containers:
               - name: vllm
-                image: quay.io/tardieu/vllm-openai:v0.7.3 # mirror of vllm/vllm-openai:v0.7.3
+                image: quay.io/tardieu/vllm-openai:v0.7.3 # vllm/vllm-openai:v0.7.3
                 command:
                   # serve model and wait for halt signal
                   - sh
@@ -635,7 +632,7 @@ spec:
               - name: load-generator
                 image: quay.io/tardieu/vllm-benchmarks:v0.7.3
                 command:
-                  # wait for vllm, submit batch of inference requests, send halt signal
+                  # wait for vllm, submit batch of requests, send halt signal
                   - sh
                   - -c
                   - |
@@ -665,6 +662,15 @@ EOF
 The two containers are synchronized as follows: `load-generator` waits for
 `vllm` to be ready to accept requests and, upon completion of the batch, signals
 `vllm` to make it quit.
+
+Stream the logs of the `vllm` container with:
+```sh
+kubectl logs --as alice -n blue -l app=batch-inference -c vllm -f
+```
+Stream the logs of the `load-generator` container with:
+```sh
+kubectl logs --as alice -n blue -l app=batch-inference -c load-generator -f
+```
 
 </details>
 
