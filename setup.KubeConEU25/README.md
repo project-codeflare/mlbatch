@@ -91,6 +91,19 @@ NAME                                         AGE
 gpu-operator-certified.nvidia-gpu-operator   18h
 nfd.openshift-nfd                            18h
 ```
+```sh
+kubectl get node pokprod-b93r38s3 -o yaml | yq .status.capacity
+```
+```
+cpu: "224"
+ephemeral-storage: 1873933640Ki
+hugepages-1Gi: "0"
+hugepages-2Mi: "0"
+memory: 2113411288Ki
+nvidia.com/gpu: "8"
+pods: "250"
+```
+
 
 </details>
 
