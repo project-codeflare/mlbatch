@@ -83,6 +83,14 @@ ROCE (RDMA over Converged
 Ethernet)](https://medium.com/@sunyanan.choochotkaew1/unlocking-GPUdirect-rdma-on-roce-in-kubernetes-based-cluster-on-cloud-through-multi-nic-cni-1e69ffb96296),
 we will not cover or rely on advanced networking configurations in this
 tutorial.
+```sh
+kubectl get operators -A
+```
+```
+NAME                                         AGE
+gpu-operator-certified.nvidia-gpu-operator   18h
+nfd.openshift-nfd                            18h
+```
 
 </details>
 
