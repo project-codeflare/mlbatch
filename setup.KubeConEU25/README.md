@@ -172,11 +172,7 @@ kubectl patch deployment -n scheduler-plugins --type=json \
   --patch-file setup.k8s/scheduler-priority-patch.yaml scheduler-plugins-scheduler
 
 # Wait for scheduler-plugins pods to be ready
-while [[ $(kubectl get pods -n scheduler-plugins -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
-do
-    echo -n "." && sleep 1;
-done
-echo ""
+kubectl -n scheduler-plugins wait --timeout=300s --for=condition=Available deployments --all
 
 # Create mlbatch-system namespace
 kubectl create namespace mlbatch-system
@@ -191,11 +187,7 @@ kubectl apply --server-side -k setup.k8s/kuberay
 kubectl apply --server-side -k setup.k8s/kueue
 
 # Wait for Kueue to be ready
-while [[ $(kubectl get pods -l app.kubernetes.io/name=kueue -n mlbatch-system -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | tr ' ' '\n' | sort -u) != "True" ]]
-do
-    echo -n "." && sleep 1;
-done
-echo ""
+kubectl -n mlbatch-system wait --timeout=300s --for=condition=Available deployments kueue-controller-manager
 
 # Deploy AppWrapper
 kubectl apply --server-side -k setup.k8s/appwrapper/coscheduling
