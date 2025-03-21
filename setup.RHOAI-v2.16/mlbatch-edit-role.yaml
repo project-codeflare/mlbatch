@@ -123,7 +123,7 @@ rules:
   - ""
   resources:
   - namespaces
-  - pods/logs
+  - pods/log
   verbs:
   - get
 - apiGroups:
