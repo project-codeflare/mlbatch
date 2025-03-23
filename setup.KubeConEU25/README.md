@@ -434,9 +434,6 @@ prometheus-node-exporter:
 
 alertmanager:
   alertmanagerSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
     storage:
       volumeClaimTemplate:
         spec:
@@ -448,9 +445,6 @@ alertmanager:
 
 prometheus:
   prometheusSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
     storageSpec:
       volumeClaimTemplate:
         spec:
