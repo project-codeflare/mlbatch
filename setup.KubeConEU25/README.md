@@ -610,7 +610,7 @@ next pending job is admitted.
 
 ### Borrowing and Preemption
 
-Alice will now submit 4 normal jobs.  Again, with borrowing three of these jobs
+Alice will now submit 4 normal jobs.  Again, with borrowing, three of these jobs
 will be able to run immediately and the 4th job will be queued.
 
 ```sh
@@ -620,24 +620,25 @@ kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
 ```
 
-Alice can use priorities to ensure important jobs run quickly.
+Alice can use priorities to ensure her important jobs run quickly.
 
 ```sh
 kubectl create -f ./setup.KubeConEU25/sample-jobs/important.yaml -n blue --as alice
 ```
 
 One of Alice's normal jobs is automatically suspended and put back on the queue of 
-waiting jobs to make resource available for her high priority job.
+waiting jobs to make its resource available for her high priority job.
 
-Bob on the red team arrives at work and submits two jobs.
+Finally Bob on the red team arrives at work and submits two jobs.
 
 ```sh
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
 ```
 
-To allow Bob to utilize his quota, which Alice's jobs had been borrowing, one of Alice's
-jobs is quickly preempted returned it to the queue of pending jobs.
+Kueue ensures that Bob has immediate access to his team's allocated quota
+by evicting borrowing jobs. One of Alice's running
+jobs is quickly suspended and returned to her team's queue of pending jobs.
 
 ### Fault Tolerance
 
