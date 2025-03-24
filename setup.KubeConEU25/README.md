@@ -578,12 +578,12 @@ spec:
 
 We will use four types of jobs:
 
-| Job Type | Priority | Duration | Number of Pods | GPU Usage |
----------------------------------------------------------------
-| short    | normal   | 30s      | 2              | 2 X 4 = 8 |
-| normal   | normal   | 600s     | 2              | 2 X 4 = 8 |
-| important| high     | 600s     | 2              | 2 x 4 = 8 |
-| large    | normal   | 600s     | 4              | 4 x 4 = 16|
+| Job Type | Priority | Duration | Number of Pods | GPU Usage  |
+|----------|----------|----------|----------------|------------|
+| short    | normal   | 30s      | 2              | 2 X 4 = 8  |
+| normal   | normal   | 600s     | 2              | 2 X 4 = 8  |
+| important| high     | 600s     | 2              | 2 x 4 = 8  |
+| large    | normal   | 600s     | 4              | 4 x 4 = 16 |
 
 ### Queuing 
 
