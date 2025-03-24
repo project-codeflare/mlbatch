@@ -544,6 +544,7 @@ using synthetic workloads.
 For this portion of the tutorial, we will use variations on the simple batch/v1 Job shown below.
 All variations will create multiple pods, each requesting some number of GPUs, and sleep for
 a specified interval before completing successfully.
+
 ```yaml
 apiVersion: workload.codeflare.dev/v1beta2
 kind: AppWrapper
@@ -574,6 +575,7 @@ spec:
                 limits:
                   nvidia.com/gpu: 4
 ```
+
 We will use four types of jobs:
 | Job Type | Priority | Duration | Number of Pods | GPU Usage |
 ---------------------------------------------------------------
@@ -609,6 +611,7 @@ next pending job is admitted.
 
 Alice will now submit 4 normal jobs.  Again, with borrowing three of these jobs
 will be able to run immediately and the 4th job will be queued.
+
 ```sh
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
@@ -617,9 +620,11 @@ kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
 ```
 
 Alice can use priorities to ensure important jobs run quickly.
+
 ```sh
 kubectl create -f ./setup.KubeConEU25/sample-jobs/important.yaml -n blue --as alice
 ```
+
 One of Alice's normal jobs is automatically suspended and put back on the queue of 
 waiting jobs to make resource available for her high priority job.
 
@@ -629,6 +634,7 @@ Bob on the red team arrives at work and submits two jobs.
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
 kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
 ```
+
 To allow Bob to utilize his quota, which Alice's jobs had been borrowing, one of Alice's
 jobs is quickly preempted returned it to the queue of pending jobs.
 
@@ -636,14 +642,18 @@ jobs is quickly preempted returned it to the queue of pending jobs.
 
 In this scenario, we will start fresh with an empty cluster.  Alice will submit
 a single large job:
+
 ```sh
 kubectl create -f ./setup.KubeConEU25/sample-jobs/large.yaml -n blue --as alice
 ```
+
 After the job is running, we will simulate Autopilot detecting a serious GPU failure
 on by labeling a Node:
+
 ```sh
  kubectl label node <node-name> autopilot.ibm.com/gpuhealth=EVICT --overwrite 
 ```
+
 MLBatch will automatically trigger a reset of all running jobs with Pods on 
 the impacted node. This reset first does a clean removal of all of the job's
 Pods and then creates fresh versions of them.  Since MLBatch automatically injects 
