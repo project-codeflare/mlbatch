@@ -1,0 +1,27 @@
+apiVersion: workload.codeflare.dev/v1beta2
+kind: AppWrapper
+metadata:
+  generateName: short
+  labels:
+    kueue.x-k8s.io/queue-name: default-queue
+spec:
+  components:
+  - template:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        generateName: short
+      spec:
+        completions: 2
+        parallelism: 2
+        template:
+          spec:
+            restartPolicy: Never
+            terminationGracePeriodSeconds: 0            
+            containers:
+            - name: busybox
+              image: quay.io/project-codeflare/busybox:1.36
+              command: ["sh", "-c", "sleep 30"]
+              resources:
+                limits:
+                  nvidia.com/gpu: 4
