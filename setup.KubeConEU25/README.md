@@ -577,6 +577,7 @@ spec:
 ```
 
 We will use four types of jobs:
+
 | Job Type | Priority | Duration | Number of Pods | GPU Usage |
 ---------------------------------------------------------------
 | short    | normal   | 30s      | 2              | 2 X 4 = 8 |
