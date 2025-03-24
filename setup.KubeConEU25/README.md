@@ -537,12 +537,143 @@ kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidi
 
 ## Workload Management
 
-We will now demonstrate the queueing, quota management, and fault recovery
-capabilities of MLBatch using synthetic workloads.
+We will now demonstrate the queuing, quota management, and fault recovery capabilities of MLBatch
+using synthetic workloads.
 
 <details>
+For this portion of the tutorial, we will use variations on the simple batch/v1 Job shown below.
+All variations will create multiple pods, each requesting some number of GPUs, and sleep for
+a specified interval before completing successfully.
 
-TODO
+```yaml
+apiVersion: workload.codeflare.dev/v1beta2
+kind: AppWrapper
+metadata:
+  generateName: <jobtype>
+  labels:
+    kueue.x-k8s.io/queue-name: default-queue
+spec:
+  components:
+  - template:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        generateName: <jobtype>
+      spec:
+        completions: <number of pods>
+        parallelism: <number of pods>
+        template:
+          spec:
+            restartPolicy: Never
+            terminationGracePeriodSeconds: 0
+            priorityClassName: <priority class>
+            containers:
+            - name: busybox
+              image: quay.io/project-codeflare/busybox:1.36
+              command: ["sh", "-c", "sleep 600"]
+              resources:
+                limits:
+                  nvidia.com/gpu: 4
+```
+
+We will use four types of jobs:
+
+| Job Type | Priority | Duration | Number of Pods | GPU Usage  |
+|----------|----------|----------|----------------|------------|
+| short    | normal   | 30s      | 2              | 2 X 4 = 8  |
+| normal   | normal   | 600s     | 2              | 2 X 4 = 8  |
+| important| high     | 600s     | 2              | 2 x 4 = 8  |
+| large    | normal   | 600s     | 4              | 4 x 4 = 16 |
+
+### Queuing 
+
+First, Alice will submit a burst of short running jobs that exceeds
+the number of available GPUs in the cluster.  The excess jobs will
+suspended by Kueue and admitted in turn as resources become available.
+
+```sh
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/short.yaml -n blue --as alice
+```
+
+Since no one else is using the cluster, Alice is able to utilize
+both her blue team's quota of 8 GPUs and to borrow all 8 GPUs from the red team's quota 
+and the 8 GPUs allocated to the slack cluster queue.  During this part of the demo,
+we will start with 3 admitted jobs and 5 pending jobs on the blue cluster queue. Over
+the next two minutes, the queue will drain as the short running jobs complete and the
+next pending job is admitted.
+
+### Borrowing and Preemption
+
+Alice will now submit 4 normal jobs.  Again, with borrowing, three of these jobs
+will be able to run immediately and the 4th job will be queued.
+
+```sh
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n blue --as alice
+```
+
+Alice can use priorities to ensure her important jobs run quickly.
+
+```sh
+kubectl create -f ./setup.KubeConEU25/sample-jobs/important.yaml -n blue --as alice
+```
+
+One of Alice's normal jobs is automatically suspended and put back on the queue of 
+waiting jobs to make its resource available for her high priority job.
+
+Finally Bob on the red team arrives at work and submits two jobs.
+
+```sh
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
+kubectl create -f ./setup.KubeConEU25/sample-jobs/normal.yaml -n red --as bob
+```
+
+Kueue ensures that Bob has immediate access to his team's allocated quota
+by evicting borrowing jobs. One of Alice's running
+jobs is quickly suspended and returned to her team's queue of pending jobs.
+
+### Fault Tolerance
+
+In this scenario, we will start fresh with an empty cluster.  Alice will submit
+a single large job:
+
+```sh
+kubectl create -f ./setup.KubeConEU25/sample-jobs/large.yaml -n blue --as alice
+```
+
+After the job is running, we will simulate Autopilot detecting a serious GPU failure
+on by labeling a Node:
+
+```sh
+ kubectl label node <node-name> autopilot.ibm.com/gpuhealth=EVICT --overwrite 
+```
+
+MLBatch will automatically trigger a reset of all running jobs with Pods on 
+the impacted node. This reset first does a clean removal of all of the job's
+Pods and then creates fresh versions of them.  Since MLBatch automatically injects 
+the Kubernetes affinities shown below into all Pods it creates for user workloads,
+the Kubernetes scheduler will avoid scheduling the new Pods on the impacted Node.
+```yaml
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: autopilot.ibm.com/gpuhealth
+              operator: NotIn
+              values:
+              - ERR
+              - TESTING
+              - EVICT
+```
 
 </details>
 
