@@ -434,9 +434,6 @@ prometheus-node-exporter:
 
 alertmanager:
   alertmanagerSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
     storage:
       volumeClaimTemplate:
         spec:
@@ -448,9 +445,6 @@ alertmanager:
 
 prometheus:
   prometheusSpec:
-    persistentVolumeClaimRetentionPolicy:
-      whenDeleted: Retain
-      whenScaled: Retain
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -530,7 +524,7 @@ name.
 kubectl label servicemonitors.monitoring.coreos.com -n autopilot autopilot-metrics-monitor release=kube-prometheus-stack --overwrite
 ```
 ```sh
-kubectl label servicemonitors.monitoring.coreos.com -n nvidia-GPU-operator nvidia-dcgm-exporter GPU-operator nvidia-node-status-exporter  release=kube-prometheus-stack --overwrite
+kubectl label servicemonitors.monitoring.coreos.com -n nvidia-gpu-operator nvidia-dcgm-exporter gpu-operator nvidia-node-status-exporter  release=kube-prometheus-stack --overwrite
 ```
 
 </details>
