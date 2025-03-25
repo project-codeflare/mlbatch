@@ -919,6 +919,6 @@ We can now either follow the logs on the terminal with `ray job logs` command, o
 
 Once the job is completed, the checkpoint with the fine tuned model is saved in the folder 
 ```
-/model/meta-llama/Meta-Llama-3.1-8B/TorchTrainer_<timestamp>/checkpoint_<ID>
+/model/meta-llama/Meta-Llama-3.1-8B/TorchTrainer_<timestamp>/TorchTrainer_<id_timestamp>/checkpoint_<ID>
 ```
 </details>
