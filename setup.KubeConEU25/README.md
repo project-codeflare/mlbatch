@@ -823,8 +823,233 @@ In this example, `alice` uses [KubeRay](https://github.com/ray-project/kuberay)
 to run a job that uses [Ray](https://github.com/ray-project/ray) to fine tune a
 machine learning model.
 
+This workload is an adaptation from [this blog post by Red Hat](https://developers.redhat.com/articles/2024/09/30/fine-tune-llama-openshift-ai), in turn adapted from [an example on Ray documentation](https://github.com/ray-project/ray/tree/master/doc/source/templates/04_finetuning_llms_with_deepspeed).
+The example is about fine tuning Llama 3.1 with Ray, with DeepSpeed and LoRA.
+
 <details>
 
-TODO
+Let's set up the environment by installing Ray and cloning the repository
 
+```bash
+uv venv myenv --python 3.12 --seed && source myenv/bin/activate && uv pip install ray datasets
+```
+
+We are going to impersonate Alice in this example.
+
+First, we create the PVC where we can download the model and save the checkpoints from the fine tuning job. We are calling this PVC `finetuning-pvc` and we need to add this to the Ray cluster YAML. If another name is used, please update the `claimName` entry in the Ray cluster definition.
+
+```bash
+kubectl apply --as alice -n blue -f- << EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: finetuning-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-client-pokprod
+EOF
+```
+
+Now, let's create an AppWrapper version of the Ray cluster. Notice that:
+
+- We are using the container image `quay.io/rhoai/ray:2.35.0-py311-cu121-torch24-fa26` from Red Hat, but you can use the images from DockerHub if preferred
+- We are setting the number of worker replicas to `7`. Since we want to run on one GPU node, we are assigning one to the Ray Head pod, and one each to the 7 worker pods.
+
+```bash
+cd tools/appwrapper-packager/
+cat << EOF > ray.yaml
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: ray
+spec:
+  headGroupSpec:
+    enableIngress: false
+    rayStartParams:
+      block: 'true'
+      dashboard-host: 0.0.0.0
+      num-gpus: '1'
+      resources: '"{}"'
+    serviceType: ClusterIP
+    template:
+      metadata: {}
+      spec:
+        containers:
+          - env:
+              - name: MY_POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              - name: RAY_USE_TLS
+                value: '0'
+            image: 'quay.io/rhoai/ray:2.35.0-py311-cu121-torch24-fa26'
+            imagePullPolicy: Always
+            lifecycle:
+              preStop:
+                exec:
+                  command:
+                    - /bin/sh
+                    - '-c'
+                    - ray stop
+            name: ray-head
+            ports:
+              - containerPort: 6379
+                name: gcs
+                protocol: TCP
+              - containerPort: 8265
+                name: dashboard
+                protocol: TCP
+              - containerPort: 10001
+                name: client
+                protocol: TCP
+            resources:
+              limits:
+                cpu: '16'
+                memory: 256G
+                nvidia.com/gpu: '1'
+              requests:
+                cpu: '16'
+                memory: 128G
+                nvidia.com/gpu: '1'
+            volumeMounts:
+              - mountPath: /model
+                name: model
+        volumes:
+          - name: model
+            persistentVolumeClaim:
+              claimName: finetuning-pvc
+  rayVersion: 2.35.0
+  workerGroupSpecs:
+    - groupName: small-group-ray
+      rayStartParams:
+        block: 'true'
+        num-gpus: '1'
+        resources: '"{}"'
+      replicas: 7
+      scaleStrategy: {}
+      template:
+        metadata: {}
+        spec:
+          containers:
+            - env:
+                - name: MY_POD_IP
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: status.podIP
+                - name: RAY_USE_TLS
+                  value: '0'
+              image: 'quay.io/rhoai/ray:2.35.0-py311-cu121-torch24-fa26'
+              imagePullPolicy: Always
+              lifecycle:
+                preStop:
+                  exec:
+                    command:
+                      - /bin/sh
+                      - '-c'
+                      - ray stop
+              name: machine-learning
+              resources:
+                limits:
+                  cpu: '16'
+                  memory: 256G
+                  nvidia.com/gpu: '1'
+                requests:
+                  cpu: '16'
+                  memory: 128G
+                  nvidia.com/gpu: '1'
+              volumeMounts:
+                - mountPath: /model
+                  name: model
+          volumes:
+            - name: model
+              persistentVolumeClaim:
+                claimName: finetuning-pvc             
+EOF
+```
+
+Now let's use the tool to create the appwrapper:
+
+```bash
+./awpack.py -o ray-aw.yaml -n ray-appwrapper -i ray.yaml
+```
+
+Now we can submit the job while impersonating Alice
+
+```bash
+kubectl create -f ray-aw.yaml -n blue --as alice
+```
+
+Now that the Ray cluster is set up, first we need to expose the `ray-head` service, as that is the entrypoint for all job submissions. In another terminal, type:
+
+```bash
+kubectl port-forward svc/ray-head-svc 8265:8265 -n blue --as alice
+```
+
+Now we can download the git repository with the fine tuning workload.
+
+```bash
+git clone https://github.com/opendatahub-io/distributed-workloads
+cd distributed-workloads/examples/ray-finetune-llm-deepspeed
+```
+
+We also create a Python program that launches the job in the Ray cluster using the Ray API.
+Notice that:
+
+- We set the `--num-devices=8` as it is the total number of accelerators being used by head and workers
+- we set the `HF_HOME` to the shared PVC, so the model will be downloaded as a single instance and shared among all executors
+- we set `epochs` to just one for a shorter run
+- we use localhost as entry point for submitting Ray jobs as we exposed the service earlier.
+
+```bash
+cat << EOF > finetuning.py
+import create_dataset
+create_dataset.gsm8k_qa_no_tokens_template()
+
+from ray.job_submission import JobSubmissionClient
+
+client = JobSubmissionClient("http://127.0.0.1:8265")
+
+kick_off_pytorch_benchmark = (
+    "git clone https://github.com/opendatahub-io/distributed-workloads || true;"
+    # Run the benchmark.
+    "python ray_finetune_llm_deepspeed.py"
+    " --model-name=meta-llama/Meta-Llama-3.1-8B --lora --num-devices=8 --num-epochs=1 --ds-config=./deepspeed_configs/zero_3_offload_optim_param.json  --storage-path=/model/ --batch-size-per-device=32 --eval-batch-size-per-device=32"
+)
+
+
+submission_id = client.submit_job(
+    entrypoint=kick_off_pytorch_benchmark,
+    runtime_env={
+        "env_vars": {
+            'HF_HOME': "/model/ray_finetune_llm_deepspeed/cache/",
+        },
+        'pip': 'requirements.txt',
+        'working_dir': './',
+        "excludes": ["/docs/", "*.ipynb", "*.md"]
+    },
+)
+
+print("Use the following command to follow this Job's logs:")
+print(f"ray job logs '{submission_id}' --address http://127.0.0.1:8265 --follow")
+EOF
+python finetuning.py
+```
+The expected output is like the following:
+```bash
+2025-03-24 16:37:53,029	INFO dashboard_sdk.py:338 -- Uploading package gcs://_ray_pkg_21ddaa8b13d30deb.zip.
+2025-03-24 16:37:53,030	INFO packaging.py:575 -- Creating a file package for local module './'.
+Use the following command to follow this Job's logs:
+ray job logs 'raysubmit_C6hVCvdhpmapgQB8' --address http://127.0.0.1:8265 --follow
+```
+
+We can now either follow the logs on the terminal with `ray job logs` command, or open the Ray dashboard and follow from there. To access the Ray dashboard from localhost, as we exposed the service earlier.
+
+Once the job is completed, the checkpoint with the fine tuned model is saved in the folder 
+```
+/model/meta-llama/Meta-Llama-3.1-8B/TorchTrainer_<timestamp>/TorchTrainer_<id_timestamp>/checkpoint_<ID>
+```
 </details>
