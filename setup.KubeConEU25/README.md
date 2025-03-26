@@ -796,6 +796,10 @@ Stream the logs of the `load-generator` container with:
 ```sh
 kubectl logs --as alice -n blue -l app=batch-inference -c load-generator -f
 ```
+Delete the complete workload with:
+```sh
+kubectl delete --as alice -n blue appwrapper batch-inference
+```
 
 </details>
 
