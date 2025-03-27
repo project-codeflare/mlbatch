@@ -824,7 +824,7 @@ This will create 2 Pods, each requesting 2 GPUs.  On our cluster, it will take a
 to execute this training workload. We can check on the status of the PyTorchJob by using the command:
 
 ```sh
-kubectl get pytorchjob -n blue
+kubectl get pytorchjob -n blue --watch
 ```
 
 After the jobs completes, we can get the log of the worker Pod with
