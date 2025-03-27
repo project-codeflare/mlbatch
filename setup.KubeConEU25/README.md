@@ -1167,8 +1167,8 @@ spec:
 EOF
 ```
 
-This will created 2 Pods, each requesting 2 GPUs.  On our cluster, it will take about 30 seconds
-to execute this `PyTorchJob`.  We can check on the status of the PyTorchJob by using the command:
+This will create 2 Pods, each requesting 2 GPUs.  On our cluster, it will take about 30 seconds
+to execute this training workload. We can check on the status of the PyTorchJob by using the command:
 
 ```sh
 kubectl get pytorchjob -n blue
