@@ -31,25 +31,25 @@ Red Hat OpenShift AI as the base platform for MLBatch. Please see
 for the life cycle dates of currently supported ***stable*** and ***fast*** releases.
 
 Instructions are provided for the following Red Hat OpenShift AI ***stable*** releases:
++ Red Hat OpenShift AI 2.19
+   + [RHOAI 2.19 Cluster Setup](./setup.RHOAI-v2.19/CLUSTER-SETUP.md)
+   + [RHOAI 2.19 Team Setup](./setup.RHOAI-v2.19/TEAM-SETUP.md)
+   + [UPGRADING from RHOAI 2.16](./setup.RHOAI-v2.19/UPGRADE-STABLE.md)
+   + [UPGRADING from RHOAI 2.18](./setup.RHOAI-v2.19/UPGRADE-FAST.md)
+   + [RHOAI 2.19 Uninstall](./setup.RHOAI-v2.19/UNINSTALL.md)
 + Red Hat OpenShift AI 2.16
    + [RHOAI 2.16 Cluster Setup](./setup.RHOAI-v2.16/CLUSTER-SETUP.md)
    + [RHOAI 2.16 Team Setup](./setup.RHOAI-v2.16/TEAM-SETUP.md)
    + [UPGRADING from RHOAI 2.13](./setup.RHOAI-v2.16/UPGRADE-STABLE.md)
    + [UPGRADING from RHOAI 2.15](./setup.RHOAI-v2.16/UPGRADE-FAST.md)
    + [RHOAI 2.16 Uninstall](./setup.RHOAI-v2.16/UNINSTALL.md)
-+ Red Hat OpenShift AI 2.13
-   + [RHOAI 2.13 Cluster Setup](./setup.RHOAI-v2.13/CLUSTER-SETUP.md)
-   + [RHOAI 2.13 Team Setup](./setup.RHOAI-v2.13/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.10](./setup.RHOAI-v2.13/UPGRADE-STABLE.md)
-   + [UPGRADING from RHOAI 2.12](./setup.RHOAI-v2.13/UPGRADE-FAST.md)
-   + [RHOAI 2.13 Uninstall](./setup.RHOAI-v2.13/UNINSTALL.md)
 
 Instructions are provided for the following Red Hat OpenShift AI ***fast*** releases:
-+ Red Hat OpenShift AI 2.18
-   + [RHOAI 2.18 Cluster Setup](./setup.RHOAI-v2.18/CLUSTER-SETUP.md)
-   + [RHOAI 2.18 Team Setup](./setup.RHOAI-v2.18/TEAM-SETUP.md)
-   + [UPGRADING from RHOAI 2.16](./setup.RHOAI-v2.18/UPGRADE.md)
-   + [RHOAI 2.18 Uninstall](./setup.RHOAI-v2.18/UNINSTALL.md)
++ Red Hat OpenShift AI 2.19
+   + [RHOAI 2.19 Cluster Setup](./setup.RHOAI-v2.19/CLUSTER-SETUP.md)
+   + [RHOAI 2.19 Team Setup](./setup.RHOAI-v2.19/TEAM-SETUP.md)
+   + [UPGRADING from RHOAI 2.18](./setup.RHOAI-v2.19/UPGRADE.md)
+   + [RHOAI 2.19 Uninstall](./setup.RHOAI-v2.19/UNINSTALL.md)
 
 ## Kubernetes
 

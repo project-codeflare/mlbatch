@@ -1,3 +1,0 @@
-- op: add
-  path: /spec/template/spec/priorityClassName
-  value: system-node-critical
