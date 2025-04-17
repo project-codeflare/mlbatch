@@ -71,7 +71,7 @@
         ]},
         "imagePullPolicy": { "oneOf": [
             { "type": "null" },
-            { "type": "string" }
+            { "type": "string", "enum": [ "IfNotPresent", "Always", "Never" ] }
         ]},
         "volumes": { "oneOf": [
             { "type": "null" },

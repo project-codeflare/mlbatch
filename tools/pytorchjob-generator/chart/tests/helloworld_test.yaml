@@ -93,6 +93,23 @@ tests:
   - matchSnapshot:
     path: spec.components[0].template
 
+- it: imagePullPolicy can be set
+  set:
+    imagePullPolicy: Always
+  asserts:
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.containers[0].imagePullPolicy
+      value: Always
+  - equal:
+      path: spec.components[0].template.spec.pytorchReplicaSpecs.Worker.template.spec.containers[0].imagePullPolicy
+      value: Always
+
+- it: Invalid imagePullPolicies are rejected
+  set:
+    imagePullPolicy: Sometimes
+  asserts:
+  - failedTemplate: {}
+
 - it: Enabling sshGitConfig injects the envvars, volumes, and volumeMounts
   set:
     sshGitCloneConfig.secretName: my-git-secret
