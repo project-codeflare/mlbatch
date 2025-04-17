@@ -38,7 +38,7 @@ imagePullSecrets: # <optional, default=[]>
 #    - name: secret-one
 #    - name: secret-two
 
-# -- (string) Policy for pulling images (choose from: "IfNotPresent", "Always", or "Never")  https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+# -- (string) Policy for pulling containerImages (choose from: "IfNotPresent", "Always", or "Never")
 # @section -- Job Metadata
 imagePullPolicy: IfNotPresent
 
