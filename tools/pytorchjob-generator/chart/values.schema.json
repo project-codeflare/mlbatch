@@ -69,6 +69,10 @@
             { "type": "null" },
             { "type": "array" }
         ]},
+        "imagePullPolicy": { "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+        ]},
         "volumes": { "oneOf": [
             { "type": "null" },
             { "type": "array" }
