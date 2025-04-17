@@ -32,12 +32,15 @@ customLabels:
 # @section -- Job Metadata
 containerImage:
 
-# -- (array) List of image-pull-secrets to be used for pulling containerImages 
+# -- (array) List of image-pull-secrets to be used for pulling containerImages
 # @section -- Job Metadata
-imagePullSecrets: # <optional, default=[]> 
+imagePullSecrets: # <optional, default=[]>
 #    - name: secret-one
 #    - name: secret-two
 
+# -- (string) Policy for pulling images (choose from: "IfNotPresent", "Always", or "Never")  https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+# @section -- Job Metadata
+imagePullPolicy: IfNotPresent
 
 ##################################
 # Resource Requirements
@@ -74,15 +77,13 @@ limitGpusPerPod: # <optional, default=numGpusPerPod> Limit of number of GPUs per
 # @section -- Resource Requirements
 limitMemoryPerPod: # <optional, default=totalMemoryPerPod> Limit of total memory per pod for elastic jobs
 
-
 ########################
 # Workload Specification
 ########################
 
-
 # -- (array) List of variables/values to be defined for all the ranks. Values can be literals or
 # references to Kuberetes secrets or configmaps.  See [values.yaml](values.yaml) for examples of supported syntaxes.
-# 
+#
 # NOTE: The following standard [PyTorch Distributed environment variables](https://pytorch.org/docs/stable/distributed.html#environment-variable-initialization)
 # are set automatically and can be referenced in the commands without being set manually: WORLD_SIZE, RANK, MASTER_ADDR, MASTER_PORT.
 # @section -- Workload Specification
@@ -100,8 +101,8 @@ environmentVariables:
 #         name: configmap-name
 #         key: configmap-key
 
-# Private GitHub clone support. 
-# 
+# Private GitHub clone support.
+#
 #    0) Create a secret and configMap to enable Private GitHub cloning as documented for your organization.
 #    1) Then fill the name of the secret and configMap below in sshGitCloneConfig
 #    2) Finally, add your (ssh) git clone command to setupCommands in the next section
@@ -123,7 +124,7 @@ sshGitCloneConfig: # <optional, default=""> Field with "(secretName, configMapNa
 # -- (array) List of custom commands to be ran at the beginning of the execution. Use `setupCommand` to clone code, download data, and change directories.
 # @default -- no custom commands are executed
 # @section -- Workload Specification
-setupCommands: # <optional, default=[]> 
+setupCommands: # <optional, default=[]>
 #    - git clone https://github.com/dbarnett/python-helloworld
 #    - cd python-helloworld
 
@@ -136,7 +137,7 @@ setupCommands: # <optional, default=[]>
 # -- (string) Name of the PyTorch program to be executed by `torchrun`. Please provide your program name here and NOT in "setupCommands" as this helm template provides the necessary "torchrun" arguments for the parallel execution. WARNING: this program is relative to the current path set by change-of-directory commands in "setupCommands".
 # If no value is provided; then only `setupCommands` are executed and torchrun is elided.
 # @section -- Workload Specification
-mainProgram: # <optional, default=""> 
+mainProgram: # <optional, default="">
 
 # -- (array) List of "(name, claimName, mountPath)" of volumes, with persistentVolumeClaim, to be mounted to the infrastructure
 # @default -- No volumes are mounted
@@ -158,7 +159,7 @@ volumes:
 # -- (string) RoCE GDR resource name (can vary by cluster configuration)
 # @default -- nvidia.com/roce_gdr
 # @section -- Advanced Options
-roceGdrResName: # <optional, default=""> 
+roceGdrResName: # <optional, default="">
 
 # -- (integer) number of nvidia.com/roce_grd resources (0 means disabled; >0 means enable GDR over RoCE). Must be 0 unless numPods > 1.
 # @section -- Advanced Options
@@ -188,11 +189,11 @@ disableSharedMemory: false
 # The environment variable MOUNT_PATH_NVME provides the runtime mount path
 # @section -- Advanced Options
 mountNVMe:
-    # storage: 800Gi
-    # mountPath: "/workspace/scratch-nvme"
+  # storage: 800Gi
+  # mountPath: "/workspace/scratch-nvme"
 
 # -- (array) List of "(name, image, command[])" specifying an init containers to be run before the main job. The 'command' field is a list of commands to run in the container, see the Kubernetes entry on initContainers for reference.
-# 
+#
 # @section -- Advanced Options
 initContainers:
 #    - name: init-container-1
