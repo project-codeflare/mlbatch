@@ -270,12 +270,12 @@ metadata:
   name: rhods-operator
   namespace: redhat-ods-operator
 spec:
-  channel: fast
+  channel: stable
   installPlanApproval: Manual
   name: rhods-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhods-operator.2.18.0
+  startingCSV: rhods-operator.2.19.0
   config:
     env:
     - name: "DISABLE_DSC_CONFIG"
