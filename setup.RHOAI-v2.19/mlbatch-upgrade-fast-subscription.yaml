@@ -1,0 +1,34 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhods-operator
+  namespace: redhat-ods-operator
+spec:
+  channel: fast
+  installPlanApproval: Manual
+  name: rhods-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  config:
+    env:
+    - name: "DISABLE_DSC_CONFIG"
+    volumeMounts:
+    - name: mlbatch-codeflare
+      mountPath: /opt/manifests/codeflare/manager/manager.yaml
+      subPath: manager.yaml
+    - name: mlbatch-kueue
+      mountPath: /opt/manifests/kueue/components/manager/controller_manager_config.yaml
+      subPath: controller_manager_config.yaml
+    - name: mlbatch-training-operator
+      mountPath: /opt/manifests/trainingoperator/rhoai/manager_config_patch.yaml
+      subPath: manager_config_patch.yaml
+    volumes:
+    - name: mlbatch-codeflare
+      configMap:
+        name: mlbatch-codeflare
+    - name: mlbatch-kueue
+      configMap:
+        name: mlbatch-kueue
+    - name: mlbatch-training-operator
+      configMap:
+        name: mlbatch-training-operator

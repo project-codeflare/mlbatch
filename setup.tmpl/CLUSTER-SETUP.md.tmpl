@@ -105,7 +105,9 @@ AI configuration as follows:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
+{{- if (eq .VERSION "RHOAI-v2.16") }}
   - `LendingLimit` feature gate is enabled,
+{{- end }}
 {{- if .FAIRSHARE }}
   - `fairSharing` is enabled,
 {{- end }}
@@ -116,24 +118,7 @@ AI configuration as follows:
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
     - `slackQueueName` is set to `slack-cluster-queue`
-- pod priorities, resource requests and limits have been adjusted.
 
-{{ if (eq .VERSION "RHOAI-v2.13") -}}
-To work around https://issues.redhat.com/browse/RHOAIENG-7887 (a race condition
-in Red Hat OpenShift AI installation), do a rolling restart of the Kueue manager.
-```sh
-{{ .KUBECTL }} rollout restart deployment/kueue-controller-manager -n redhat-ods-applications
-```
-
-After doing the restart, verify that you see the following lines in the
-kueue-controller-manager's log:
-```sh
-{"level":"info","ts":"2024-06-25T20:17:25.689638786Z","logger":"controller-runtime.builder","caller":"builder/webhook.go:189","msg":"Registering a validating webhook","GVK":"kubeflow.org/v1, Kind=PyTorchJob","path":"/validate-kubeflow-org-v1-pytorchjob"}
-{"level":"info","ts":"2024-06-25T20:17:25.689698615Z","logger":"controller-runtime.webhook","caller":"webhook/server.go:183","msg":"Registering webhook","path":"/validate-kubeflow-org-v1-pytorchjob"}
-{"level":"info","ts":"2024-06-25T20:17:25.689743757Z","logger":"setup","caller":"jobframework/setup.go:81","msg":"Set up controller and webhook for job framework","jobFrameworkName":"kubeflow.org/pytorchjob"}
-
-```
-{{- end }}
 {{- else -}}
 ## Install Operators
 
@@ -182,7 +167,6 @@ operators as follows:
   - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
      scoped to only namespaces that are labeled with `mlbatch-team-namespace=true`.
   - `waitForPodsReady` is disabled,
-  - `LendingLimit` feature gate is enabled,
 {{- if .FAIRSHARE }}
   - `fairSharing` is enabled,
 {{- end }}

@@ -46,7 +46,7 @@ oc get ip -n redhat-ods-operator
 ```
 ```
 NAMESPACE             NAME            CSV                     APPROVAL   APPROVED
-redhat-ods-operator   install-kmh8w   rhods-operator.2.19.0   Manual     false
+redhat-ods-operator   install-kmh8w   rhods-operator.2.16.0   Manual     false
 ```
 Approve install plan replacing the generated plan name below with the actual
 value:
@@ -73,7 +73,6 @@ AI configuration as follows:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
-  - `VisibilityOnDemand` feature gate is disabled,
   - `fairSharing` is enabled,
   - `enableClusterQueueResources` metrics is enabled,
 - Codeflare operator:
@@ -82,8 +81,6 @@ AI configuration as follows:
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
     - `slackQueueName` is set to `slack-cluster-queue`
-
-
 
 ## Autopilot
 

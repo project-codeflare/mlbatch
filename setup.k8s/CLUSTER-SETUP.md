@@ -98,7 +98,6 @@ operators as follows:
   - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
      scoped to only namespaces that are labeled with `mlbatch-team-namespace=true`.
   - `waitForPodsReady` is disabled,
-  - `LendingLimit` feature gate is enabled,
   - `fairSharing` is enabled,
   - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
