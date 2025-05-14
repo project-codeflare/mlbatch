@@ -1,6 +1,0 @@
-# Values for RHOAI 2.17
-
-RHOAI: true
-VERSION: RHOAI-v2.17
-KUBECTL: oc
-FAIRSHARE: true

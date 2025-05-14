@@ -21,10 +21,28 @@ install-nqrbp   rhods-operator.2.19.0   Manual     true
 
 Assuming the install plan exists you can begin the upgrade process.
 
-There are no MLBatch modifications to the default RHOAI configuration maps
-beyond those already made in previous installs. Therefore, you can simply
-approve the install plan replacing the example plan name below with the actual
-value on your cluster:
+Before approving the upgrade, you must manually remove v1alpha1 MultiKueue CRD's
+from your cluster. These CRDs were replaced by v1beta1 versions in the Kueue 0.9 release,
+but the RHOAI operator will not automatically remove CRDs.
+Ensure you have no instances:
+```
+kubectl get multikueueclusters.kueue.x-k8s.io --all-namespaces
+kubectl get multikueueconfigs.kueue.x-k8s.io --all-namespaces
+```
+Delete all any instances.  Then delete the CRDs
+```
+kubectl delete crd multikueueclusters.kueue.x-k8s.io
+kubectl delete crd multikueueconfigs.kueue.x-k8s.io
+```
+
+Next, update the MLBatch modifications to the default RHOAI configuration maps and subscription.
+```sh
+oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-configmaps.yaml
+oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-stable-subscription.yaml
+```
+
+Finally, you can approve the install plan replacing the example plan name below
+with the actual value on your cluster:
 ```sh
 oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kpzzl
 ```

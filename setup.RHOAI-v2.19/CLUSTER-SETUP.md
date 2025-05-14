@@ -73,7 +73,6 @@ AI configuration as follows:
   - `manageJobsWithoutQueueName` is enabled,
   - `batch/job` integration is disabled,
   - `waitForPodsReady` is disabled,
-  - `LendingLimit` feature gate is enabled,
   - `fairSharing` is enabled,
   - `enableClusterQueueResources` metrics is enabled,
 - Codeflare operator:
@@ -82,9 +81,6 @@ AI configuration as follows:
     - `schedulerName` is set to `scheduler-plugins-scheduler`,
     - `queueName` is set to `default-queue`,
     - `slackQueueName` is set to `slack-cluster-queue`
-- pod priorities, resource requests and limits have been adjusted.
-
-
 
 ## Autopilot
 
