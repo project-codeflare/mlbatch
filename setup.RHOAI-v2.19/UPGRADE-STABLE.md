@@ -15,8 +15,8 @@ oc get ip -n redhat-ods-operator
 Typical output would be:
 ```sh
 NAME            CSV                     APPROVAL   APPROVED
-install-kpzzl   rhods-operator.2.16.0   Manual     false
-install-nqrbp   rhods-operator.2.19.0   Manual     true
+install-kpzzl   rhods-operator.2.19.0   Manual     false
+install-nqrbp   rhods-operator.2.16.0   Manual     true
 ```
 
 Assuming the install plan exists you can begin the upgrade process.

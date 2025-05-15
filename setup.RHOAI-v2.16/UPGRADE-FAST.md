@@ -25,10 +25,8 @@ First, update the MLBatch modifications to the default RHOAI configuration maps.
 oc apply -f setup.RHOAI-v2.16/mlbatch-upgrade-configmaps.yaml
 ```
 
-There are no MLBatch modifications to the default RHOAI configuration maps
-beyond those already made in previous installs. Therefore, you can simply
-approve the install plan replacing the example plan name below with the actual
-value on your cluster:
+Next you can approve the install plan replacing the example plan name
+below with the actual value on your cluster:
 ```sh
 oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kpzzl
 ```

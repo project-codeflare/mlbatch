@@ -1,4 +1,4 @@
-# Upgrading from RHOAI 2.19
+# Upgrading from RHOAI 2.18
 
 These instructions assume you installed and configured RHOAI 2.18 following
 the MLBatch [install instructions for RHOAI-v2.18](../setup.RHOAI-v2.18/CLUSTER-SETUP.md)
@@ -14,8 +14,8 @@ oc get ip -n redhat-ods-operator
 Typical output would be:
 ```sh
 NAME            CSV                     APPROVAL   APPROVED
-install-kpzzl   rhods-operator.2.18.0   Manual     false
-install-nqrbp   rhods-operator.2.19.0   Manual     true
+install-kpzzl   rhods-operator.2.19.0   Manual     false
+install-nqrbp   rhods-operator.2.18.0   Manual     true
 ```
 
 Before approving the upgrade, you must manually remove v1alpha1 MultiKueue CRD's
