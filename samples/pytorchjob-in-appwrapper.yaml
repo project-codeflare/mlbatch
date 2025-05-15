@@ -26,7 +26,7 @@ spec:
                   - "--epochs=1"
                   resources:
                     requests:
-                      cpu: 1
+                      cpu: 100m
           Worker:
             replicas: 1
             restartPolicy: OnFailure
@@ -41,4 +41,4 @@ spec:
                   - "--epochs=1"
                   resources:
                     requests:
-                      cpu: 1
+                      cpu: 100m
