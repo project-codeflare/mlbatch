@@ -175,9 +175,6 @@ spec:
     env:
     - name: "DISABLE_DSC_CONFIG"
     volumeMounts:
-    - name: mlbatch-codeflare
-      mountPath: /opt/manifests/codeflare/manager/manager.yaml
-      subPath: manager.yaml
     - name: mlbatch-kueue
       mountPath: /opt/manifests/kueue/components/manager/controller_manager_config.yaml
       subPath: controller_manager_config.yaml
@@ -185,9 +182,6 @@ spec:
       mountPath: /opt/manifests/trainingoperator/rhoai/manager_config_patch.yaml
       subPath: manager_config_patch.yaml
     volumes:
-    - name: mlbatch-codeflare
-      configMap:
-        name: mlbatch-codeflare
     - name: mlbatch-kueue
       configMap:
         name: mlbatch-kueue

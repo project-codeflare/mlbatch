@@ -39,7 +39,11 @@ oc patch deployment -n scheduler-plugins --type=json --patch-file setup.RHOAI-v2
 Create the Red Hat OpenShift AI subscription:
 ```sh
 oc apply -f setup.RHOAI-v2.19/mlbatch-subscription.yaml
-````
+```
+Create the mlbatch NetworkPolicy in the redhat-ods-applications namespace.
+```sh
+oc apply -f setup.RHOAI-v2.19/mlbatch-network-policy.yaml
+```
 Identify install plan:
 ```sh
 oc get ip -n redhat-ods-operator

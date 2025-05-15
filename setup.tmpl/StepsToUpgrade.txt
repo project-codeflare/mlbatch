@@ -1,0 +1,9 @@
+Things to remember/do when updating RHOAI versions.
+
+1. Clone setup directory from previous RHOAI release.
+2. Inspect all files we are overlaying in mlbatch-subscription's
+   overlay of ODH and merge any upstream changes.
+3. Replicate all subscription deltas in upgrade files and note in
+   UPGRADE steps.
+4. Be sure to verify ready status of RHOAI operator, DSC and DSCI
+   in console to make sure the overlays were successfully applied.
