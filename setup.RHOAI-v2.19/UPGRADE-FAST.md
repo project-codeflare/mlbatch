@@ -34,8 +34,11 @@ kubectl delete crd multikueueconfigs.kueue.x-k8s.io
 
 Next, update the MLBatch modifications to the default RHOAI configuration maps and subscription.
 ```sh
+oc delete cm mlbatch-kuberay -n redhat-ods-operator
+oc delete cm mlbatch-codeflare -n redhat-ods-operator
 oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-configmaps.yaml
 oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-fast-subscription.yaml
+oc apply -f setup.RHOAI-v2.19/mlbatch-network-policy.yaml
 ```
 
 Finally, you can approve the install plan replacing the example plan name below

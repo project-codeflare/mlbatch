@@ -71,7 +71,13 @@ Optionally, create a config map capturing your cluster's topology as described i
 Create the Red Hat OpenShift AI subscription:
 ```sh
 {{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-subscription.yaml
-````
+```
+{{- if not (eq .VERSION "RHOAI-v2.16") }}
+Create the mlbatch NetworkPolicy in the redhat-ods-applications namespace.
+```sh
+{{ .KUBECTL }} apply -f setup.{{ .VERSION }}/mlbatch-network-policy.yaml
+```
+{{- end }}
 Identify install plan:
 ```sh
 {{ .KUBECTL }} get ip -n redhat-ods-operator
