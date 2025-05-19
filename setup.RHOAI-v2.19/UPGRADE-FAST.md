@@ -46,3 +46,10 @@ with the actual value on your cluster:
 ```sh
 oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kpzzl
 ```
+
+After the upgraded operator pod is running in the `redhat-ods-operator` namespace, delete the
+`kueue-metrics-service` from the `redhat-ods-applications` namespace and let the operator recreate it.
+This removes port `8080`, which is no longer used.
+```sh
+oc delete service kueue-metrics-service -n redhat-ods-applications
+```
