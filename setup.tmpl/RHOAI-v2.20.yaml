@@ -1,0 +1,7 @@
+# Values for RHOAI 2.20
+
+RHOAI: true
+VERSION: RHOAI-v2.20
+VERSION_NUMBER: 2.20.0
+KUBECTL: oc
+FAIRSHARE: true
