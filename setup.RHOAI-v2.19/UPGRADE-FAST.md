@@ -18,19 +18,18 @@ install-kpzzl   rhods-operator.2.19.0   Manual     false
 install-nqrbp   rhods-operator.2.18.0   Manual     true
 ```
 
-Before approving the upgrade, you must manually remove v1alpha1 MultiKueue CRD's
+Assuming the install plan exists you can begin the upgrade process.
+
+As part of the upgrade, you must manually remove v1alpha1 MultiKueue CRD's
 from your cluster. These CRDs were replaced by v1beta1 versions in the Kueue 0.9 release,
 but the RHOAI operator will not automatically remove CRDs.
-Ensure you have no instances:
+
+First, ensure that you have no instances:
 ```sh
 kubectl get multikueueclusters.kueue.x-k8s.io --all-namespaces
 kubectl get multikueueconfigs.kueue.x-k8s.io --all-namespaces
 ```
-Delete all any instances.  Then delete the CRDs
-```sh
-kubectl delete crd multikueueclusters.kueue.x-k8s.io
-kubectl delete crd multikueueconfigs.kueue.x-k8s.io
-```
+If you do have any instances, delete them before proceeding.
 
 Next, update the MLBatch modifications to the default RHOAI configuration maps and subscription.
 ```sh
@@ -41,15 +40,21 @@ oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-fast-subscription.yaml
 oc apply -f setup.RHOAI-v2.19/mlbatch-network-policy.yaml
 ```
 
-Finally, you can approve the install plan replacing the example plan name below
+Next, you can approve the install plan replacing the example plan name below
 with the actual value on your cluster:
 ```sh
 oc patch ip -n redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}' install-kpzzl
 ```
 
-After the upgraded operator pod is running in the `redhat-ods-operator` namespace, delete the
-`kueue-metrics-service` from the `redhat-ods-applications` namespace and let the operator recreate it.
-This removes port `8080`, which is no longer used.
+After the upgraded operator pod is running in the `redhat-ods-operator` namespace,
+delete the v1alpha1 MultiKueue CRDs (this will enable the operator to proceed with updating Kueue).
+```sh
+kubectl delete crd multikueueclusters.kueue.x-k8s.io
+kubectl delete crd multikueueconfigs.kueue.x-k8s.io
+```
+
+Finally, delete the `kueue-metrics-service` from the `redhat-ods-applications` namespace and
+let the operator recreate it. This removes port `8080`, which is no longer used.
 ```sh
 oc delete service kueue-metrics-service -n redhat-ods-applications
 ```
