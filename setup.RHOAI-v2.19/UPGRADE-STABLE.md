@@ -37,7 +37,7 @@ Next, update the MLBatch modifications to the default RHOAI configuration maps a
 oc delete cm mlbatch-kuberay -n redhat-ods-operator
 oc delete cm mlbatch-codeflare -n redhat-ods-operator
 oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-configmaps.yaml
-oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-fast-subscription.yaml
+oc apply -f setup.RHOAI-v2.19/mlbatch-upgrade-stable-subscription.yaml
 oc apply -f setup.RHOAI-v2.19/mlbatch-network-policy.yaml
 ```
 
