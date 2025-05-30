@@ -270,3 +270,22 @@ tests:
   asserts:
   - matchSnapshot:
     path: spec.components[0].template
+
+- it: Harmless environment variables can be set when topologyFileConfigMap is provided
+  set:
+    topologyFileConfigMap: nvidia-topo-gdr
+    environmentVariables:
+    - name: EXAMPLE_VAR1
+      value: 42
+  asserts:
+  - matchSnapshot:
+    path: spec.components[0].template
+
+- it: NCCL_TOPO_FILE environment variables cannot be set when topologyFileConfigMap is provided
+  set:
+    topologyFileConfigMap: nvidia-topo-gdr
+    environmentVariables:
+    - name: NCCL_TOPO_FILE
+      value: myFile
+  asserts:
+  - failedTemplate: {}

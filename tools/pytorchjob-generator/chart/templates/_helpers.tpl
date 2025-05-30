@@ -90,6 +90,12 @@ env:
           fieldPath: metadata.labels['sakkara.member.rank']
     {{- end }}
     {{- if .Values.topologyFileConfigMap }}
+      {{- range $variable := .Values.environmentVariables }}
+      {{- if eq $variable.name "NCCL_TOPO_FILE" }}
+        {{ required "If topologyFileConfigMap is defined, environment variables must not define NCCL_TOPO_FILE" nil }}
+      {{- end }}
+    {{- end }}
+    # Put the path to virtualTopology.xml file that was volume-mounted into the expected environment variable for CUDA
     - name: NCCL_TOPO_FILE
       value: /var/run/nvidia-topologyd/virtualTopology.xml
     {{- end }}
