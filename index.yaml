@@ -3,6 +3,16 @@ entries:
   pytorchjob-generator:
   - apiVersion: v2
     appVersion: v1beta2
+    created: "2025-05-30T21:22:20.361448262Z"
+    description: An AppWrapper generator for PyTorchJobs
+    digest: 5870f55ab86f08c565b9f8539ebadfc86b45f176da6bc2de223187186d271466
+    name: pytorchjob-generator
+    type: application
+    urls:
+    - pytorchjob-generator-1.1.10.tgz
+    version: 1.1.10
+  - apiVersion: v2
+    appVersion: v1beta2
     created: "2025-04-17T15:21:49.560503007Z"
     description: An AppWrapper generator for PyTorchJobs
     digest: f337335a00711773647ad4badc94bf0fbd223d475f7c15c046da2b294dbea883
@@ -122,4 +132,4 @@ entries:
     urls:
     - sakkara-scheduler-0.0.1.tgz
     version: 0.0.1
-generated: "2025-04-17T15:21:49.560549655Z"
+generated: "2025-05-30T21:22:20.361501972Z"
