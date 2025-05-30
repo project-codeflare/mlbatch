@@ -4,7 +4,7 @@ Adding Volume Mounts:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -160,7 +160,7 @@ Adding initContainers:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -322,7 +322,7 @@ AppWrapper metadata should match snapshot:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -458,7 +458,7 @@ AppWrapper spec should match snapshot:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -594,7 +594,7 @@ Enabling NVMe:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -760,7 +760,7 @@ Enabling RoCE GDR:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -930,7 +930,7 @@ Enabling all advanced features at once:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -1204,7 +1204,7 @@ Enabling sshGitConfig injects the envvars, volumes, and volumeMounts:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -1368,7 +1368,7 @@ Harmless environment variables can be set when topologyFileConfigMap is provided
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -1522,7 +1522,7 @@ scheduler can be set:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
@@ -1672,7 +1672,7 @@ user-defined environment variables:
     kind: AppWrapper
     metadata:
       annotations:
-        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.9
+        workload.codeflare.dev.mlbatch/pytorchGeneratorVersion: 1.1.10
       labels:
         kueue.x-k8s.io/queue-name: default-queue
       name: my-job
