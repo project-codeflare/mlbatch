@@ -114,9 +114,7 @@ AI configuration as follows:
 {{- if (eq .VERSION "RHOAI-v2.16") }}
   - `LendingLimit` feature gate is enabled,
 {{- end }}
-{{- if .FAIRSHARE }}
   - `fairSharing` is enabled,
-{{- end }}
   - `enableClusterQueueResources` metrics is enabled,
 - Codeflare operator:
   - the AppWrapper controller is enabled and configured as follows:
@@ -173,9 +171,7 @@ operators as follows:
   - `manageJobsWithoutQueueName` is enabled and configured via `managedJobsNamespaceSelector` to be
      scoped to only namespaces that are labeled with `mlbatch-team-namespace=true`.
   - `waitForPodsReady` is disabled,
-{{- if .FAIRSHARE }}
   - `fairSharing` is enabled,
-{{- end }}
   - `enableClusterQueueResources` metrics is enabled,
 - AppWrapper operator:
   - `userRBACAdmissionCheck` is disabled,

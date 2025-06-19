@@ -3,4 +3,3 @@
 RHOAI: false
 VERSION: k8s
 KUBECTL: kubectl
-FAIRSHARE: true
