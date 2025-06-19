@@ -27,6 +27,8 @@ docs: gotmpl
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.19/TEAM-SETUP.md -values RHOAI-v2.19.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.20/CLUSTER-SETUP.md -values RHOAI-v2.20.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.20/TEAM-SETUP.md -values RHOAI-v2.20.yaml
+	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.RHOAI-v2.21/CLUSTER-SETUP.md -values RHOAI-v2.21.yaml
+	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.RHOAI-v2.21/TEAM-SETUP.md -values RHOAI-v2.21.yaml
 	../tools/gotmpl/gotmpl -input ./CLUSTER-SETUP.md.tmpl -output ../setup.k8s/CLUSTER-SETUP.md -values Kubernetes.yaml
 	../tools/gotmpl/gotmpl -input ./TEAM-SETUP.md.tmpl -output ../setup.k8s/TEAM-SETUP.md -values Kubernetes.yaml
 
