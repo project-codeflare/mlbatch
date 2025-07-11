@@ -42,6 +42,10 @@
             { "type": "null" },
             { "type": "array" }
         ]},
+        "envFrom": { "oneOf": [
+            { "type": "null" },
+            { "type": "array" }
+        ]},
         "sshGitCloneConfig": { "oneOf": [
             { "type": "null" },
             {
