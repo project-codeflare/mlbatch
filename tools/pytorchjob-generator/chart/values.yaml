@@ -101,6 +101,23 @@ environmentVariables:
 #         name: configmap-name
 #         key: configmap-key
 
+
+# -- (array) List of ConfigMaps or Secrets specifying environment variables.  See
+# [values.yaml](values.yaml) for examples of supported syntaxes.
+#
+# NOTE: the environmentVariables field takes precedence over envFrom. mlbatch also performs some
+# automatic checks on the environmentVariables passed by the user, such as checking that the user
+# does not specify NCCL_TOPO_FILE when topologyFileConfigMap is also provided.  These checks are
+# *not* performed on any environment variables inherited from envFrom.
+# @section -- Workload Specification
+envFrom:
+#    - secretRef
+#      name: my-secrets
+#    - secretRef
+#      name: my-other-secrets
+#    - configMapRef
+#      name: my-config-map
+
 # Private GitHub clone support.
 #
 #    0) Create a secret and configMap to enable Private GitHub cloning as documented for your organization.
