@@ -116,10 +116,6 @@ spec:
                                       {{- include "mlbatch.volumes" . | indent 38 }}
                                       containers:
                                           - name: pytorch
-                                            {{- if .Values.envFrom }}
-                                            envFrom:
-                                            {{- toYaml .Values.envFrom | nindent 46 }}
-                                            {{- end }}
                                             image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
                                             imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                                             {{- include "mlbatch.securityContext" . | indent 44 }}
@@ -143,10 +139,6 @@ spec:
                                       {{- include "mlbatch.volumes" . | indent 38 }}
                                       containers:
                                           - name: pytorch
-                                            {{- if .Values.envFrom }}
-                                            envFrom:
-                                            {{- toYaml .Values.envFrom | nindent 46 }}
-                                            {{- end }}
                                             image: {{ required "Please specify a 'containerImage' in the user file" .Values.containerImage }}
                                             imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
                                             {{- include "mlbatch.securityContext" . | indent 44 }}
