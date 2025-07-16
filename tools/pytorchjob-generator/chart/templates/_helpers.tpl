@@ -76,10 +76,17 @@ resources:
 
 
 {{- define "mlbatch.env" }}
+{{- $envFromList := list }}
+{{- if .Values.envFrom }}
+  {{- $envFromList = .Values.envFrom }}
+{{- end }}
 {{- if .Values.ncclGdrEnvConfigMap }}
+  {{- $configMapRef := dict "configMapRef" (dict "name" .Values.ncclGdrEnvConfigMap) }}
+  {{- $envFromList = append $envFromList $configMapRef }}
+{{- end }}
+{{- if $envFromList }}
 envFrom:
-  - configMapRef:
-      name: {{ .Values.ncclGdrEnvConfigMap }}
+{{- toYaml $envFromList | nindent 2 }}
 {{- end }}
 {{- if or .Values.environmentVariables .Values.sshGitCloneConfig .Values.mountNVMe .Values.topologyFileConfigMap ( eq .Values.schedulerName "sakkara" ) }}
 env:
