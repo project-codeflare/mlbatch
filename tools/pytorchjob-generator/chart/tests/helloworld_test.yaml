@@ -177,6 +177,21 @@ tests:
     - name: arbitrary-name-1
       claimName: name-matching-another-actual-PersistentVolumeClaim
       mountPath: /path/to/where/you/want/to/find/your/data-redux
+    - name: whole-secret
+      mountPath: /run/whole-secret
+      secret:
+        secretName: my-secret
+    - name: secret-with-items
+      mountPath: /run/secrets/.mc
+      secret:
+        secretName: my-cos-config
+        items:
+        - key: config.json
+          path: config.json
+    - name: configmap-vol
+      mountPath: /etc/cfg
+      configMap:
+        name: my-configmap
   asserts:
   - matchSnapshot:
     path: spec.components[0].template

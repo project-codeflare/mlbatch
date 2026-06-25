@@ -255,8 +255,16 @@ volumes:
     {{- end }}
     {{- range $volume := .Values.volumes }}
     - name: {{ required "Missing 'name' in 'volumes' list element" $volume.name }}
+      {{- if $volume.claimName }}
       persistentVolumeClaim:
-          claimName: {{ required "Missing 'claimName' in 'volumes' list element" $volume.claimName }}
+          claimName: {{ $volume.claimName }}
+      {{- else }}
+      {{- $source := omit $volume "name" "mountPath" }}
+      {{- if not $source }}
+      {{ required "A 'volumes' list element needs 'claimName' or a volume source (e.g. 'secret', 'configMap', ...)" nil }}
+      {{- end }}
+      {{- toYaml $source | nindent 6 }}
+      {{- end }}
     {{- end }}
     {{- if .Values.sshGitCloneConfig }}
     - name: private-ssh-git-deploy-key

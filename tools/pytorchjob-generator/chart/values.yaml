@@ -156,16 +156,28 @@ setupCommands: # <optional, default=[]>
 # @section -- Workload Specification
 mainProgram: # <optional, default="">
 
-# -- (array) List of "(name, claimName, mountPath)" of volumes, with persistentVolumeClaim, to be mounted to the infrastructure
+# -- (array) List of volumes to mount, each with a 'name', a 'mountPath', and a volume source. The 'claimName' shorthand mounts a PersistentVolumeClaim. For any other source, give the volume source verbatim as a [Kubernetes volume](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types) field (e.g. 'secret', 'configMap', 'emptyDir', ...).
 # @default -- No volumes are mounted
 # @section -- Workload Specification
 volumes:
-#    - name: arbitrary-name-0
+#    - name: arbitrary-name-0  # 'claimName' shorthand for a PersistentVolumeClaim
 #      claimName: name-matching-the-actual-PersistentVolumeClaim
 #      mountPath: /path/to/where/you/want/to/find/your/data
-#    - name: arbitrary-name-1
-#      claimName: name-matching-another-actual-PersistentVolumeClaim
+#    - name: arbitrary-name-1  # the same, given as a verbose volume source
+#      mountPath: /path/to/where/you/want/to/find/your/data-redux
+#      persistentVolumeClaim:
+#        claimName: name-matching-another-actual-PersistentVolumeClaim
+#    - name: arbitrary-name-2  # mount a configMap
 #      mountPath: /path/to/where/you/want/to/find/your/data
+#      configMap:
+#        name: name-matching-the-actual-ConfigMap
+#    - name: arbitrary-name-3  # mount only selected keys of a secret
+#      mountPath: /path/to/where/you/want/to/find/your/data
+#      secret:
+#        secretName: name-matching-the-actual-Secret
+#        items:
+#          - key: config.json
+#            path: config.json
 
 # ------------------------------------------------------------------------------------------------
 # Advanced options begin here

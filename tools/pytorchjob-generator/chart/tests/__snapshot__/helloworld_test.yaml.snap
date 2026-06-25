@@ -72,6 +72,12 @@ Adding Volume Mounts:
                               name: arbitrary-name-0
                             - mountPath: /path/to/where/you/want/to/find/your/data-redux
                               name: arbitrary-name-1
+                            - mountPath: /run/whole-secret
+                              name: whole-secret
+                            - mountPath: /run/secrets/.mc
+                              name: secret-with-items
+                            - mountPath: /etc/cfg
+                              name: configmap-vol
                             - mountPath: /dev/shm
                               name: dshm
                       imagePullSecrets: []
@@ -83,6 +89,18 @@ Adding Volume Mounts:
                         - name: arbitrary-name-1
                           persistentVolumeClaim:
                             claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - name: whole-secret
+                          secret:
+                            secretName: my-secret
+                        - name: secret-with-items
+                          secret:
+                            items:
+                              - key: config.json
+                                path: config.json
+                            secretName: my-cos-config
+                        - configMap:
+                            name: my-configmap
+                          name: configmap-vol
                         - emptyDir:
                             medium: Memory
                           name: dshm
@@ -140,6 +158,12 @@ Adding Volume Mounts:
                               name: arbitrary-name-0
                             - mountPath: /path/to/where/you/want/to/find/your/data-redux
                               name: arbitrary-name-1
+                            - mountPath: /run/whole-secret
+                              name: whole-secret
+                            - mountPath: /run/secrets/.mc
+                              name: secret-with-items
+                            - mountPath: /etc/cfg
+                              name: configmap-vol
                             - mountPath: /dev/shm
                               name: dshm
                       imagePullSecrets: []
@@ -151,6 +175,18 @@ Adding Volume Mounts:
                         - name: arbitrary-name-1
                           persistentVolumeClaim:
                             claimName: name-matching-another-actual-PersistentVolumeClaim
+                        - name: whole-secret
+                          secret:
+                            secretName: my-secret
+                        - name: secret-with-items
+                          secret:
+                            items:
+                              - key: config.json
+                                path: config.json
+                            secretName: my-cos-config
+                        - configMap:
+                            name: my-configmap
+                          name: configmap-vol
                         - emptyDir:
                             medium: Memory
                           name: dshm
