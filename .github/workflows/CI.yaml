@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: false
 
@@ -20,12 +20,12 @@ jobs:
         echo "TAG=$GITHUB_RUN_ID" >> $GITHUB_ENV
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
     - name: Install Helm
-      uses: azure/setup-helm@v4
+      uses: azure/setup-helm@v5
 
     - name: Install Helm unittest plugin
       run: |
